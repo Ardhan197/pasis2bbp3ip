@@ -763,7 +763,10 @@ function doPost(e) {
                 <div class="relative z-10 flex items-start gap-5">
                     <div id="setoran-avatar" class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center font-bold text-2xl">A</div>
                     <div class="flex-1">
-                        <h2 id="setoran-nama" class="text-2xl font-bold tracking-tight mb-1">Nama Pasis</h2>
+                        <div class="flex items-center gap-3 mb-1">
+                            <h2 id="setoran-nama" class="text-2xl font-bold tracking-tight">Nama Pasis</h2>
+                            <span id="setoran-status-label" class="text-[10px] px-2 py-0.5 rounded-md font-semibold border uppercase tracking-wider"></span>
+                        </div>
                         <div class="flex flex-wrap items-center gap-2 mt-2">
                             <div class="flex items-center gap-1.5 text-brand-100/80 text-sm bg-black/20 px-3 py-1 rounded-full border border-white/10"><i class="ph ph-phone text-brand-400"></i> <span id="setoran-nohp">08xx</span></div>
                             <div class="flex items-center gap-1.5 text-brand-100/80 text-sm bg-black/20 px-3 py-1 rounded-full border border-white/10"><i class="ph ph-bank text-brand-400"></i> <span id="setoran-bank">Info Bank</span></div>
@@ -1479,6 +1482,8 @@ function doPost(e) {
                 let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold shadow-sm">${initials}</div>`;
                 let tglText = ''; if(row.tgl_bayar) { const d = new Date(row.tgl_bayar); tglText = !isNaN(d.getTime()) ? d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : row.tgl_bayar; }
 
+                let statusAktifBadge = isCuti ? `<span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-semibold border border-slate-200">Cuti</span>` : `<span class="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded font-semibold border border-emerald-100">Aktif</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/80 transition-all-custom group cursor-pointer'; tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; 
                 tr.style.transitionDelay = `${relativeIndex * 20}ms`; 
@@ -1494,7 +1499,7 @@ function doPost(e) {
                 `; }
                 
                 tr.innerHTML = `
-                    <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${row.originalIndex + 1}.</span>${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
+                    <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${row.originalIndex + 1}.</span>${avatarHtml}<div><div class="flex items-center gap-2"><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p>${statusAktifBadge}</div><p class="text-xs text-slate-500 mt-0.5"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
                     <td class="p-4 text-slate-600 text-xs"><p class="font-bold">${(row.bank||'-').toUpperCase()}</p><p class="font-mono text-slate-500">${row.norek||'-'}</p></td>
                     <td class="p-4 w-48"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Terkumpul:</span> <span class="font-bold text-slate-700">${persen}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 mb-1 overflow-hidden"><div class="${progressColor} h-1.5 rounded-full" style="width: ${persen}%"></div></div><div class="text-[10px] text-slate-400 text-right">${formatRp(dibayar)} / ${formatRp(globalTargetTagihan)}</div>${tglText ? `<div class="text-[10px] text-slate-500 font-medium mt-1"><i class="ph ph-clock-counter-clockwise"></i> ${tglText}</div>` : ''}</td>
                     <td class="p-4 text-xs font-medium">${statusBadge}</td>
@@ -1719,12 +1724,22 @@ function doPost(e) {
 
             document.getElementById('setoran-tagihan').textContent = formatRp(globalTargetTagihan); document.getElementById('setoran-dibayar').textContent = formatRp(row.dibayar);
             const dibayar = parseNominal(row.dibayar); const badge = document.getElementById('setoran-badge');
-            let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
             
-            if(isCuti) { badge.textContent='CUTI'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700'; }
-            else if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
-            else if(dibayar>0){ badge.textContent='CICILAN'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700'; }
-            else { badge.textContent='BELUM BAYAR'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-700'; }
+            let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
+            const statusLabel = document.getElementById('setoran-status-label');
+            
+            if(isCuti) { 
+                statusLabel.textContent = 'Cuti';
+                statusLabel.className = 'text-[10px] px-2 py-0.5 rounded-md font-semibold border border-white/20 bg-black/20 text-white uppercase tracking-wider';
+                badge.textContent='CUTI'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700'; 
+            }
+            else {
+                statusLabel.textContent = 'Aktif';
+                statusLabel.className = 'text-[10px] px-2 py-0.5 rounded-md font-semibold border border-emerald-400/30 bg-emerald-500/20 text-emerald-300 uppercase tracking-wider';
+                if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
+                else if(dibayar>0){ badge.textContent='CICILAN'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700'; }
+                else { badge.textContent='BELUM BAYAR'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-700'; }
+            }
 
             // Tombol Kirim Pengingat Tagihan via WA
             const btnWA = document.getElementById('btn-wa-card');
