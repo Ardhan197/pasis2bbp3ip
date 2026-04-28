@@ -225,9 +225,11 @@
                         <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3">Data Administrasi Pasis <span id="total-pasis-badge" class="text-xs font-bold bg-brand-100 text-brand-700 py-1 px-3 rounded-full shadow-sm">0 Data</span></h2>
                         <p class="text-slate-500 mt-1 flex items-center gap-2">Database: <span id="sync-status" class="text-xs font-medium text-slate-400">Menunggu...</span></p>
                     </div>
-                    <div class="flex gap-3 w-full sm:w-auto">
-                        <button onclick="fetchDataDariGoogleSheets()" class="btn-press flex-1 sm:flex-none flex justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-medium text-sm"><i class="ph ph-arrows-clockwise text-lg"></i> Refresh</button>
-                        <button onclick="bukaModalTambah()" class="admin-only hidden-role btn-press flex-1 sm:flex-none flex justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm"><i class="ph ph-plus text-lg"></i> Tambah Data</button>
+                    <div class="flex gap-2 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-2 sm:pb-0">
+                        <!-- Fitur 2: Tombol Broadcast -->
+                        <button onclick="bukaModalBroadcast()" class="admin-only hidden-role btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-medium text-sm shadow-sm"><i class="ph ph-broadcast text-lg"></i> Broadcast Tagihan</button>
+                        <button onclick="fetchDataDariGoogleSheets()" class="btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-medium text-sm"><i class="ph ph-arrows-clockwise text-lg"></i> Refresh</button>
+                        <button onclick="bukaModalTambah()" class="admin-only hidden-role btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm"><i class="ph ph-plus text-lg"></i> Tambah</button>
                     </div>
                 </div>
 
@@ -342,7 +344,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-slate-900">Google Apps Script (Backend)</h3>
-                                    <p class="text-xs text-slate-500">Salin kode ini ke editor Apps Script Google Sheets Anda.</p>
+                                    <p class="text-xs text-slate-500">Salin ulang kode ini ke editor Apps Script Google Sheets Anda (Telah Diperbarui).</p>
                                 </div>
                             </div>
                             <button id="copy-script-btn" class="btn-press flex items-center gap-2 bg-brand-50 text-brand-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-100 transition-all-custom focus:outline-none">
@@ -477,6 +479,21 @@ function doPost(e) {
           return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
         } else { throw new Error("Data tidak ditemukan."); }
       }
+    }
+    
+    if (payload.action === 'delete_pasis') {
+      var sheet = getSheetSafe("Data Pasis");
+      var data = sheet.getDataRange().getDisplayValues();
+      var nohpIndex = -1;
+      for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; } }
+      if(nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
+      
+      var rowIndex = -1;
+      for(var r = 1; r < data.length; r++) { if(data[r][nohpIndex] == payload.data.nohp) { rowIndex = r + 1; break; } }
+      if (rowIndex > -1) {
+        sheet.deleteRow(rowIndex);
+        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+      } else { throw new Error("Pasis tidak ditemukan."); }
     }
 
     // --- AKSI PENGELUARAN ---
@@ -761,6 +778,22 @@ function doPost(e) {
         </div>
     </div>
 
+    <!-- MODAL BROADCAST TAGIHAN -->
+    <div id="modal-broadcast" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[75] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-broadcast-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-emerald-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600"><i class="ph-fill ph-broadcast text-xl"></i></div>
+                    <div><h3 class="font-bold text-slate-900">Broadcast Tagihan</h3><p class="text-xs text-slate-500">Daftar Pasis Belum Lunas</p></div>
+                </div>
+                <button id="close-broadcast-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar" id="broadcast-list">
+                <!-- Daftar Pasis yang belum lunas akan dirender di sini via JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT UTAMA KESELURUHAN -->
     <script>
         const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec'; 
@@ -840,7 +873,8 @@ function doPost(e) {
         async function fetchDataBackground() {
             const modalOpen = !document.getElementById('global-modal').classList.contains('hidden') || 
                               !document.getElementById('modal-bayar').classList.contains('hidden') || 
-                              !document.getElementById('modal-pengeluaran').classList.contains('hidden');
+                              !document.getElementById('modal-pengeluaran').classList.contains('hidden') ||
+                              !document.getElementById('modal-broadcast').classList.contains('hidden');
             if (modalOpen) return;
 
             try {
@@ -1097,7 +1131,6 @@ function doPost(e) {
                         globalTargetTagihan = val; localStorage.setItem('globalTargetNexus', val);
                         if(window.pasisDataGlobal.length > 0) { renderTabelPasis(window.pasisDataGlobal); perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal); }
                         
-                        // Kirim ke DB Jika Admin
                         if(userRole === 'admin' && !GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) {
                             showToast('Menyimpan Target Tagihan ke Database...');
                             try {
@@ -1122,7 +1155,7 @@ function doPost(e) {
                 toastTimeout = setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
             };
 
-            const modalTypes = ['modal', 'bayar', 'pengeluaran'];
+            const modalTypes = ['modal', 'bayar', 'pengeluaran', 'broadcast'];
             modalTypes.forEach(mType => {
                 const m = document.getElementById(mType==='modal'?'global-modal':`modal-${mType}`);
                 const mc = document.getElementById(mType==='modal'?'modal-content':`modal-${mType}-content`);
@@ -1240,6 +1273,70 @@ function doPost(e) {
 
             fetchDataDariGoogleSheets();
         });
+
+        // --- FITUR 4: CETAK KUITANSI DIGITAL ---
+        window.cetakKuitansi = function(nama, nominal, tanggal, statusText) {
+            showToast('Menyiapkan Kuitansi Digital...');
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 800; canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            // Background Putih
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 800, 400);
+
+            // Banner Atas
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, 800, 80);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px sans-serif';
+            ctx.fillText(`${globalAppName} - BUKTI PEMBAYARAN`, 40, 50);
+
+            // Watermark (Miring)
+            ctx.globalAlpha = 0.05; ctx.font = 'bold 90px sans-serif'; ctx.fillStyle = '#14b8a6';
+            ctx.translate(400, 200); ctx.rotate(-Math.PI / 6);
+            ctx.textAlign = 'center'; ctx.fillText('KUITANSI SAH', 0, 0);
+            ctx.rotate(Math.PI / 6); ctx.translate(-400, -200);
+            ctx.globalAlpha = 1.0; ctx.textAlign = 'left';
+
+            // Garis Pembatas
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(40, 280); ctx.lineTo(760, 280); ctx.stroke();
+
+            // Konten Data
+            ctx.fillStyle = '#64748b'; ctx.font = '18px sans-serif';
+            ctx.fillText('Telah Diterima Dari :', 40, 130);
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 24px sans-serif';
+            ctx.fillText(nama, 250, 130);
+
+            ctx.fillStyle = '#64748b'; ctx.font = '18px sans-serif';
+            ctx.fillText('Tanggal Setoran       :', 40, 180);
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 22px sans-serif';
+            ctx.fillText(tanggal, 250, 180);
+
+            ctx.fillStyle = '#64748b'; ctx.font = '18px sans-serif';
+            ctx.fillText('Keterangan              :', 40, 230);
+            ctx.fillStyle = '#0f172a'; ctx.font = '22px sans-serif';
+            ctx.fillText(`Iuran Kas/Administrasi Pasis (${statusText})`, 250, 230);
+
+            // Kotak Nominal
+            ctx.fillStyle = '#f0fdfa'; ctx.fillRect(40, 310, 300, 60);
+            ctx.strokeStyle = '#14b8a6'; ctx.lineWidth = 2; ctx.strokeRect(40, 310, 300, 60);
+            ctx.fillStyle = '#0d9488'; ctx.font = 'bold 30px sans-serif';
+            ctx.fillText(nominal, 60, 350);
+
+            // Tanda Tangan
+            ctx.fillStyle = '#64748b'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('Bendahara Kelas', 650, 330);
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 20px sans-serif';
+            ctx.fillText(globalAdminName, 650, 360);
+
+            // Proses Download File Gambar
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = `Kuitansi_${nama.replace(/\s+/g,'_')}_${tanggal.replace(/\s+/g,'_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }, 500);
+        }
 
         // --- DASHBOARD RENDER ---
         function perbaruiDashboard(dataPasis, dataPengeluaran) {
@@ -1364,7 +1461,13 @@ function doPost(e) {
                 tr.setAttribute('onclick', `window.bukaModalSetoran(${row.originalIndex})`);
                 
                 let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${row.originalIndex})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
-                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${row.originalIndex})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>`; }
+                
+                // Fitur 6: Tambahan Tombol Hapus Pasis di Sini
+                if (isAdmin) { actionButtons += `
+                    <button onclick="event.stopPropagation(); window.bukaModalBayar(${row.originalIndex})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button>
+                    <button onclick="event.stopPropagation(); window.bukaModalEdit(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>
+                    <button onclick="event.stopPropagation(); window.hapusPasis(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg ml-1" title="Hapus Pasis"><i class="ph ph-trash text-lg"></i></button>
+                `; }
                 
                 tr.innerHTML = `
                     <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${row.originalIndex + 1}.</span>${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
@@ -1376,7 +1479,6 @@ function doPost(e) {
                 tableBody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (relativeIndex * 20));
             });
 
-            // Update Info & Tombol Pagination
             document.getElementById('pasis-page-info').textContent = `Menampilkan ${startIdx + 1}-${Math.min(endIdx, filteredData.length)} dari ${filteredData.length}`;
             document.getElementById('btn-prev-pasis').disabled = currentPasisPage === 1;
             document.getElementById('btn-next-pasis').disabled = currentPasisPage === totalPages;
@@ -1420,10 +1522,30 @@ function doPost(e) {
                 tbody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (idx * 20));
             });
 
-            // Update Info & Tombol Pagination
             document.getElementById('pengeluaran-page-info').textContent = `Menampilkan ${startIdx + 1}-${Math.min(endIdx, sortedData.length)} dari ${sortedData.length}`;
             document.getElementById('btn-prev-pengeluaran').disabled = currentPengeluaranPage === 1;
             document.getElementById('btn-next-pengeluaran').disabled = currentPengeluaranPage === totalPages;
+        }
+
+        // --- FITUR 6: HAPUS DATA PASIS ---
+        window.hapusPasis = async function(index) {
+            if(userRole !== 'admin') return;
+            const row = window.pasisDataGlobal[index];
+            const konfirmasi = prompt(`PERINGATAN: Anda akan menghapus data Pasis beserta riwayat setorannya.\n\nKetik kata "HAPUS" untuk menghapus data ${row.nama} :`);
+            
+            if(konfirmasi !== 'HAPUS') { 
+                if(konfirmasi !== null) showToast('Konfirmasi salah, penghapusan dibatalkan.'); 
+                return; 
+            }
+            
+            showToast(`Menghapus data ${row.nama}...`);
+            try {
+                const payload = { action: 'delete_pasis', data: { nohp: row.nohp } };
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                const json = await res.json();
+                if(json.status === 'success') { showToast('Data berhasil dihapus dari Database.'); fetchDataDariGoogleSheets(); } 
+                else showToast('Gagal menghapus.');
+            } catch(e) { showToast('Gagal koneksi server.'); }
         }
 
         // --- HAPUS PENGELUARAN ---
@@ -1437,6 +1559,39 @@ function doPost(e) {
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus.');
             } catch(e) { showToast('Gagal koneksi server.'); }
+        }
+        
+        // --- FITUR 2: BROADCAST TAGIHAN ---
+        window.bukaModalBroadcast = function() {
+            if (userRole !== 'admin') return;
+            
+            // Filter pasis yang belum lunas dan punya no hp
+            const pendingList = window.pasisDataGlobal.filter(p => parseNominal(p.dibayar) < globalTargetTagihan && p.nohp && p.nohp.trim() !== '');
+            const listContainer = document.getElementById('broadcast-list');
+            listContainer.innerHTML = '';
+
+            if (pendingList.length === 0) {
+                listContainer.innerHTML = `<div class="py-8 flex flex-col items-center justify-center text-slate-400 opacity-70"><i class="ph-fill ph-check-circle text-4xl mb-2 text-emerald-400"></i><p class="text-sm">Hore! Semua Pasis sudah Lunas / Tidak ada yang bisa ditagih.</p></div>`;
+            } else {
+                pendingList.forEach(p => {
+                    const sisa = globalTargetTagihan - parseNominal(p.dibayar);
+                    const msg = `Halo *${p.nama}*,\n\nBerikut adalah informasi tagihan iuran administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(p.dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon bantuannya untuk melakukan pelunasan sisa tagihan tersebut.\n\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*`;
+                    const waLink = `https://wa.me/${formatNoHP(p.nohp)}?text=${encodeURIComponent(msg)}`;
+                    
+                    listContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100 mb-3 shadow-sm">
+                            <div>
+                                <p class="font-bold text-sm text-slate-900">${p.nama}</p>
+                                <p class="text-xs font-semibold text-red-500">Sisa Tagihan: ${formatRp(sisa)}</p>
+                            </div>
+                            <a href="${waLink}" target="_blank" class="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] text-white rounded-lg text-xs font-medium hover:bg-[#1DA851] transition-colors shadow-sm"><i class="ph-fill ph-whatsapp-logo text-base"></i> Kirim WA</a>
+                        </div>`;
+                });
+            }
+
+            const m = document.getElementById('modal-broadcast'); 
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); 
+            document.getElementById('modal-broadcast-content').classList.remove('scale-95', 'opacity-0');
         }
 
         // --- FETCH DATA API MULTI-SHEET ---
@@ -1563,7 +1718,11 @@ function doPost(e) {
                     if(parts.length === 2) {
                         let dateStr = parts[0]; let nomStr = formatRp(parts[1]);
                         try { const d = new Date(parts[0]); if(!isNaN(d.getTime())) dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
-                        historyList.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="ph ph-arrow-down-left text-lg"></i></div><div><p class="font-semibold text-sm">Setoran Masuk</p><p class="text-xs text-slate-500">${dateStr}</p></div></div><p class="font-bold text-emerald-600 text-sm">+ ${nomStr}</p></div>`;
+                        
+                        // Fitur 4: Cetak Kuitansi Button 
+                        let btnCetakHtml = `<button onclick="cetakKuitansi('${row.nama.replace(/'/g, "\\'")}', '${nomStr}', '${dateStr}', '${badge.textContent}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-brand-600 rounded-lg transition-colors" title="Download Kuitansi"><i class="ph ph-printer text-lg"></i></button>`;
+
+                        historyList.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="ph ph-arrow-down-left text-lg"></i></div><div><p class="font-semibold text-sm">Setoran Masuk</p><p class="text-xs text-slate-500">${dateStr}</p></div></div><div class="flex items-center gap-4"><p class="font-bold text-emerald-600 text-sm">+ ${nomStr}</p>${btnCetakHtml}</div></div>`;
                     }
                 });
             } else { historyList.innerHTML = `<div class="py-8 flex flex-col items-center justify-center text-slate-400 opacity-70"><i class="ph ph-file-dashed text-4xl mb-2"></i><p class="text-sm">Belum ada riwayat setoran.</p></div>`; }
@@ -1580,6 +1739,18 @@ function doPost(e) {
 
         document.getElementById('close-setoran-btn')?.addEventListener('click', () => { const m = document.getElementById('modal-setoran'); const mc = document.getElementById('modal-setoran-content'); m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 400); });
         document.getElementById('modal-setoran')?.addEventListener('click', (e) => { if(e.target === document.getElementById('modal-setoran')) document.getElementById('close-setoran-btn').click(); });
+
+        // PENYEMPURNAAN: Tutup modal lain saat klik area gelap (backdrop)
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-broadcast'];
+        modalBackdrops.forEach(id => {
+            const el = document.getElementById(id);
+            el?.addEventListener('click', (e) => {
+                if (e.target === el) {
+                    const btnClose = document.getElementById(`close-${id === 'global-modal' ? 'modal' : id.replace('modal-', '')}-btn`);
+                    if(btnClose) btnClose.click();
+                }
+            });
+        });
 
     </script>
 </body>
