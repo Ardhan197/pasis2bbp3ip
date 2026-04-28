@@ -27,6 +27,10 @@
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], },
                     colors: {
                         brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a', 950: '#042f2e', }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'card': '0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04)',
                     }
                 }
             }
@@ -47,26 +51,28 @@
         .btn-press:active { transform: scale(0.96); }
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        /* Elemen Khusus Admin */
         .admin-only.hidden-role { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
 
-    <!-- Overlay Sidebar -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <!-- Overlay Latar Belakang -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-500 cubic-bezier(0.2, 0.8, 0.2, 1)"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 shadow-[20px_0_40px_rgba(0,0,0,0.04)] transform -translate-x-full transition-transform duration-300 flex flex-col lg:relative lg:translate-x-0">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 shadow-[20px_0_40px_rgba(0,0,0,0.04)] transform -translate-x-full transition-transform duration-500 cubic-bezier(0.2, 0.8, 0.2, 1) flex flex-col lg:relative lg:translate-x-0">
         
         <div class="h-20 flex items-center justify-between px-6 border-b border-slate-50">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-brand-950 rounded-xl flex items-center justify-center shadow-md">
                     <i class="ph-fill ph-vault text-white text-xl"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-slate-900">Nexus.</span>
+                <span id="app-name-sidebar" class="text-xl font-bold tracking-tight text-slate-900">Nexus.</span>
             </div>
-            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 transition-all-custom p-2 rounded-lg hover:bg-slate-50 btn-press">
+            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 transition-all-custom p-2 rounded-lg hover:bg-slate-50 cursor-pointer btn-press">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
@@ -90,8 +96,10 @@
             </a>
         </nav>
 
-        <!-- Profil Pengguna (Dinamis) -->
-        <div id="auth-profile-container" class="p-4 border-t border-slate-100"></div>
+        <!-- Profil Pengguna (Dinamis: Penonton/Admin) -->
+        <div id="auth-profile-container" class="p-4 border-t border-slate-100">
+            <!-- Dirender melalui JS -->
+        </div>
     </aside>
 
     <!-- Konten Utama -->
@@ -104,6 +112,7 @@
                 </button>
                 <h1 id="page-title" class="text-xl font-semibold text-slate-800 transition-all-custom">Dashboard Utama</h1>
             </div>
+
             <div class="flex items-center gap-3 sm:gap-5">
                 <button onclick="fetchDataDariGoogleSheets()" class="relative p-2 rounded-full text-slate-500 hover:bg-slate-100 transition-all-custom btn-press hover:text-brand-600" title="Sinkronisasi Data">
                     <i class="ph ph-arrows-clockwise text-xl"></i>
@@ -197,6 +206,21 @@
                     </div>
                 </div>
 
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 justify-between items-center transition-all-custom hover:shadow-md">
+                    <div class="relative w-full sm:w-80 group">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg transition-all-custom group-focus-within:text-brand-500"></i>
+                        <input type="text" placeholder="Cari Nama atau No HP..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all-custom hover:bg-white">
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <select class="w-full sm:w-auto bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2 text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all-custom hover:bg-white cursor-pointer">
+                            <option value="">Semua Status</option>
+                            <option value="Lunas">Lunas</option>
+                            <option value="Cicilan">Cicilan</option>
+                            <option value="Belum">Belum Bayar</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative min-h-[300px]">
                     <div id="table-loading-pasis" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
                         <i class="ph ph-spinner-gap text-4xl text-brand-500 animate-spin mb-2"></i>
@@ -229,6 +253,10 @@
                     <button onclick="bukaModalPengeluaran()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm w-full sm:w-auto"><i class="ph ph-receipt text-lg"></i> Tambah Pengeluaran</button>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative min-h-[300px]">
+                    <div id="table-loading-pengeluaran" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
+                        <i class="ph ph-spinner-gap text-4xl text-brand-500 animate-spin mb-2"></i>
+                        <p class="text-sm font-medium">Sinkronisasi Data...</p>
+                    </div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -251,8 +279,169 @@
                     <h2 class="text-2xl font-bold text-slate-900">Pengaturan Sistem</h2>
                     <p class="text-slate-500 mt-1">Panduan ini hanya tampil bagi Admin yang login.</p>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5 text-sm text-slate-600">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Kartu Kode Script (Ditambahkan Kembali) -->
+                    <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col transition-all-custom hover:shadow-md">
+                        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-[#0F9D58]/10 flex items-center justify-center text-[#0F9D58]">
+                                    <i class="ph-fill ph-file-csv text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-900">Google Apps Script (Backend)</h3>
+                                    <p class="text-xs text-slate-500">Salin kode ini ke editor Apps Script Google Sheets Anda.</p>
+                                </div>
+                            </div>
+                            <button id="copy-script-btn" class="btn-press flex items-center gap-2 bg-brand-50 text-brand-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-100 transition-all-custom focus:outline-none">
+                                <i class="ph ph-copy text-lg"></i> <span class="hidden sm:inline">Salin Kode</span>
+                            </button>
+                        </div>
+                        
+                        <div class="p-6 bg-slate-900 flex-1 relative group">
+                            <div class="absolute top-4 right-4 flex gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                            </div>
+                            <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
+ * API BACKEND NEXUS (PASIS + PENGELUARAN + PENGATURAN)
+ */
+
+function getSheetSafe(name) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error("Koneksi ditolak. Pastikan kode ini di-paste di menu Ekstensi > Apps Script dari dalam Google Sheets Anda.");
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) throw new Error("Tab '" + name + "' tidak ditemukan.");
+  return sheet;
+}
+
+function sheetToJSON(sheet) {
+  if(!sheet) return [];
+  var data = sheet.getDataRange().getDisplayValues(); 
+  if(data.length < 2) return [];
+  var headers = data[0];
+  return data.slice(1).map(function(row) {
+    var obj = {};
+    headers.forEach(function(header, index) {
+      obj[header.toString().toLowerCase().trim()] = row[index];
+    });
+    return obj;
+  }).filter(function(r) { 
+     var firstKey = headers[0].toString().toLowerCase().trim();
+     return r[firstKey] && r[firstKey] !== ""; 
+  });
+}
+
+function doGet(e) {
+  try {
+    var result = { status: 'success' };
+    try { result.pasis = sheetToJSON(getSheetSafe("Data Pasis")); } catch(e) { result.pasis = []; }
+    try { result.pengeluaran = sheetToJSON(getSheetSafe("Pengeluaran")); } catch(e) { result.pengeluaran = []; }
+    try { result.pengaturan = sheetToJSON(getSheetSafe("Pengaturan")); } catch(e) { result.pengaturan = []; }
+    
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doPost(e) {
+  try {
+    var payload = JSON.parse(e.postData.contents);
+    
+    // --- AKSI DATA PASIS ---
+    if (payload.action === 'create' || payload.action === 'update') {
+      var sheet = getSheetSafe("Data Pasis");
+      if(!sheet) throw new Error("Sheet 'Data Pasis' tidak ditemukan.");
+      var data = sheet.getDataRange().getDisplayValues();
+      var headers = data[0];
+      
+      if (payload.action === 'create') {
+        var newRow = [];
+        headers.forEach(function(header) {
+          var key = header.toString().toLowerCase().trim();
+          var val = payload.data[key] !== undefined ? payload.data[key] : "";
+          if (val !== "" && (key === 'nohp' || key === 'norek')) val = "'" + val;
+          newRow.push(val);
+        });
+        sheet.appendRow(newRow);
+        return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Berhasil' })).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      if (payload.action === 'update') {
+        var nohpIndex = -1;
+        for(var i = 0; i < headers.length; i++) {
+          if(headers[i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; }
+        }
+        if(nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
+        
+        var targetNohp = payload.data.original_nohp || payload.data.nohp;
+        var rowIndex = -1;
+        for(var r = 1; r < data.length; r++) {
+          if(data[r][nohpIndex] == targetNohp) { rowIndex = r + 1; break; }
+        }
+        
+        if (rowIndex > -1) {
+          headers.forEach(function(header, idx) {
+            var key = header.toString().toLowerCase().trim();
+            if (payload.data[key] !== undefined) {
+              var val = payload.data[key];
+              if (val !== "" && (key === 'nohp' || key === 'norek')) val = "'" + val;
+              sheet.getRange(rowIndex, idx + 1).setValue(val);
+            }
+          });
+          return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Berhasil' })).setMimeType(ContentService.MimeType.JSON);
+        } else {
+          throw new Error("Data dengan No HP " + targetNohp + " tidak ditemukan.");
+        }
+      }
+    }
+
+    // --- AKSI PENGELUARAN ---
+    if (payload.action === 'create_pengeluaran') {
+       var sheet = getSheetSafe("Pengeluaran");
+       if(!sheet) throw new Error("Sheet 'Pengeluaran' tidak ditemukan.");
+       var headers = sheet.getDataRange().getDisplayValues()[0];
+       var newRow = [];
+       headers.forEach(function(header) {
+         var key = header.toString().toLowerCase().trim();
+         var val = payload.data[key] !== undefined ? payload.data[key] : "";
+         if (key === 'id' && val === "") val = new Date().getTime().toString();
+         newRow.push(val);
+       });
+       sheet.appendRow(newRow);
+       return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (payload.action === 'delete_pengeluaran') {
+       var sheet = getSheetSafe("Pengeluaran");
+       if(!sheet) throw new Error("Sheet 'Pengeluaran' tidak ditemukan.");
+       var data = sheet.getDataRange().getDisplayValues();
+       var idIndex = -1;
+       for(var i = 0; i < data[0].length; i++) {
+         if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; }
+       }
+       if(idIndex === -1) throw new Error("Kolom 'id' tidak ditemukan.");
+       var rowIndex = -1;
+       for(var r = 1; r < data.length; r++) {
+         if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; }
+       }
+       if(rowIndex > -1) {
+          sheet.deleteRow(rowIndex);
+          return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+       } else { throw new Error("Pengeluaran tidak ditemukan."); }
+    }
+
+    throw new Error("Action tidak valid.");
+  } catch (err) {
+     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5 text-sm text-slate-600">
                         <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2"><i class="ph-fill ph-info text-brand-500 text-xl"></i> Struktur Database (Sheets)</h3>
                         <div class="relative pl-8">
                             <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
@@ -267,13 +456,17 @@
                         <div class="relative pl-8">
                             <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
                             <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                            <p>Kolom A & B wajib diisi tepat: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>.<br>Di baris kedua isi dengan: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin | [PIN ANDA]</code></p>
+                            <p>Kolom A & B wajib diisi tepat: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>.</p>
+                            <ul class="list-disc pl-4 mt-2 space-y-1">
+                                <li>Baris 2: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin | [PIN ANDA]</code></li>
+                                <li>Baris 3: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama_aplikasi | [NAMA APLIKASI]</code></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <footer class="mt-12 py-6 text-center text-sm text-slate-400">&copy; 2026 Nexus Financial Systems. All rights reserved.</footer>
+            <footer class="mt-12 py-6 text-center text-sm text-slate-400">&copy; 2026 <span id="app-name-footer">Nexus</span> Financial Systems. All rights reserved.</footer>
         </div>
     </main>
 
@@ -347,7 +540,7 @@
                     <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600"><i id="modal-icon" class="ph-fill ph-note-pencil text-xl"></i></div>
                     <div><h3 id="modal-title" class="font-bold text-slate-900">Form Data</h3><p class="text-xs text-slate-500">Kelola identitas Pasis.</p></div>
                 </div>
-                <button id="close-modal-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+                <button id="close-modal-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 focus:outline-none btn-press"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="p-6 overflow-y-auto custom-scrollbar">
                 <input type="hidden" id="form-mode" value="add" />
@@ -553,7 +746,6 @@
             updateRoleUI(); showToast('Anda keluar dari Mode Admin.');
         };
 
-        // SIDEBAR & NAVIGATION
         function toggleSidebar(buka) {
             const overlay = document.getElementById('sidebarOverlay'); const sidebar = document.getElementById('sidebar');
             if (buka) {
@@ -579,9 +771,15 @@
 
             const pageTitle = document.getElementById('page-title');
             if (pageTitle) {
+                let appName = 'Nexus';
+                if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
+                    let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
+                    if(pName && pName.value) appName = pName.value.toString().trim();
+                }
+
                 pageTitle.style.opacity = 0; pageTitle.style.transform = 'translateY(-5px)';
                 setTimeout(() => {
-                    let titleText = 'Ringkasan Administrasi';
+                    let titleText = 'Dashboard Utama';
                     if (targetId === 'pasis') titleText = 'Data Administrasi Pasis';
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
                     if (targetId === 'pengaturan') titleText = 'Pengaturan Sistem';
@@ -601,7 +799,6 @@
             if (window.innerWidth < 1024) toggleSidebar(false);
         }
 
-        // INITIALIZE EVENTS
         document.addEventListener('DOMContentLoaded', () => {
             updateRoleUI();
             
@@ -709,7 +906,15 @@
                         if (isKirimWA && row.nohp) {
                             const nohpFmt = formatNoHP(row.nohp);
                             let dStr = tanggalBayar; try { const d = new Date(tanggalBayar); if(!isNaN(d.getTime())) dStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
-                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*Bendahara*`;
+                            
+                            // Mendapatkan Nama Aplikasi untuk WA
+                            let appName = 'Nexus';
+                            if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
+                                let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
+                                if(pName && pName.value) appName = pName.value.toString().trim();
+                            }
+
+                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*Bendahara ${appName}*`;
                             setTimeout(() => { window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank'); }, 500);
                         }
                     } else { showToast('Gagal.'); }
@@ -893,6 +1098,17 @@
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
+                    // UPDATE NAMA APLIKASI
+                    let appName = 'Nexus';
+                    let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
+                    if(pName && pName.value) appName = pName.value.toString().trim();
+                    
+                    document.title = `${appName} - Aplikasi Bendahara Premium`;
+                    const sidebarName = document.getElementById('app-name-sidebar');
+                    if(sidebarName) sidebarName.textContent = appName + '.';
+                    const footerName = document.getElementById('app-name-footer');
+                    if(footerName) footerName.textContent = appName;
+
                     perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
                     renderTabelPasis(window.pasisDataGlobal);
                     renderTabelPengeluaran(window.pengeluaranDataGlobal);
@@ -918,19 +1134,6 @@
         }
 
         // MODALS TRIGGER
-        // --- FUNGSI BUKA MODAL LOGIN ---
-        window.bukaModalLogin = function() {
-            document.getElementById('login-pin').value = '';
-            const m = document.getElementById('modal-login'); m.classList.remove('hidden'); void m.offsetWidth; 
-            m.classList.remove('opacity-0'); document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
-            setTimeout(() => document.getElementById('login-pin').focus(), 300);
-        };
-
-        window.closeModalLogin = function() {
-            const m = document.getElementById('modal-login'); const mc = document.getElementById('modal-login-content');
-            m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        };
-
         window.bukaModalTambah = function() {
             if(userRole !== 'admin') { showToast("Gunakan mode admin"); return; }
             document.getElementById('form-mode').value = 'add'; document.getElementById('form-original-nohp').value = '';
@@ -978,7 +1181,14 @@
                     btnWA.onclick = function() {
                         const sisa = Math.max(globalTargetTagihan - dibayar, 0);
                         const nohpFmt = formatNoHP(row.nohp);
-                        const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*Bendahara*`;
+                        
+                        let appName = 'Nexus';
+                        if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
+                            let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
+                            if(pName && pName.value) appName = pName.value.toString().trim();
+                        }
+
+                        const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*Bendahara ${appName}*`;
                         window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank');
                     };
                 } else { btnWA.style.display = 'none'; }
