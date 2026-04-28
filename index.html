@@ -222,7 +222,7 @@
             <div id="view-pasis" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-900">Data Administrasi Pasis</h2>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3">Data Administrasi Pasis <span id="total-pasis-badge" class="text-xs font-bold bg-brand-100 text-brand-700 py-1 px-3 rounded-full shadow-sm">0 Data</span></h2>
                         <p class="text-slate-500 mt-1 flex items-center gap-2">Database: <span id="sync-status" class="text-xs font-medium text-slate-400">Menunggu...</span></p>
                     </div>
                     <div class="flex gap-3 w-full sm:w-auto">
@@ -812,6 +812,48 @@ function doPost(e) {
                 }
             } catch (e) {}
         }
+
+        // AUTO SYNC BACKGROUND (REAL-TIME SENSITIVITY)
+        async function fetchDataBackground() {
+            // Jangan sinkronisasi latar belakang jika user sedang mengisi form (modal tidak hidden)
+            const modalOpen = !document.getElementById('global-modal').classList.contains('hidden') || 
+                              !document.getElementById('modal-bayar').classList.contains('hidden') || 
+                              !document.getElementById('modal-pengeluaran').classList.contains('hidden');
+            if (modalOpen) return;
+
+            try {
+                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+                const response = await fetch(GOOGLE_SHEET_API_URL, { redirect: 'follow' });
+                const rawText = await response.text();
+                const jsonRes = JSON.parse(rawText);
+                
+                if(jsonRes.status === 'success') {
+                    // Cek jika ada perubahan data pasis (Sensitif perubahan 1 huruf)
+                    const newDataStr = JSON.stringify(jsonRes.pasis || []);
+                    const oldDataStr = JSON.stringify(window.pasisDataGlobal || []);
+                    if (newDataStr !== oldDataStr) {
+                        window.pasisDataGlobal = jsonRes.pasis || [];
+                        renderTabelPasis(window.pasisDataGlobal);
+                        perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
+                    }
+                    
+                    // Cek jika ada perubahan data pengeluaran
+                    const newPengeluaranStr = JSON.stringify(jsonRes.pengeluaran || []);
+                    const oldPengeluaranStr = JSON.stringify(window.pengeluaranDataGlobal || []);
+                    if (newPengeluaranStr !== oldPengeluaranStr) {
+                         window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
+                         renderTabelPengeluaran(window.pengeluaranDataGlobal);
+                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
+                    }
+                    
+                    const syncStatus = document.getElementById('sync-status');
+                    if(syncStatus) {
+                        const now = new Date();
+                        syncStatus.innerHTML = `<i class="ph-fill ph-check-circle text-emerald-500"></i> Terkini (${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')})`;
+                    }
+                }
+            } catch (e) {}
+        }
         
         // AUTH & ROLE UI
         function updateRoleUI() {
@@ -944,6 +986,9 @@ function doPost(e) {
             // JALANKAN PING VISITOR TRAFFIC
             pingServer();
             setInterval(pingServer, 60000); 
+
+            // JALANKAN AUTO-SYNC REAL-TIME SETIAP 8 DETIK
+            setInterval(fetchDataBackground, 8000);
             
             document.getElementById('openSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebarBtn')?.addEventListener('click', () => toggleSidebar(false));
@@ -1164,7 +1209,11 @@ function doPost(e) {
         // --- RENDER TABEL PASIS (DENGAN FILTER & PENCARIAN REAL-TIME) ---
         function renderTabelPasis(data) {
             const tableBody = document.getElementById('pasis-table-body');
+            const badgeTotal = document.getElementById('total-pasis-badge');
+            
             if(!tableBody) return; tableBody.innerHTML = ''; 
+            if(badgeTotal) badgeTotal.textContent = (data ? data.length : 0) + ' Data';
+
             if (!data || data.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Belum ada data.</td></tr>`; return; }
             
             const searchTerm = (document.getElementById('search-pasis')?.value || '').toLowerCase();
@@ -1197,7 +1246,7 @@ function doPost(e) {
                 if (!matchSearch || !matchStatus) return; // Lewati jika tidak cocok dengan pencarian/filter
 
                 let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
-                let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">${initials}</div>`;
+                let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold shadow-sm">${initials}</div>`;
                 let tglText = ''; if(row.tgl_bayar) { const d = new Date(row.tgl_bayar); tglText = !isNaN(d.getTime()) ? d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : row.tgl_bayar; }
 
                 const tr = document.createElement('tr');
@@ -1209,10 +1258,11 @@ function doPost(e) {
                 tr.setAttribute('onclick', `window.bukaModalSetoran(${index})`);
                 
                 let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${index})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
-                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${index})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${index})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1"><i class="ph ph-note-pencil text-lg"></i></button>`; }
+                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${index})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${index})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>`; }
                 
+                // index + 1 adalah penomoran asli dari database
                 tr.innerHTML = `
-                    <td class="p-4 pl-6"><div class="flex items-center gap-3">${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
+                    <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${index + 1}.</span>${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
                     <td class="p-4 text-slate-600 text-xs"><p class="font-bold">${(row.bank||'-').toUpperCase()}</p><p class="font-mono text-slate-500">${row.norek||'-'}</p></td>
                     <td class="p-4 w-48"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Terkumpul:</span> <span class="font-bold text-slate-700">${persen}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 mb-1 overflow-hidden"><div class="${progressColor} h-1.5 rounded-full" style="width: ${persen}%"></div></div><div class="text-[10px] text-slate-400 text-right">${formatRp(dibayar)} / ${formatRp(globalTargetTagihan)}</div>${tglText ? `<div class="text-[10px] text-slate-500 font-medium mt-1"><i class="ph ph-clock-counter-clockwise"></i> ${tglText}</div>` : ''}</td>
                     <td class="p-4 text-xs font-medium">${statusBadge}</td>
