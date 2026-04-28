@@ -185,7 +185,7 @@
                             <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pemasukan</p><h3 id="dash-total-dana" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
                             <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl"><i class="ph ph-arrow-down-left text-2xl"></i></div>
                         </div>
-                        <div class="text-xs text-slate-500"><span class="font-medium text-emerald-600" id="dash-info-lunas">0 Lunas</span> dari Pasis</div>
+                        <div class="text-xs text-slate-500"><span class="font-medium text-emerald-600" id="dash-info-lunas">0 Lunas</span> dari Pasis Aktif</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
@@ -205,7 +205,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <div class="mb-6"><h3 class="font-bold text-lg text-slate-900">Statistik Bank Pasis</h3><p class="text-xs text-slate-500">Distribusi rekening bank</p></div>
+                        <div class="mb-6"><h3 class="font-bold text-lg text-slate-900">Statistik Bank Pasis</h3><p class="text-xs text-slate-500">Distribusi rekening bank (Pasis Aktif)</p></div>
                         <div class="relative w-full min-h-[250px]"><canvas id="dashboardChart"></canvas></div>
                     </div>
                     <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[360px]">
@@ -255,6 +255,7 @@
                             <option value="Lunas">Lunas</option>
                             <option value="Cicilan">Cicilan</option>
                             <option value="Belum">Belum Bayar</option>
+                            <option value="Cuti">Cuti</option>
                         </select>
                     </div>
                 </div>
@@ -572,7 +573,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
                                 <p class="font-semibold text-slate-900">Sheet: Data Pasis</p>
-                                <p>Kolom A-H: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat</code></p>
+                                <p>Kolom A-I: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat, status_aktif</code></p>
                             </div>
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">2</div>
@@ -691,6 +692,13 @@ function doPost(e) {
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nomor Rekening</label>
                         <input type="text" id="form-norek" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Status Aktif</label>
+                        <select id="form-status-aktif" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Cuti">Cuti (Dibebaskan dari kewajiban)</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -1186,10 +1194,11 @@ function doPost(e) {
             document.getElementById('submit-modal-btn')?.addEventListener('click', async function() {
                 const formMode = document.getElementById('form-mode').value; 
                 const nohp = document.getElementById('form-nohp').value; const nama = document.getElementById('form-nama').value;
+                const statusAktif = document.getElementById('form-status-aktif').value;
                 if (!nohp || !nama) { showToast('No HP dan Nama wajib diisi!'); return; }
                 if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi GOOGLE_SHEET_API_URL di menu Pengaturan.'); return; }
 
-                const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, dibayar: formMode === 'add' ? 0 : undefined }};
+                const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, status_aktif: statusAktif, dibayar: formMode === 'add' ? 0 : undefined }};
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
                 try {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
@@ -1344,9 +1353,12 @@ function doPost(e) {
             const pasisArr = dataPasis || [];
             pasisArr.forEach(d => {
                 let dibayar = parseNominal(d.dibayar); totalMasuk += dibayar;
+                let isCuti = (d.status_aktif || '').toLowerCase() === 'cuti';
                 let sisa = globalTargetTagihan - dibayar;
-                if(sisa > 0) totalPiutang += sisa;
-                if(globalTargetTagihan > 0 && dibayar >= globalTargetTagihan) totalLunas++;
+                if (!isCuti) {
+                    if(sisa > 0) totalPiutang += sisa;
+                    if(globalTargetTagihan > 0 && dibayar >= globalTargetTagihan) totalLunas++;
+                }
             });
 
             let totalKeluar = 0;
@@ -1364,7 +1376,12 @@ function doPost(e) {
             const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Transaksi`;
             
             const bankCounts = {};
-            pasisArr.forEach(d => { let b = (d.bank || 'BELUM DIISI').toUpperCase(); bankCounts[b] = (bankCounts[b]||0)+1; });
+            pasisArr.forEach(d => { 
+                let isCuti = (d.status_aktif || '').toLowerCase() === 'cuti';
+                if(!isCuti) {
+                    let b = (d.bank || 'BELUM DIISI').toUpperCase(); bankCounts[b] = (bankCounts[b]||0)+1; 
+                }
+            });
             const sortedBanks = Object.entries(bankCounts).sort((a,b)=>b[1]-a[1]);
             const ctx = document.getElementById('dashboardChart')?.getContext('2d');
             if(ctx) {
@@ -1407,8 +1424,11 @@ function doPost(e) {
             // Filter data dan rekam nomor index original dari database
             const filteredData = (data || []).map((row, index) => ({...row, originalIndex: index})).filter(row => {
                 let dibayar = parseNominal(row.dibayar);
+                let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
                 let statusRaw = 'Belum';
-                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) statusRaw = 'Lunas'; 
+                
+                if (isCuti) statusRaw = 'Cuti';
+                else if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) statusRaw = 'Lunas'; 
                 else if (dibayar > 0) statusRaw = 'Cicilan'; 
                 
                 const nama = (row.nama || '').toLowerCase();
@@ -1439,9 +1459,13 @@ function doPost(e) {
             paginatedData.forEach((row, relativeIndex) => {
                 let dibayar = parseNominal(row.dibayar);
                 let persen = globalTargetTagihan > 0 ? Math.min(Math.round((dibayar/globalTargetTagihan)*100), 100) : 0;
+                let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
                 
                 let statusBadge = ''; let progressColor = 'bg-red-500';
-                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
+                if (isCuti) {
+                    statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md"><i class="ph-fill ph-pause-circle mr-1"></i>Cuti</span>`; progressColor = 'bg-slate-300';
+                }
+                else if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
                     statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; 
                 } 
                 else if (dibayar > 0) { 
@@ -1566,7 +1590,7 @@ function doPost(e) {
             if (userRole !== 'admin') return;
             
             // Filter pasis yang belum lunas dan punya no hp
-            const pendingList = window.pasisDataGlobal.filter(p => parseNominal(p.dibayar) < globalTargetTagihan && p.nohp && p.nohp.trim() !== '');
+            const pendingList = window.pasisDataGlobal.filter(p => (p.status_aktif || '').toLowerCase() !== 'cuti' && parseNominal(p.dibayar) < globalTargetTagihan && p.nohp && p.nohp.trim() !== '');
             const listContainer = document.getElementById('broadcast-list');
             listContainer.innerHTML = '';
 
@@ -1658,6 +1682,7 @@ function doPost(e) {
             document.getElementById('form-mode').value = 'add'; document.getElementById('form-original-nohp').value = '';
             document.getElementById('form-nohp').value = ''; document.getElementById('form-nohp').readOnly = false;
             document.getElementById('form-nama').value = ''; document.getElementById('form-bank').value = ''; document.getElementById('form-norek').value = '';
+            document.getElementById('form-status-aktif').value = 'Aktif';
             document.getElementById('modal-title').textContent = 'Tambah Pasis';
             const m = document.getElementById('global-modal'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
         };
@@ -1667,6 +1692,7 @@ function doPost(e) {
             document.getElementById('form-mode').value = 'update'; document.getElementById('form-original-nohp').value = row.nohp || '';
             document.getElementById('form-nohp').value = row.nohp || ''; document.getElementById('form-nohp').readOnly = true;
             document.getElementById('form-nama').value = row.nama || ''; document.getElementById('form-bank').value = row.bank || ''; document.getElementById('form-norek').value = row.norek || '';
+            document.getElementById('form-status-aktif').value = row.status_aktif || 'Aktif';
             document.getElementById('modal-title').textContent = 'Edit Identitas';
             const m = document.getElementById('global-modal'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
         };
@@ -1693,7 +1719,10 @@ function doPost(e) {
 
             document.getElementById('setoran-tagihan').textContent = formatRp(globalTargetTagihan); document.getElementById('setoran-dibayar').textContent = formatRp(row.dibayar);
             const dibayar = parseNominal(row.dibayar); const badge = document.getElementById('setoran-badge');
-            if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
+            let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
+            
+            if(isCuti) { badge.textContent='CUTI'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700'; }
+            else if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
             else if(dibayar>0){ badge.textContent='CICILAN'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700'; }
             else { badge.textContent='BELUM BAYAR'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-700'; }
 
@@ -1704,7 +1733,7 @@ function doPost(e) {
                     btnWA.style.display = 'flex';
                     btnWA.onclick = function() {
                         const sisa = Math.max(globalTargetTagihan - dibayar, 0); const nohpFmt = formatNoHP(row.nohp);
-                        const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
+                        const msg = isCuti ? `Halo *${row.nama}*,\n\nStatus administrasi Anda saat ini tercatat sebagai *CUTI*.\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*` : `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                         window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank');
                     };
                 } else { btnWA.style.display = 'none'; }
