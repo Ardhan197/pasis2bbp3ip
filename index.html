@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasis 2B BP3IP-2026</title>
+    <title>Nexus - Aplikasi Bendahara Premium</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,8 +51,6 @@
         .btn-press:active { transform: scale(0.96); }
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        
-        /* Elemen Khusus Admin */
         .admin-only.hidden-role { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     </style>
@@ -114,6 +112,22 @@
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
+                
+                <!-- WIDGET TRAFFIC (PENGUNJUNG) -->
+                <div class="hidden sm:flex items-center gap-4 pr-5 border-r border-slate-200">
+                    <div class="flex items-center gap-2" title="Total kunjungan keseluruhan">
+                        <i class="ph-fill ph-eye text-slate-400 text-lg"></i>
+                        <span id="counter-total" class="text-sm font-bold text-slate-700">--</span>
+                    </div>
+                    <div class="flex items-center gap-2" title="Pengguna aktif saat ini">
+                        <span class="relative flex h-2.5 w-2.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                        </span>
+                        <span id="counter-active" class="text-sm font-bold text-emerald-600">--</span>
+                    </div>
+                </div>
+
                 <button onclick="fetchDataDariGoogleSheets()" class="relative p-2 rounded-full text-slate-500 hover:bg-slate-100 transition-all-custom btn-press hover:text-brand-600" title="Sinkronisasi Data">
                     <i class="ph ph-arrows-clockwise text-xl"></i>
                 </button>
@@ -123,6 +137,28 @@
         <!-- Area Scroll Konten -->
         <div class="flex-1 overflow-y-auto p-6 sm:p-10 relative custom-scrollbar">
             
+            <!-- WIDGET TRAFFIC MOBILE (Khusus HP) -->
+            <div class="sm:hidden flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-eye text-slate-400 text-xl"></i>
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Total Dilihat</p>
+                        <p id="counter-total-mobile" class="text-sm font-bold text-slate-800">--</p>
+                    </div>
+                </div>
+                <div class="w-px h-8 bg-slate-100"></div>
+                <div class="flex items-center gap-2">
+                    <div class="relative flex h-3 w-3 mt-1">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-emerald-600 font-semibold uppercase tracking-wider">Sedang Aktif</p>
+                        <p id="counter-active-mobile" class="text-sm font-bold text-emerald-700">--</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- VIEW: DASHBOARD -->
             <div id="view-dashboard" class="view-section max-w-7xl mx-auto space-y-8">
                 <div class="flex justify-between items-end">
@@ -136,7 +172,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Kartu Saldo Saat Ini -->
                     <div class="bg-brand-950 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all-custom hover:-translate-y-1 hover:shadow-2xl">
                         <div class="absolute top-0 right-0 w-32 h-32 rounded-full bg-white opacity-5 blur-2xl -mr-8 -mt-8"></div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
@@ -145,7 +180,6 @@
                         </div>
                         <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Sisa Uang Tersedia</div>
                     </div>
-                    <!-- Kartu Pemasukan -->
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
                             <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pemasukan</p><h3 id="dash-total-dana" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
@@ -153,7 +187,6 @@
                         </div>
                         <div class="text-xs text-slate-500"><span class="font-medium text-emerald-600" id="dash-info-lunas">0 Lunas</span> dari Pasis</div>
                     </div>
-                    <!-- Kartu Pengeluaran -->
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
                             <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pengeluaran</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
@@ -161,7 +194,6 @@
                         </div>
                         <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran</div>
                     </div>
-                    <!-- Kartu Piutang -->
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
                             <div><p class="text-slate-500 text-sm font-medium mb-1">Total Piutang (Sisa)</p><h3 id="dash-total-piutang" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
@@ -172,12 +204,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Grafik -->
                     <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                         <div class="mb-6"><h3 class="font-bold text-lg text-slate-900">Statistik Bank Pasis</h3><p class="text-xs text-slate-500">Distribusi rekening bank</p></div>
                         <div class="relative w-full min-h-[250px]"><canvas id="dashboardChart"></canvas></div>
                     </div>
-                    <!-- Aktivitas Terkini -->
                     <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[360px]">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="font-bold text-lg text-slate-900">Pengeluaran Terkini</h3>
@@ -208,17 +238,17 @@
                     </div>
                     <div class="relative w-full sm:w-64">
                         <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-brand-300">Rp</span>
-                        <input type="text" id="global-target-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-950/50 border border-brand-700/50 rounded-xl text-lg font-bold text-white focus:outline-none focus:border-brand-400" value="15.000.000">
+                        <input type="text" id="global-target-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-950/50 border border-brand-700/50 rounded-xl text-lg font-bold text-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30 transition-all-custom" value="15.000.000">
                     </div>
                 </div>
 
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 justify-between items-center transition-all-custom hover:shadow-md">
                     <div class="relative w-full sm:w-80 group">
                         <i class="ph ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg transition-all-custom group-focus-within:text-brand-500"></i>
-                        <input type="text" placeholder="Cari Nama atau No HP..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all-custom hover:bg-white">
+                        <input type="text" id="search-pasis" placeholder="Cari Nama atau No HP..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all-custom hover:bg-white">
                     </div>
                     <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <select class="w-full sm:w-auto bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2 text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all-custom hover:bg-white cursor-pointer">
+                        <select id="filter-status-pasis" class="w-full sm:w-auto bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2 text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all-custom hover:bg-white cursor-pointer">
                             <option value="">Semua Status</option>
                             <option value="Lunas">Lunas</option>
                             <option value="Cicilan">Cicilan</option>
@@ -311,12 +341,12 @@
                                 <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
                             </div>
                             <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
- * API BACKEND NEXUS (PASIS + PENGELUARAN + PENGATURAN)
+ * API BACKEND NEXUS (PASIS + PENGELUARAN + PENGATURAN + VISITOR TRAFFIC)
  */
 
 function getSheetSafe(name) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error("Koneksi ditolak. Pastikan kode ini di-paste di menu Ekstensi > Apps Script dari dalam Google Sheets Anda.");
+  if (!ss) throw new Error("Koneksi ditolak.");
   var sheet = ss.getSheetByName(name);
   if (!sheet) throw new Error("Tab '" + name + "' tidak ditemukan.");
   return sheet;
@@ -329,9 +359,7 @@ function sheetToJSON(sheet) {
   var headers = data[0];
   return data.slice(1).map(function(row) {
     var obj = {};
-    headers.forEach(function(header, index) {
-      obj[header.toString().toLowerCase().trim()] = row[index];
-    });
+    headers.forEach(function(header, index) { obj[header.toString().toLowerCase().trim()] = row[index]; });
     return obj;
   }).filter(function(r) { 
      var firstKey = headers[0].toString().toLowerCase().trim();
@@ -345,7 +373,6 @@ function doGet(e) {
     try { result.pasis = sheetToJSON(getSheetSafe("Data Pasis")); } catch(e) { result.pasis = []; }
     try { result.pengeluaran = sheetToJSON(getSheetSafe("Pengeluaran")); } catch(e) { result.pengeluaran = []; }
     try { result.pengaturan = sheetToJSON(getSheetSafe("Pengaturan")); } catch(e) { result.pengaturan = []; }
-    
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() })).setMimeType(ContentService.MimeType.JSON);
@@ -355,6 +382,44 @@ function doGet(e) {
 function doPost(e) {
   try {
     var payload = JSON.parse(e.postData.contents);
+    
+    // --- AKSI PING (KUNJUNGAN & USER AKTIF) ---
+    if (payload.action === 'ping') {
+        var cache = CacheService.getScriptCache();
+        var activeUsersStr = cache.get('nexus_active_users');
+        var activeUsers = activeUsersStr ? JSON.parse(activeUsersStr) : {};
+        var now = new Date().getTime();
+
+        if (payload.sessionId) activeUsers[payload.sessionId] = now;
+
+        var activeCount = 0;
+        for (var key in activeUsers) {
+            if (now - activeUsers[key] > 120000) { delete activeUsers[key]; } // Expire 2 min
+            else { activeCount++; }
+        }
+        cache.put('nexus_active_users', JSON.stringify(activeUsers), 300);
+
+        var sheet = getSheetSafe("Pengaturan");
+        var totalViews = 0;
+        if (sheet) {
+            var data = sheet.getDataRange().getDisplayValues();
+            var viewRowIndex = -1;
+            for (var r = 1; r < data.length; r++) {
+                if (data[r][0].toString().toLowerCase().trim() === 'total_views') {
+                    viewRowIndex = r + 1;
+                    totalViews = parseInt(data[r][1]) || 0;
+                    break;
+                }
+            }
+            if (payload.isNewVisit) {
+                totalViews++;
+                if (viewRowIndex > -1) sheet.getRange(viewRowIndex, 2).setValue(totalViews);
+                else sheet.appendRow(['total_views', totalViews]);
+            }
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({ status: 'success', activeUsers: activeCount, totalViews: totalViews })).setMimeType(ContentService.MimeType.JSON);
+    }
     
     // --- AKSI DATA PASIS ---
     if (payload.action === 'create' || payload.action === 'update') {
@@ -372,21 +437,17 @@ function doPost(e) {
           newRow.push(val);
         });
         sheet.appendRow(newRow);
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Berhasil' })).setMimeType(ContentService.MimeType.JSON);
+        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
       }
       
       if (payload.action === 'update') {
         var nohpIndex = -1;
-        for(var i = 0; i < headers.length; i++) {
-          if(headers[i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; }
-        }
+        for(var i = 0; i < headers.length; i++) { if(headers[i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; } }
         if(nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
         
         var targetNohp = payload.data.original_nohp || payload.data.nohp;
         var rowIndex = -1;
-        for(var r = 1; r < data.length; r++) {
-          if(data[r][nohpIndex] == targetNohp) { rowIndex = r + 1; break; }
-        }
+        for(var r = 1; r < data.length; r++) { if(data[r][nohpIndex] == targetNohp) { rowIndex = r + 1; break; } }
         
         if (rowIndex > -1) {
           headers.forEach(function(header, idx) {
@@ -397,17 +458,14 @@ function doPost(e) {
               sheet.getRange(rowIndex, idx + 1).setValue(val);
             }
           });
-          return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Berhasil' })).setMimeType(ContentService.MimeType.JSON);
-        } else {
-          throw new Error("Data dengan No HP " + targetNohp + " tidak ditemukan.");
-        }
+          return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+        } else { throw new Error("Data tidak ditemukan."); }
       }
     }
 
     // --- AKSI PENGELUARAN ---
     if (payload.action === 'create_pengeluaran') {
        var sheet = getSheetSafe("Pengeluaran");
-       if(!sheet) throw new Error("Sheet 'Pengeluaran' tidak ditemukan.");
        var headers = sheet.getDataRange().getDisplayValues()[0];
        var newRow = [];
        headers.forEach(function(header) {
@@ -422,42 +480,28 @@ function doPost(e) {
 
     if (payload.action === 'delete_pengeluaran') {
        var sheet = getSheetSafe("Pengeluaran");
-       if(!sheet) throw new Error("Sheet 'Pengeluaran' tidak ditemukan.");
        var data = sheet.getDataRange().getDisplayValues();
        var idIndex = -1;
-       for(var i = 0; i < data[0].length; i++) {
-         if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; }
-       }
-       if(idIndex === -1) throw new Error("Kolom 'id' tidak ditemukan.");
+       for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; } }
        var rowIndex = -1;
-       for(var r = 1; r < data.length; r++) {
-         if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; }
-       }
-       if(rowIndex > -1) {
-          sheet.deleteRow(rowIndex);
-          return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
-       } else { throw new Error("Pengeluaran tidak ditemukan."); }
+       for(var r = 1; r < data.length; r++) { if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; } }
+       if(rowIndex > -1) { sheet.deleteRow(rowIndex); return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON); } 
+       else { throw new Error("Pengeluaran tidak ditemukan."); }
     }
 
-    // --- AKSI UPDATE PENGATURAN (PROFIL APLIKASI/ADMIN) ---
+    // --- AKSI UPDATE PENGATURAN ---
     if (payload.action === 'update_pengaturan') {
         var sheet = getSheetSafe("Pengaturan");
-        if(!sheet) throw new Error("Sheet 'Pengaturan' tidak ditemukan.");
         var data = sheet.getDataRange().getDisplayValues();
         var keysToUpdate = payload.data; 
-
         for (var k in keysToUpdate) {
             var found = false;
             for (var r = 1; r < data.length; r++) {
                 if (data[r][0].toString().toLowerCase().trim() === k.toLowerCase()) {
-                    sheet.getRange(r + 1, 2).setValue(keysToUpdate[k]);
-                    found = true;
-                    break;
+                    sheet.getRange(r + 1, 2).setValue(keysToUpdate[k]); found = true; break;
                 }
             }
-            if (!found) {
-                sheet.appendRow([k, keysToUpdate[k]]);
-            }
+            if (!found) sheet.appendRow([k, keysToUpdate[k]]);
         }
         return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
     }
@@ -505,7 +549,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Pastikan ada <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin</code>)</p>
+                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Sistem akan membuat total_views otomatis)</p>
                             </div>
                         </div>
                     </div>
@@ -703,9 +747,8 @@ function doPost(e) {
     <!-- SCRIPT UTAMA KESELURUHAN -->
     <script>
         const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec'; 
-        let myDashboardChart = null;
         
-        // Data Globals
+        let myDashboardChart = null;
         window.pasisDataGlobal = [];
         window.pengeluaranDataGlobal = [];
         window.pengaturanGlobal = [];
@@ -714,6 +757,20 @@ function doPost(e) {
         let globalAdminName = 'Bendahara Utama';
         let globalTargetTagihan = Number(localStorage.getItem('globalTargetNexus')) || 15000000;
         let userRole = localStorage.getItem('nexusRole') || 'viewer';
+        
+        // SISTEM PING VISITOR
+        let visitorSessionId = sessionStorage.getItem('nexus_session_id');
+        let isVisitorNew = false;
+        if (!visitorSessionId) {
+            visitorSessionId = 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            sessionStorage.setItem('nexus_session_id', visitorSessionId);
+        }
+        let lastVisitTime = localStorage.getItem('nexus_last_visit');
+        let nowTime = Date.now();
+        if (!lastVisitTime || (nowTime - parseInt(lastVisitTime) > 1000 * 60 * 60)) { 
+            isVisitorNew = true; 
+            localStorage.setItem('nexus_last_visit', nowTime.toString()); 
+        }
 
         // Utilities
         const formatRp = (angka) => {
@@ -733,6 +790,28 @@ function doPost(e) {
             if (formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
             return formatted;
         };
+        
+        // PING SERVER FUNGSI
+        async function pingServer() {
+            try {
+                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+                const payload = { action: 'ping', sessionId: visitorSessionId, isNewVisit: isVisitorNew };
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const cTotal = document.getElementById('counter-total');
+                    const cActive = document.getElementById('counter-active');
+                    const cTotalMobile = document.getElementById('counter-total-mobile');
+                    const cActiveMobile = document.getElementById('counter-active-mobile');
+                    
+                    if(cTotal) cTotal.textContent = json.totalViews || 1;
+                    if(cActive) cActive.textContent = json.activeUsers || 1;
+                    if(cTotalMobile) cTotalMobile.textContent = json.totalViews || 1;
+                    if(cActiveMobile) cActiveMobile.textContent = json.activeUsers || 1;
+                    isVisitorNew = false; 
+                }
+            } catch (e) {}
+        }
         
         // AUTH & ROLE UI
         function updateRoleUI() {
@@ -774,7 +853,6 @@ function doPost(e) {
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
         }
 
-        // FUNGSI LOGIN ADMIN (TERPISAH AGAR AMAN)
         window.bukaModalLogin = function() {
             document.getElementById('login-pin').value = '';
             const m = document.getElementById('modal-login'); 
@@ -795,7 +873,7 @@ function doPost(e) {
         
         window.prosesLogin = function() {
             const pinInput = document.getElementById('login-pin').value;
-            let dbPin = '123456'; // Fallback
+            let dbPin = '123456'; 
             
             if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
                 let p = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'pin_admin');
@@ -863,6 +941,10 @@ function doPost(e) {
         document.addEventListener('DOMContentLoaded', () => {
             updateRoleUI();
             
+            // JALANKAN PING VISITOR TRAFFIC
+            pingServer();
+            setInterval(pingServer, 60000); 
+            
             document.getElementById('openSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebarBtn')?.addEventListener('click', () => toggleSidebar(false));
             document.getElementById('sidebarOverlay')?.addEventListener('click', () => toggleSidebar(false));
@@ -873,6 +955,10 @@ function doPost(e) {
 
             document.getElementById('login-pin')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); window.prosesLogin(); }});
             
+            // FITUR PENCARIAN & FILTER REAL-TIME
+            document.getElementById('search-pasis')?.addEventListener('input', () => { renderTabelPasis(window.pasisDataGlobal); });
+            document.getElementById('filter-status-pasis')?.addEventListener('change', () => { renderTabelPasis(window.pasisDataGlobal); });
+
             const gInput = document.getElementById('global-target-input');
             if (gInput) {
                 gInput.value = new Intl.NumberFormat('id-ID').format(globalTargetTagihan);
@@ -1002,23 +1088,13 @@ function doPost(e) {
 
                 if(!newAppName || !newAdminName) { showToast("Nama Aplikasi dan Admin tidak boleh kosong!"); return; }
 
-                const payload = {
-                    action: 'update_pengaturan',
-                    data: {
-                        nama_aplikasi: newAppName,
-                        nama_admin: newAdminName
-                    }
-                };
-
+                const payload = { action: 'update_pengaturan', data: { nama_aplikasi: newAppName, nama_admin: newAdminName } };
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg align-middle"></i> Menyimpan...'; this.disabled = true;
 
                 try {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
                     const json = await res.json();
-                    if(json.status === 'success') {
-                        showToast('Profil Sistem berhasil diperbarui!');
-                        fetchDataDariGoogleSheets(); 
-                    } else { showToast('Gagal update pengaturan.'); }
+                    if(json.status === 'success') { showToast('Profil Sistem diperbarui!'); fetchDataDariGoogleSheets(); } else { showToast('Gagal update pengaturan.'); }
                 } catch(e) { showToast('Gagal koneksi.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
@@ -1085,28 +1161,51 @@ function doPost(e) {
             }
         }
 
-        // --- RENDER TABEL PASIS ---
+        // --- RENDER TABEL PASIS (DENGAN FILTER & PENCARIAN REAL-TIME) ---
         function renderTabelPasis(data) {
             const tableBody = document.getElementById('pasis-table-body');
             if(!tableBody) return; tableBody.innerHTML = ''; 
             if (!data || data.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Belum ada data.</td></tr>`; return; }
             
+            const searchTerm = (document.getElementById('search-pasis')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('filter-status-pasis')?.value || '';
+            
             const isAdmin = userRole === 'admin';
-            data.forEach((row, index) => {
-                let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
-                let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">${initials}</div>`;
+            let shownCount = 0;
 
+            data.forEach((row, index) => {
                 let dibayar = parseNominal(row.dibayar);
                 let persen = globalTargetTagihan > 0 ? Math.min(Math.round((dibayar/globalTargetTagihan)*100), 100) : 0;
-                let statusBadge = ''; let progressColor = 'bg-red-500';
-                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; } 
-                else if (dibayar > 0) { statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md"><i class="ph-fill ph-spinner-gap animate-spin mr-1"></i>Cicilan</span>`; progressColor = 'bg-amber-400'; } 
-                else { statusBadge = `<span class="px-2.5 py-1 bg-red-50 text-red-700 rounded-md"><i class="ph-fill ph-warning-circle mr-1"></i>Belum</span>`; }
+                
+                let statusRaw = ''; let statusBadge = ''; let progressColor = 'bg-red-500';
+                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
+                    statusRaw = 'Lunas'; statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; 
+                } 
+                else if (dibayar > 0) { 
+                    statusRaw = 'Cicilan'; statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md"><i class="ph-fill ph-spinner-gap animate-spin mr-1"></i>Cicilan</span>`; progressColor = 'bg-amber-400'; 
+                } 
+                else { 
+                    statusRaw = 'Belum'; statusBadge = `<span class="px-2.5 py-1 bg-red-50 text-red-700 rounded-md"><i class="ph-fill ph-warning-circle mr-1"></i>Belum</span>`; 
+                }
 
+                // Logika Filter
+                const nama = (row.nama || '').toLowerCase();
+                const nohp = (row.nohp || '').toLowerCase();
+                const matchSearch = nama.includes(searchTerm) || nohp.includes(searchTerm);
+                const matchStatus = statusFilter === "" || statusRaw === statusFilter;
+
+                if (!matchSearch || !matchStatus) return; // Lewati jika tidak cocok dengan pencarian/filter
+
+                let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
+                let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">${initials}</div>`;
                 let tglText = ''; if(row.tgl_bayar) { const d = new Date(row.tgl_bayar); tglText = !isNaN(d.getTime()) ? d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : row.tgl_bayar; }
 
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50/80 transition-all-custom group cursor-pointer'; tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${index * 20}ms`; 
+                tr.className = 'hover:bg-slate-50/80 transition-all-custom group cursor-pointer'; tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; 
+                
+                // Menjaga agar delay animasi selalu mulus secara berurutan sesuai data yang ditampilkan
+                const currentDelay = shownCount * 20;
+                tr.style.transitionDelay = `${currentDelay}ms`; 
                 tr.setAttribute('onclick', `window.bukaModalSetoran(${index})`);
                 
                 let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${index})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
@@ -1119,8 +1218,15 @@ function doPost(e) {
                     <td class="p-4 text-xs font-medium">${statusBadge}</td>
                     <td class="p-4 pr-6 text-right"><div class="flex items-center justify-end">${actionButtons}</div></td>
                 `;
-                tableBody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (index * 20));
+                tableBody.appendChild(tr); 
+                setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + currentDelay);
+                
+                shownCount++;
             });
+
+            if (shownCount === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Pencarian tidak ditemukan.</td></tr>`;
+            }
         }
 
         // --- RENDER TABEL PENGELUARAN ---
@@ -1156,7 +1262,7 @@ function doPost(e) {
             
             showToast('Menghapus data...');
             try {
-                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete_pengeluaran', data: { id: idStr } }) });
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pengeluaran', data: { id: idStr } }) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus.');
             } catch(e) { showToast('Gagal koneksi server.'); }
@@ -1188,47 +1294,32 @@ function doPost(e) {
                     let pAdmin = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_admin');
                     if(pAdmin && pAdmin.value) globalAdminName = pAdmin.value.toString().trim();
                     
-                    // Sinkronisasi nama ke Input Pengaturan
-                    const inputAppName = document.getElementById('setting-app-name');
-                    if(inputAppName) inputAppName.value = globalAppName;
-                    
-                    const inputAdminName = document.getElementById('setting-admin-name');
-                    if(inputAdminName) inputAdminName.value = globalAdminName;
+                    const inputAppName = document.getElementById('setting-app-name'); if(inputAppName) inputAppName.value = globalAppName;
+                    const inputAdminName = document.getElementById('setting-admin-name'); if(inputAdminName) inputAdminName.value = globalAdminName;
 
-                    // Update UI Nama Aplikasi
                     document.title = `${globalAppName} - Aplikasi Bendahara Premium`;
-                    const sidebarName = document.getElementById('app-name-sidebar');
-                    if(sidebarName) sidebarName.textContent = globalAppName;
-                    const footerName = document.getElementById('app-name-footer');
-                    if(footerName) footerName.textContent = globalAppName;
+                    const sidebarName = document.getElementById('app-name-sidebar'); if(sidebarName) sidebarName.textContent = globalAppName;
+                    const footerName = document.getElementById('app-name-footer'); if(footerName) footerName.textContent = globalAppName;
                     
                     updateRoleUI();
-
                     perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
                     renderTabelPasis(window.pasisDataGlobal);
                     renderTabelPengeluaran(window.pengeluaranDataGlobal);
                 } else { throw new Error(jsonRes.message); }
 
             } catch (error) {
-                console.error("Fetch Error:", error);
                 const tb = document.getElementById('pasis-table-body');
                 if (tb) {
-                    if(error.message === 'URL_BELUM_DIISI') {
-                        tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-amber-50 text-amber-800"><i class="ph ph-warning text-3xl mb-2 block"></i><b>Koneksi Database Belum Diatur.</b><br>Isi URL Web App di menu Pengaturan.</td></tr>`;
-                    } else if (error.message === 'SERVER_AKSES_DITOLAK') {
-                        tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-red-50 text-red-800"><i class="ph ph-lock-key text-3xl mb-2 block"></i><b>Akses Web App Ditolak oleh Google.</b><br>Buka Google Script > Terapkan (Deploy) > Kelola Deployment.<br>Ubah <b>"Siapa yang memiliki akses"</b> menjadi <b>"Siapa Saja (Anyone)"</b>.</td></tr>`;
-                    } else {
-                        tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-red-50 text-red-800"><i class="ph ph-warning-circle text-3xl mb-2 block"></i>Gagal memuat data dari database.<br>Pesan sistem: ${error.message}</td></tr>`;
-                    }
+                    if(error.message === 'URL_BELUM_DIISI') { tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-amber-50 text-amber-800"><b>Koneksi Database Belum Diatur.</b></td></tr>`; } 
+                    else if (error.message === 'SERVER_AKSES_DITOLAK') { tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-red-50 text-red-800"><b>Akses Web App Ditolak oleh Google.</b></td></tr>`; } 
+                    else { tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-red-50 text-red-800">Gagal memuat data dari database.<br>${error.message}</td></tr>`; }
                 }
-                showToast('Gagal memuat data dari database.');
             } finally {
                 loaders.forEach(id => { const el = document.getElementById(id); if(el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; } });
                 document.querySelectorAll('tbody').forEach(el => el.style.opacity = '1');
             }
         }
 
-        // MODALS TRIGGER
         window.bukaModalTambah = function() {
             if(userRole !== 'admin') { showToast("Gunakan mode admin"); return; }
             document.getElementById('form-mode').value = 'add'; document.getElementById('form-original-nohp').value = '';
@@ -1274,9 +1365,7 @@ function doPost(e) {
                 if(row.nohp && userRole === 'admin') {
                     btnWA.style.display = 'flex';
                     btnWA.onclick = function() {
-                        const sisa = Math.max(globalTargetTagihan - dibayar, 0);
-                        const nohpFmt = formatNoHP(row.nohp);
-
+                        const sisa = Math.max(globalTargetTagihan - dibayar, 0); const nohpFmt = formatNoHP(row.nohp);
                         const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                         window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank');
                     };
