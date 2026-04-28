@@ -135,7 +135,7 @@
         </header>
 
         <!-- Area Scroll Konten -->
-        <div class="flex-1 overflow-y-auto p-6 sm:p-10 relative custom-scrollbar">
+        <div id="main-content-scroll" class="flex-1 overflow-y-auto p-6 sm:p-10 relative custom-scrollbar">
             
             <!-- WIDGET TRAFFIC MOBILE (Khusus HP) -->
             <div class="sm:hidden flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6">
@@ -1059,12 +1059,32 @@ function doPost(e) {
             document.getElementById('search-pasis')?.addEventListener('input', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
             document.getElementById('filter-status-pasis')?.addEventListener('change', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
 
-            // PAGINATION EVENTS
-            document.getElementById('btn-prev-pasis')?.addEventListener('click', () => { if(currentPasisPage > 1) { currentPasisPage--; renderTabelPasis(window.pasisDataGlobal); } });
-            document.getElementById('btn-next-pasis')?.addEventListener('click', () => { currentPasisPage++; renderTabelPasis(window.pasisDataGlobal); });
+            // PAGINATION EVENTS DENGAN AUTOSCROLL
+            document.getElementById('btn-prev-pasis')?.addEventListener('click', () => { 
+                if(currentPasisPage > 1) { 
+                    currentPasisPage--; 
+                    renderTabelPasis(window.pasisDataGlobal); 
+                    document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+                } 
+            });
+            document.getElementById('btn-next-pasis')?.addEventListener('click', () => { 
+                currentPasisPage++; 
+                renderTabelPasis(window.pasisDataGlobal); 
+                document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+            });
             
-            document.getElementById('btn-prev-pengeluaran')?.addEventListener('click', () => { if(currentPengeluaranPage > 1) { currentPengeluaranPage--; renderTabelPengeluaran(window.pengeluaranDataGlobal); } });
-            document.getElementById('btn-next-pengeluaran')?.addEventListener('click', () => { currentPengeluaranPage++; renderTabelPengeluaran(window.pengeluaranDataGlobal); });
+            document.getElementById('btn-prev-pengeluaran')?.addEventListener('click', () => { 
+                if(currentPengeluaranPage > 1) { 
+                    currentPengeluaranPage--; 
+                    renderTabelPengeluaran(window.pengeluaranDataGlobal); 
+                    document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+                } 
+            });
+            document.getElementById('btn-next-pengeluaran')?.addEventListener('click', () => { 
+                currentPengeluaranPage++; 
+                renderTabelPengeluaran(window.pengeluaranDataGlobal); 
+                document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+            });
 
             // SIMPAN TARGET TAGIHAN OTOMATIS KE DB SAAT SELESAI MENGETIK
             const gInput = document.getElementById('global-target-input');
