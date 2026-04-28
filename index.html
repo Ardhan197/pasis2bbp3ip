@@ -27,10 +27,6 @@
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], },
                     colors: {
                         brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a', 950: '#042f2e', }
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                        'card': '0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04)',
                     }
                 }
             }
@@ -51,28 +47,26 @@
         .btn-press:active { transform: scale(0.96); }
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        
-        /* Elemen Khusus Admin */
         .admin-only.hidden-role { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
 
-    <!-- Overlay Latar Belakang -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-500 cubic-bezier(0.2, 0.8, 0.2, 1)"></div>
+    <!-- Overlay Sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 shadow-[20px_0_40px_rgba(0,0,0,0.04)] transform -translate-x-full transition-transform duration-500 cubic-bezier(0.2, 0.8, 0.2, 1) flex flex-col lg:relative lg:translate-x-0">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 shadow-[20px_0_40px_rgba(0,0,0,0.04)] transform -translate-x-full transition-transform duration-300 flex flex-col lg:relative lg:translate-x-0">
         
         <div class="h-20 flex items-center justify-between px-6 border-b border-slate-50">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-brand-950 rounded-xl flex items-center justify-center shadow-md">
                     <i class="ph-fill ph-vault text-white text-xl"></i>
                 </div>
-                <span id="app-name-sidebar" class="text-xl font-bold tracking-tight text-slate-900">Nexus.</span>
+                <span id="app-name-sidebar" class="text-xl font-bold tracking-tight text-slate-900">Nexus</span>
             </div>
-            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 transition-all-custom p-2 rounded-lg hover:bg-slate-50 cursor-pointer btn-press">
+            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 transition-all-custom p-2 rounded-lg hover:bg-slate-50 btn-press">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
@@ -277,11 +271,11 @@
             <div id="view-pengaturan" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="mb-4">
                     <h2 class="text-2xl font-bold text-slate-900">Pengaturan Sistem</h2>
-                    <p class="text-slate-500 mt-1">Panduan ini hanya tampil bagi Admin yang login.</p>
+                    <p class="text-slate-500 mt-1">Panduan dan konfigurasi ini hanya tampil bagi Admin.</p>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <!-- Kartu Kode Script (Ditambahkan Kembali) -->
+                    <!-- Kartu Kode Script -->
                     <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col transition-all-custom hover:shadow-md">
                         <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                             <div class="flex items-center gap-3">
@@ -433,6 +427,29 @@ function doPost(e) {
        } else { throw new Error("Pengeluaran tidak ditemukan."); }
     }
 
+    // --- AKSI UPDATE PENGATURAN (PROFIL APLIKASI/ADMIN) ---
+    if (payload.action === 'update_pengaturan') {
+        var sheet = getSheetSafe("Pengaturan");
+        if(!sheet) throw new Error("Sheet 'Pengaturan' tidak ditemukan.");
+        var data = sheet.getDataRange().getDisplayValues();
+        var keysToUpdate = payload.data; 
+
+        for (var k in keysToUpdate) {
+            var found = false;
+            for (var r = 1; r < data.length; r++) {
+                if (data[r][0].toString().toLowerCase().trim() === k.toLowerCase()) {
+                    sheet.getRange(r + 1, 2).setValue(keysToUpdate[k]);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                sheet.appendRow([k, keysToUpdate[k]]);
+            }
+        }
+        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     throw new Error("Action tidak valid.");
   } catch (err) {
      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
@@ -441,26 +458,43 @@ function doPost(e) {
                         </div>
                     </div>
                     
-                    <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5 text-sm text-slate-600">
-                        <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2"><i class="ph-fill ph-info text-brand-500 text-xl"></i> Struktur Database (Sheets)</h3>
-                        <div class="relative pl-8">
-                            <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
-                            <p class="font-semibold text-slate-900">Sheet: Data Pasis</p>
-                            <p>Kolom A s/d H wajib diisi tepat: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat</code></p>
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Kartu Ubah Nama Aplikasi/Admin (Praktis via UI) -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5">
+                            <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2"><i class="ph-fill ph-faders text-brand-500 text-xl"></i> Profil Sistem</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nama Aplikasi</label>
+                                    <input type="text" id="setting-app-name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="Cth: Nexus">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nama Admin (Bendahara)</label>
+                                    <input type="text" id="setting-admin-name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="Cth: Budi Santoso">
+                                </div>
+                                <button id="save-setting-btn" class="w-full py-3 bg-brand-950 hover:bg-brand-900 text-white rounded-xl font-medium transition-all-custom btn-press flex justify-center items-center gap-2">
+                                    Simpan Profil
+                                </button>
+                            </div>
                         </div>
-                        <div class="relative pl-8">
-                            <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">2</div>
-                            <p class="font-semibold text-slate-900">Sheet: Pengeluaran</p>
-                            <p>Kolom A s/d D wajib diisi tepat: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">id, tanggal, keterangan, nominal</code></p>
-                        </div>
-                        <div class="relative pl-8">
-                            <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
-                            <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                            <p>Kolom A & B wajib diisi tepat: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>.</p>
-                            <ul class="list-disc pl-4 mt-2 space-y-1">
-                                <li>Baris 2: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin | [PIN ANDA]</code></li>
-                                <li>Baris 3: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama_aplikasi | [NAMA APLIKASI]</code></li>
-                            </ul>
+
+                        <!-- Struktur Database -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5 text-sm text-slate-600">
+                            <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2"><i class="ph-fill ph-info text-brand-500 text-xl"></i> Struktur Database</h3>
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
+                                <p class="font-semibold text-slate-900">Sheet: Data Pasis</p>
+                                <p>Kolom A-H: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat</code></p>
+                            </div>
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">2</div>
+                                <p class="font-semibold text-slate-900">Sheet: Pengeluaran</p>
+                                <p>Kolom A-D: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">id, tanggal, keterangan, nominal</code></p>
+                            </div>
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
+                                <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
+                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Pastikan ada <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin</code>)</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -664,6 +698,8 @@ function doPost(e) {
         window.pengeluaranDataGlobal = [];
         window.pengaturanGlobal = [];
         
+        let globalAppName = 'Nexus';
+        let globalAdminName = 'Bendahara Utama';
         let globalTargetTagihan = Number(localStorage.getItem('globalTargetNexus')) || 15000000;
         let userRole = localStorage.getItem('nexusRole') || 'viewer';
 
@@ -700,7 +736,7 @@ function doPost(e) {
                         <div onclick="prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group">
                             <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">Budi Santoso</p>
+                                <p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">${globalAdminName}</p>
                                 <p class="text-xs text-slate-500 group-hover:text-red-500 truncate">Mode Admin (Klik Keluar)</p>
                             </div>
                             <i class="ph ph-sign-out text-slate-400 group-hover:text-red-600"></i>
@@ -728,7 +764,7 @@ function doPost(e) {
         
         window.prosesLogin = function() {
             const pinInput = document.getElementById('login-pin').value;
-            let dbPin = '123456'; // Fallback manual sementara, jaga-jaga
+            let dbPin = '123456'; 
             
             if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
                 let p = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'pin_admin');
@@ -771,12 +807,6 @@ function doPost(e) {
 
             const pageTitle = document.getElementById('page-title');
             if (pageTitle) {
-                let appName = 'Nexus';
-                if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
-                    let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
-                    if(pName && pName.value) appName = pName.value.toString().trim();
-                }
-
                 pageTitle.style.opacity = 0; pageTitle.style.transform = 'translateY(-5px)';
                 setTimeout(() => {
                     let titleText = 'Dashboard Utama';
@@ -907,14 +937,7 @@ function doPost(e) {
                             const nohpFmt = formatNoHP(row.nohp);
                             let dStr = tanggalBayar; try { const d = new Date(tanggalBayar); if(!isNaN(d.getTime())) dStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
                             
-                            // Mendapatkan Nama Aplikasi untuk WA
-                            let appName = 'Nexus';
-                            if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
-                                let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
-                                if(pName && pName.value) appName = pName.value.toString().trim();
-                            }
-
-                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*Bendahara ${appName}*`;
+                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                             setTimeout(() => { window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank'); }, 500);
                         }
                     } else { showToast('Gagal.'); }
@@ -937,6 +960,33 @@ function doPost(e) {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
                     if(json.status === 'success') { showToast('Pengeluaran ditambahkan!'); closeModalPengeluaran(); fetchDataDariGoogleSheets(); } else showToast('Gagal.');
                 } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
+            });
+
+            // UPDATE PROFIL SISTEM (PENGATURAN)
+            document.getElementById('save-setting-btn')?.addEventListener('click', async function() {
+                const newAppName = document.getElementById('setting-app-name').value;
+                const newAdminName = document.getElementById('setting-admin-name').value;
+
+                if(!newAppName || !newAdminName) { showToast("Nama Aplikasi dan Admin tidak boleh kosong!"); return; }
+
+                const payload = {
+                    action: 'update_pengaturan',
+                    data: {
+                        nama_aplikasi: newAppName,
+                        nama_admin: newAdminName
+                    }
+                };
+
+                const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg align-middle"></i> Menyimpan...'; this.disabled = true;
+
+                try {
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                    const json = await res.json();
+                    if(json.status === 'success') {
+                        showToast('Profil Sistem berhasil diperbarui!');
+                        fetchDataDariGoogleSheets(); 
+                    } else { showToast('Gagal update pengaturan.'); }
+                } catch(e) { showToast('Gagal koneksi.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
             fetchDataDariGoogleSheets();
@@ -1098,16 +1148,28 @@ function doPost(e) {
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
-                    // UPDATE NAMA APLIKASI
-                    let appName = 'Nexus';
-                    let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
-                    if(pName && pName.value) appName = pName.value.toString().trim();
+                    // UPDATE NAMA APLIKASI & ADMIN
+                    let pApp = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
+                    if(pApp && pApp.value) globalAppName = pApp.value.toString().trim();
                     
-                    document.title = `${appName} - Aplikasi Bendahara Premium`;
+                    let pAdmin = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_admin');
+                    if(pAdmin && pAdmin.value) globalAdminName = pAdmin.value.toString().trim();
+                    
+                    // Sinkronisasi nama ke Input Pengaturan
+                    const inputAppName = document.getElementById('setting-app-name');
+                    if(inputAppName) inputAppName.value = globalAppName;
+                    
+                    const inputAdminName = document.getElementById('setting-admin-name');
+                    if(inputAdminName) inputAdminName.value = globalAdminName;
+
+                    // Update UI Nama Aplikasi
+                    document.title = `${globalAppName} - Aplikasi Bendahara Premium`;
                     const sidebarName = document.getElementById('app-name-sidebar');
-                    if(sidebarName) sidebarName.textContent = appName + '.';
+                    if(sidebarName) sidebarName.textContent = globalAppName;
                     const footerName = document.getElementById('app-name-footer');
-                    if(footerName) footerName.textContent = appName;
+                    if(footerName) footerName.textContent = globalAppName;
+                    
+                    updateRoleUI();
 
                     perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
                     renderTabelPasis(window.pasisDataGlobal);
@@ -1181,14 +1243,8 @@ function doPost(e) {
                     btnWA.onclick = function() {
                         const sisa = Math.max(globalTargetTagihan - dibayar, 0);
                         const nohpFmt = formatNoHP(row.nohp);
-                        
-                        let appName = 'Nexus';
-                        if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
-                            let pName = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
-                            if(pName && pName.value) appName = pName.value.toString().trim();
-                        }
 
-                        const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*Bendahara ${appName}*`;
+                        const msg = `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                         window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank');
                     };
                 } else { btnWA.style.display = 'none'; }
