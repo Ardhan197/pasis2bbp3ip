@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus - Aplikasi Bendahara Premium</title>
+    <title>Pasis 2B BP3IP-2026</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -505,7 +505,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>.</p>
+                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Pastikan ada <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">pin_admin</code>)</p>
                             </div>
                         </div>
                     </div>
@@ -745,7 +745,7 @@ function doPost(e) {
             if(profileContainer) {
                 if(isAdmin) {
                     profileContainer.innerHTML = `
-                        <div onclick="prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group">
+                        <div onclick="window.prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group">
                             <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">${globalAdminName}</p>
@@ -755,7 +755,7 @@ function doPost(e) {
                         </div>`;
                 } else {
                     profileContainer.innerHTML = `
-                        <div onclick="bukaModalLogin()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 cursor-pointer transition-all-custom btn-press group">
+                        <div onclick="window.bukaModalLogin()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 cursor-pointer transition-all-custom btn-press group">
                             <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shadow-sm"><i class="ph-fill ph-user text-xl"></i></div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-900 group-hover:text-brand-700 truncate">Mode Penonton</p>
@@ -773,10 +773,29 @@ function doPost(e) {
             if(window.pasisDataGlobal.length > 0) renderTabelPasis(window.pasisDataGlobal);
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
         }
+
+        // FUNGSI LOGIN ADMIN (TERPISAH AGAR AMAN)
+        window.bukaModalLogin = function() {
+            document.getElementById('login-pin').value = '';
+            const m = document.getElementById('modal-login'); 
+            m.classList.remove('hidden'); 
+            void m.offsetWidth; 
+            m.classList.remove('opacity-0'); 
+            document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('login-pin').focus(), 300);
+        };
+
+        window.closeModalLogin = function() {
+            const m = document.getElementById('modal-login'); 
+            const mc = document.getElementById('modal-login-content');
+            m.classList.add('opacity-0'); 
+            mc.classList.add('scale-95', 'opacity-0'); 
+            setTimeout(() => m.classList.add('hidden'), 300);
+        };
         
         window.prosesLogin = function() {
             const pinInput = document.getElementById('login-pin').value;
-            let dbPin = '123456'; 
+            let dbPin = '123456'; // Fallback
             
             if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
                 let p = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'pin_admin');
@@ -877,7 +896,7 @@ function doPost(e) {
                 toastTimeout = setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
             };
 
-            const modalTypes = ['modal', 'bayar', 'pengeluaran', 'login', 'setoran'];
+            const modalTypes = ['modal', 'bayar', 'pengeluaran'];
             modalTypes.forEach(mType => {
                 const m = document.getElementById(mType==='modal'?'global-modal':`modal-${mType}`);
                 const mc = document.getElementById(mType==='modal'?'modal-content':`modal-${mType}-content`);
@@ -1088,10 +1107,10 @@ function doPost(e) {
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/80 transition-all-custom group cursor-pointer'; tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${index * 20}ms`; 
-                tr.setAttribute('onclick', `bukaModalSetoran(${index})`);
+                tr.setAttribute('onclick', `window.bukaModalSetoran(${index})`);
                 
-                let actionButtons = `<button onclick="event.stopPropagation(); bukaModalSetoran(${index})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
-                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); bukaModalBayar(${index})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); bukaModalEdit(${index})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1"><i class="ph ph-note-pencil text-lg"></i></button>`; }
+                let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${index})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
+                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${index})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${index})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1"><i class="ph ph-note-pencil text-lg"></i></button>`; }
                 
                 tr.innerHTML = `
                     <td class="p-4 pl-6"><div class="flex items-center gap-3">${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
@@ -1118,7 +1137,7 @@ function doPost(e) {
                 const tr = document.createElement('tr'); tr.className = 'hover:bg-slate-50/80 transition-all-custom';
                 tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${idx * 20}ms`; 
                 
-                let btnHapus = isAdmin ? `<button onclick="hapusPengeluaran('${row.id}')" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><i class="ph ph-trash text-lg"></i></button>` : `<span class="text-xs text-slate-400 italic">No Access</span>`;
+                let btnHapus = isAdmin ? `<button onclick="window.hapusPengeluaran('${row.id}')" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><i class="ph ph-trash text-lg"></i></button>` : `<span class="text-xs text-slate-400 italic">No Access</span>`;
 
                 tr.innerHTML = `
                     <td class="p-4 pl-6 text-slate-700 font-medium">${dStr}</td>
