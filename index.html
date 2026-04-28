@@ -234,7 +234,7 @@
                 <div class="admin-only hidden-role bg-gradient-to-r from-brand-900 to-brand-950 p-5 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4 text-white">
                     <div>
                         <h3 class="font-bold text-lg flex items-center gap-2"><i class="ph-fill ph-target text-brand-400"></i> Target Tagihan Wajib</h3>
-                        <p class="text-brand-100/70 text-xs mt-1">Sisa tagihan setiap Pasis mengacu pada nominal ini.</p>
+                        <p class="text-brand-100/70 text-xs mt-1">Sisa tagihan setiap Pasis mengacu pada nominal ini. (Otomatis Tersimpan)</p>
                     </div>
                     <div class="relative w-full sm:w-64">
                         <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-brand-300">Rp</span>
@@ -257,7 +257,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative min-h-[300px]">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col">
                     <div id="table-loading-pasis" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
                         <i class="ph ph-spinner-gap text-4xl text-brand-500 animate-spin mb-2"></i>
                         <p class="text-sm font-medium">Sinkronisasi Data...</p>
@@ -265,7 +265,7 @@
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-50/50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                                <tr class="bg-slate-50/90 backdrop-blur-sm border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                                     <th class="p-4 pl-6">Data Pasis</th>
                                     <th class="p-4">Info Bank</th>
                                     <th class="p-4 min-w-[200px]">Progress Bayar</th>
@@ -275,6 +275,14 @@
                             </thead>
                             <tbody id="pasis-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
                         </table>
+                    </div>
+                    <!-- Pagination Pasis -->
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <span class="text-xs font-medium text-slate-500" id="pasis-page-info">Menampilkan 0-0 dari 0</span>
+                        <div class="flex gap-2">
+                            <button id="btn-prev-pasis" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-left"></i></button>
+                            <button id="btn-next-pasis" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-right"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -288,7 +296,7 @@
                     </div>
                     <button onclick="bukaModalPengeluaran()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm w-full sm:w-auto"><i class="ph ph-receipt text-lg"></i> Tambah Pengeluaran</button>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative min-h-[300px]">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col">
                     <div id="table-loading-pengeluaran" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
                         <i class="ph ph-spinner-gap text-4xl text-brand-500 animate-spin mb-2"></i>
                         <p class="text-sm font-medium">Sinkronisasi Data...</p>
@@ -296,7 +304,7 @@
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-50/50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                                <tr class="bg-slate-50/90 backdrop-blur-sm border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                                     <th class="p-4 pl-6">Tanggal</th>
                                     <th class="p-4">Keterangan</th>
                                     <th class="p-4">Nominal (Rp)</th>
@@ -305,6 +313,14 @@
                             </thead>
                             <tbody id="pengeluaran-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
                         </table>
+                    </div>
+                    <!-- Pagination Pengeluaran -->
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <span class="text-xs font-medium text-slate-500" id="pengeluaran-page-info">Menampilkan 0-0 dari 0</span>
+                        <div class="flex gap-2">
+                            <button id="btn-prev-pengeluaran" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-left"></i></button>
+                            <button id="btn-next-pengeluaran" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-right"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -577,11 +593,11 @@ function doPost(e) {
                 <button onclick="closeModalLogin()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="p-6">
-                <input type="password" id="login-pin" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-[0.5em] text-2xl font-bold text-slate-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" placeholder="••••••" maxlength="8">
-                <p class="text-center text-xs text-slate-400 mt-4">Sistem mengambil PIN dari database Anda secara otomatis.</p>
+                <input type="password" id="login-pin" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-[0.5em] text-2xl font-bold text-slate-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="••••••" maxlength="8">
+                <p id="login-info-text" class="text-center text-xs text-slate-400 mt-4 transition-all-custom">Sistem mengambil PIN dari database Anda secara otomatis.</p>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50/50">
-                <button type="button" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2"><i class="ph ph-sign-in text-lg"></i> Validasi PIN</button>
+                <button type="button" id="btn-submit-login" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2 transition-all-custom"><i class="ph ph-sign-in text-lg"></i> Validasi PIN</button>
             </div>
         </div>
     </div>
@@ -723,8 +739,9 @@ function doPost(e) {
                     <div id="setoran-avatar" class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center font-bold text-2xl">A</div>
                     <div class="flex-1">
                         <h2 id="setoran-nama" class="text-2xl font-bold tracking-tight mb-1">Nama Pasis</h2>
-                        <div class="flex items-center gap-2 mt-2">
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
                             <div class="flex items-center gap-1.5 text-brand-100/80 text-sm bg-black/20 px-3 py-1 rounded-full border border-white/10"><i class="ph ph-phone text-brand-400"></i> <span id="setoran-nohp">08xx</span></div>
+                            <div class="flex items-center gap-1.5 text-brand-100/80 text-sm bg-black/20 px-3 py-1 rounded-full border border-white/10"><i class="ph ph-bank text-brand-400"></i> <span id="setoran-bank">Info Bank</span></div>
                             <button id="btn-wa-card" class="text-xs bg-[#25D366] text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 hover:bg-[#1DA851] transition-all-custom shadow-lg btn-press font-medium border border-white/10"><i class="ph-fill ph-whatsapp-logo text-sm"></i> Kirim WA</button>
                         </div>
                     </div>
@@ -752,11 +769,17 @@ function doPost(e) {
         window.pasisDataGlobal = [];
         window.pengeluaranDataGlobal = [];
         window.pengaturanGlobal = [];
+        let lockoutTimerInterval = null; 
         
         let globalAppName = 'Nexus';
         let globalAdminName = 'Bendahara Utama';
         let globalTargetTagihan = Number(localStorage.getItem('globalTargetNexus')) || 15000000;
         let userRole = localStorage.getItem('nexusRole') || 'viewer';
+
+        // STATE PAGINATION
+        let currentPasisPage = 1;
+        let currentPengeluaranPage = 1;
+        const ITEMS_PER_PAGE = 10;
         
         // SISTEM PING VISITOR
         let visitorSessionId = sessionStorage.getItem('nexus_session_id');
@@ -815,7 +838,6 @@ function doPost(e) {
 
         // AUTO SYNC BACKGROUND (REAL-TIME SENSITIVITY)
         async function fetchDataBackground() {
-            // Jangan sinkronisasi latar belakang jika user sedang mengisi form (modal tidak hidden)
             const modalOpen = !document.getElementById('global-modal').classList.contains('hidden') || 
                               !document.getElementById('modal-bayar').classList.contains('hidden') || 
                               !document.getElementById('modal-pengeluaran').classList.contains('hidden');
@@ -828,7 +850,6 @@ function doPost(e) {
                 const jsonRes = JSON.parse(rawText);
                 
                 if(jsonRes.status === 'success') {
-                    // Cek jika ada perubahan data pasis (Sensitif perubahan 1 huruf)
                     const newDataStr = JSON.stringify(jsonRes.pasis || []);
                     const oldDataStr = JSON.stringify(window.pasisDataGlobal || []);
                     if (newDataStr !== oldDataStr) {
@@ -837,7 +858,6 @@ function doPost(e) {
                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
                     }
                     
-                    // Cek jika ada perubahan data pengeluaran
                     const newPengeluaranStr = JSON.stringify(jsonRes.pengeluaran || []);
                     const oldPengeluaranStr = JSON.stringify(window.pengeluaranDataGlobal || []);
                     if (newPengeluaranStr !== oldPengeluaranStr) {
@@ -895,37 +915,79 @@ function doPost(e) {
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
         }
 
+        function checkLockoutState() {
+            const pinInput = document.getElementById('login-pin');
+            const infoText = document.getElementById('login-info-text');
+            const btnSubmit = document.getElementById('btn-submit-login');
+            
+            let lockoutUntil = localStorage.getItem('nexus_lockout');
+            
+            if (lockoutUntil && Date.now() < parseInt(lockoutUntil)) {
+                pinInput.disabled = true; btnSubmit.disabled = true;
+                pinInput.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
+                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                let sisaDetik = Math.ceil((parseInt(lockoutUntil) - Date.now()) / 1000);
+                infoText.innerHTML = `<span class="text-red-500 font-semibold"><i class="ph-fill ph-warning-circle align-middle"></i> Sistem login terkunci. Coba lagi dalam <b class="text-red-600">${sisaDetik}</b> detik.</span>`;
+                return true;
+            } else {
+                localStorage.removeItem('nexus_lockout');
+                pinInput.disabled = false; btnSubmit.disabled = false;
+                pinInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                infoText.innerHTML = `Sistem mengambil PIN dari database Anda secara otomatis.`;
+                return false;
+            }
+        }
+
         window.bukaModalLogin = function() {
             document.getElementById('login-pin').value = '';
+            clearInterval(lockoutTimerInterval);
+            if (checkLockoutState()) { lockoutTimerInterval = setInterval(checkLockoutState, 1000); }
+
             const m = document.getElementById('modal-login'); 
-            m.classList.remove('hidden'); 
-            void m.offsetWidth; 
-            m.classList.remove('opacity-0'); 
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); 
             document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
-            setTimeout(() => document.getElementById('login-pin').focus(), 300);
+            
+            if (!document.getElementById('login-pin').disabled) { setTimeout(() => document.getElementById('login-pin').focus(), 300); }
         };
 
         window.closeModalLogin = function() {
-            const m = document.getElementById('modal-login'); 
-            const mc = document.getElementById('modal-login-content');
-            m.classList.add('opacity-0'); 
-            mc.classList.add('scale-95', 'opacity-0'); 
-            setTimeout(() => m.classList.add('hidden'), 300);
+            clearInterval(lockoutTimerInterval);
+            const m = document.getElementById('modal-login'); const mc = document.getElementById('modal-login-content');
+            m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
         };
         
         window.prosesLogin = function() {
+            if (checkLockoutState()) return;
+
             const pinInput = document.getElementById('login-pin').value;
+            if (!pinInput) { showToast('Harap masukkan PIN Admin!'); return; }
+
             let dbPin = '123456'; 
-            
             if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
                 let p = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'pin_admin');
                 if(p && p.value) dbPin = p.value.toString().trim();
             }
 
             if(pinInput === dbPin) {
+                localStorage.removeItem('nexus_attempts'); localStorage.removeItem('nexus_lockout');
                 userRole = 'admin'; localStorage.setItem('nexusRole', 'admin');
-                closeModalLogin(); updateRoleUI(); showToast('Login berhasil! Mode Admin aktif.');
-            } else { showToast('PIN salah atau belum ditarik dari database!'); }
+                closeModalLogin(); updateRoleUI(); showToast('Autentikasi Berhasil! Anda masuk Mode Admin.');
+            } else {
+                let attempts = parseInt(localStorage.getItem('nexus_attempts') || '0') + 1;
+                localStorage.setItem('nexus_attempts', attempts);
+                
+                if (attempts >= 3) {
+                    let lockTime = Date.now() + (3 * 60 * 1000); localStorage.setItem('nexus_lockout', lockTime);
+                    showToast('Terlalu banyak percobaan salah! Sistem login dikunci sementara.');
+                    document.getElementById('login-pin').value = '';
+                    checkLockoutState(); lockoutTimerInterval = setInterval(checkLockoutState, 1000);
+                } else {
+                    document.getElementById('login-pin').value = ''; document.getElementById('login-pin').focus();
+                    showToast(`PIN Salah! Anda memiliki ${3 - attempts} percobaan lagi.`);
+                }
+            }
         };
 
         window.prosesLogout = function() {
@@ -983,36 +1045,49 @@ function doPost(e) {
         document.addEventListener('DOMContentLoaded', () => {
             updateRoleUI();
             
-            // JALANKAN PING VISITOR TRAFFIC
-            pingServer();
-            setInterval(pingServer, 60000); 
-
-            // JALANKAN AUTO-SYNC REAL-TIME SETIAP 8 DETIK
+            pingServer(); setInterval(pingServer, 60000); 
             setInterval(fetchDataBackground, 8000);
             
             document.getElementById('openSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebarBtn')?.addEventListener('click', () => toggleSidebar(false));
             document.getElementById('sidebarOverlay')?.addEventListener('click', () => toggleSidebar(false));
 
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) { e.preventDefault(); switchView(this.getAttribute('data-target'), this); });
-            });
-
+            document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); switchView(this.getAttribute('data-target'), this); }); });
             document.getElementById('login-pin')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); window.prosesLogin(); }});
             
-            // FITUR PENCARIAN & FILTER REAL-TIME
-            document.getElementById('search-pasis')?.addEventListener('input', () => { renderTabelPasis(window.pasisDataGlobal); });
-            document.getElementById('filter-status-pasis')?.addEventListener('change', () => { renderTabelPasis(window.pasisDataGlobal); });
+            // PENCARIAN & FILTER
+            document.getElementById('search-pasis')?.addEventListener('input', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
+            document.getElementById('filter-status-pasis')?.addEventListener('change', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
 
+            // PAGINATION EVENTS
+            document.getElementById('btn-prev-pasis')?.addEventListener('click', () => { if(currentPasisPage > 1) { currentPasisPage--; renderTabelPasis(window.pasisDataGlobal); } });
+            document.getElementById('btn-next-pasis')?.addEventListener('click', () => { currentPasisPage++; renderTabelPasis(window.pasisDataGlobal); });
+            
+            document.getElementById('btn-prev-pengeluaran')?.addEventListener('click', () => { if(currentPengeluaranPage > 1) { currentPengeluaranPage--; renderTabelPengeluaran(window.pengeluaranDataGlobal); } });
+            document.getElementById('btn-next-pengeluaran')?.addEventListener('click', () => { currentPengeluaranPage++; renderTabelPengeluaran(window.pengeluaranDataGlobal); });
+
+            // SIMPAN TARGET TAGIHAN OTOMATIS KE DB SAAT SELESAI MENGETIK
             const gInput = document.getElementById('global-target-input');
             if (gInput) {
                 gInput.value = new Intl.NumberFormat('id-ID').format(globalTargetTagihan);
-                gInput.addEventListener('input', (e) => {
-                    formatInputRibuan(e);
+                gInput.addEventListener('input', formatInputRibuan);
+                gInput.addEventListener('change', async (e) => {
                     let val = Number(e.target.value.replace(/\./g, ''));
                     if(val >= 0) {
                         globalTargetTagihan = val; localStorage.setItem('globalTargetNexus', val);
                         if(window.pasisDataGlobal.length > 0) { renderTabelPasis(window.pasisDataGlobal); perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal); }
+                        
+                        // Kirim ke DB Jika Admin
+                        if(userRole === 'admin' && !GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) {
+                            showToast('Menyimpan Target Tagihan ke Database...');
+                            try {
+                                const payload = { action: 'update_pengaturan', data: { target_tagihan: val } };
+                                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                                const json = await res.json();
+                                if(json.status === 'success') { showToast('Target Tagihan Tersimpan secara Global!'); }
+                                else showToast('Gagal menyimpan target tagihan.');
+                            } catch(err) { showToast('Gagal koneksi menyimpan pengaturan.'); }
+                        }
                     }
                 });
             }
@@ -1069,7 +1144,7 @@ function doPost(e) {
                 } catch(e) { showToast('Gagal memproses data.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
-            // SUBMIT SETORAN & AUTO WA
+            // SUBMIT SETORAN
             document.getElementById('submit-bayar-btn')?.addEventListener('click', async function() {
                 const index = document.getElementById('bayar-index').value;
                 const nominalStr = document.getElementById('bayar-nominal').value;
@@ -1108,7 +1183,7 @@ function doPost(e) {
                 } catch(e) { showToast('Gagal memproses setoran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
-            // SUBMIT PENGELUARAN BARU
+            // SUBMIT PENGELUARAN
             document.getElementById('submit-pengeluaran-btn')?.addEventListener('click', async function() {
                 const tgl = document.getElementById('keluar-tanggal').value;
                 const ket = document.getElementById('keluar-keterangan').value;
@@ -1126,7 +1201,7 @@ function doPost(e) {
                 } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
-            // UPDATE PROFIL SISTEM (PENGATURAN)
+            // UPDATE PENGATURAN (PROFIL)
             document.getElementById('save-setting-btn')?.addEventListener('click', async function() {
                 const newAppName = document.getElementById('setting-app-name').value;
                 const newAdminName = document.getElementById('setting-admin-name').value;
@@ -1171,10 +1246,6 @@ function doPost(e) {
             const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas`;
             const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Transaksi`;
             
-            const dtp = document.getElementById('dash-total-pasis'); if(dtp) dtp.textContent = pasisArr.length;
-            const plk = document.getElementById('dash-persen-lk'); if(plk) plk.textContent = pasisArr.filter(d=>d.jk==='Laki-laki').length + ' LK';
-            const ppr = document.getElementById('dash-persen-pr'); if(ppr) ppr.textContent = pasisArr.filter(d=>d.jk==='Perempuan').length + ' PR';
-            
             const bankCounts = {};
             pasisArr.forEach(d => { let b = (d.bank || 'BELUM DIISI').toUpperCase(); bankCounts[b] = (bankCounts[b]||0)+1; });
             const sortedBanks = Object.entries(bankCounts).sort((a,b)=>b[1]-a[1]);
@@ -1206,44 +1277,62 @@ function doPost(e) {
             }
         }
 
-        // --- RENDER TABEL PASIS (DENGAN FILTER & PENCARIAN REAL-TIME) ---
+        // --- RENDER TABEL PASIS (PAGINATION) ---
         function renderTabelPasis(data) {
             const tableBody = document.getElementById('pasis-table-body');
             const badgeTotal = document.getElementById('total-pasis-badge');
-            
             if(!tableBody) return; tableBody.innerHTML = ''; 
-            if(badgeTotal) badgeTotal.textContent = (data ? data.length : 0) + ' Data';
-
-            if (!data || data.length === 0) { tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Belum ada data.</td></tr>`; return; }
             
             const searchTerm = (document.getElementById('search-pasis')?.value || '').toLowerCase();
             const statusFilter = document.getElementById('filter-status-pasis')?.value || '';
-            
             const isAdmin = userRole === 'admin';
-            let shownCount = 0;
 
-            data.forEach((row, index) => {
+            // Filter data dan rekam nomor index original dari database
+            const filteredData = (data || []).map((row, index) => ({...row, originalIndex: index})).filter(row => {
                 let dibayar = parseNominal(row.dibayar);
-                let persen = globalTargetTagihan > 0 ? Math.min(Math.round((dibayar/globalTargetTagihan)*100), 100) : 0;
+                let statusRaw = 'Belum';
+                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) statusRaw = 'Lunas'; 
+                else if (dibayar > 0) statusRaw = 'Cicilan'; 
                 
-                let statusRaw = ''; let statusBadge = ''; let progressColor = 'bg-red-500';
-                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
-                    statusRaw = 'Lunas'; statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; 
-                } 
-                else if (dibayar > 0) { 
-                    statusRaw = 'Cicilan'; statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md"><i class="ph-fill ph-spinner-gap animate-spin mr-1"></i>Cicilan</span>`; progressColor = 'bg-amber-400'; 
-                } 
-                else { 
-                    statusRaw = 'Belum'; statusBadge = `<span class="px-2.5 py-1 bg-red-50 text-red-700 rounded-md"><i class="ph-fill ph-warning-circle mr-1"></i>Belum</span>`; 
-                }
-
-                // Logika Filter
                 const nama = (row.nama || '').toLowerCase();
                 const nohp = (row.nohp || '').toLowerCase();
                 const matchSearch = nama.includes(searchTerm) || nohp.includes(searchTerm);
                 const matchStatus = statusFilter === "" || statusRaw === statusFilter;
 
-                if (!matchSearch || !matchStatus) return; // Lewati jika tidak cocok dengan pencarian/filter
+                return matchSearch && matchStatus;
+            });
+
+            if(badgeTotal) badgeTotal.textContent = filteredData.length + ' Data';
+
+            if (filteredData.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Pencarian tidak ditemukan atau data masih kosong.</td></tr>`; 
+                document.getElementById('pasis-page-info').textContent = 'Menampilkan 0-0 dari 0';
+                document.getElementById('btn-prev-pasis').disabled = true; document.getElementById('btn-next-pasis').disabled = true;
+                return; 
+            }
+
+            // Hitung Pagination
+            const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+            if (currentPasisPage > totalPages) currentPasisPage = totalPages;
+            
+            const startIdx = (currentPasisPage - 1) * ITEMS_PER_PAGE;
+            const endIdx = startIdx + ITEMS_PER_PAGE;
+            const paginatedData = filteredData.slice(startIdx, endIdx);
+
+            paginatedData.forEach((row, relativeIndex) => {
+                let dibayar = parseNominal(row.dibayar);
+                let persen = globalTargetTagihan > 0 ? Math.min(Math.round((dibayar/globalTargetTagihan)*100), 100) : 0;
+                
+                let statusBadge = ''; let progressColor = 'bg-red-500';
+                if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
+                    statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; 
+                } 
+                else if (dibayar > 0) { 
+                    statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md"><i class="ph-fill ph-spinner-gap animate-spin mr-1"></i>Cicilan</span>`; progressColor = 'bg-amber-400'; 
+                } 
+                else { 
+                    statusBadge = `<span class="px-2.5 py-1 bg-red-50 text-red-700 rounded-md"><i class="ph-fill ph-warning-circle mr-1"></i>Belum</span>`; 
+                }
 
                 let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
                 let avatarHtml = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold shadow-sm">${initials}</div>`;
@@ -1251,44 +1340,51 @@ function doPost(e) {
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/80 transition-all-custom group cursor-pointer'; tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; 
+                tr.style.transitionDelay = `${relativeIndex * 20}ms`; 
+                tr.setAttribute('onclick', `window.bukaModalSetoran(${row.originalIndex})`);
                 
-                // Menjaga agar delay animasi selalu mulus secara berurutan sesuai data yang ditampilkan
-                const currentDelay = shownCount * 20;
-                tr.style.transitionDelay = `${currentDelay}ms`; 
-                tr.setAttribute('onclick', `window.bukaModalSetoran(${index})`);
+                let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${row.originalIndex})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
+                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${row.originalIndex})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>`; }
                 
-                let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${index})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
-                if (isAdmin) { actionButtons += `<button onclick="event.stopPropagation(); window.bukaModalBayar(${index})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button><button onclick="event.stopPropagation(); window.bukaModalEdit(${index})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>`; }
-                
-                // index + 1 adalah penomoran asli dari database
                 tr.innerHTML = `
-                    <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${index + 1}.</span>${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
+                    <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${row.originalIndex + 1}.</span>${avatarHtml}<div><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p><p class="text-xs text-slate-500"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
                     <td class="p-4 text-slate-600 text-xs"><p class="font-bold">${(row.bank||'-').toUpperCase()}</p><p class="font-mono text-slate-500">${row.norek||'-'}</p></td>
                     <td class="p-4 w-48"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Terkumpul:</span> <span class="font-bold text-slate-700">${persen}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 mb-1 overflow-hidden"><div class="${progressColor} h-1.5 rounded-full" style="width: ${persen}%"></div></div><div class="text-[10px] text-slate-400 text-right">${formatRp(dibayar)} / ${formatRp(globalTargetTagihan)}</div>${tglText ? `<div class="text-[10px] text-slate-500 font-medium mt-1"><i class="ph ph-clock-counter-clockwise"></i> ${tglText}</div>` : ''}</td>
                     <td class="p-4 text-xs font-medium">${statusBadge}</td>
                     <td class="p-4 pr-6 text-right"><div class="flex items-center justify-end">${actionButtons}</div></td>
                 `;
-                tableBody.appendChild(tr); 
-                setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + currentDelay);
-                
-                shownCount++;
+                tableBody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (relativeIndex * 20));
             });
 
-            if (shownCount === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Pencarian tidak ditemukan.</td></tr>`;
-            }
+            // Update Info & Tombol Pagination
+            document.getElementById('pasis-page-info').textContent = `Menampilkan ${startIdx + 1}-${Math.min(endIdx, filteredData.length)} dari ${filteredData.length}`;
+            document.getElementById('btn-prev-pasis').disabled = currentPasisPage === 1;
+            document.getElementById('btn-next-pasis').disabled = currentPasisPage === totalPages;
         }
 
-        // --- RENDER TABEL PENGELUARAN ---
+        // --- RENDER TABEL PENGELUARAN (PAGINATION) ---
         function renderTabelPengeluaran(data) {
             const tbody = document.getElementById('pengeluaran-table-body');
             if(!tbody) return; tbody.innerHTML = '';
-            if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Belum ada pengeluaran dicatat.</td></tr>`; return; }
+            
+            if (!data || data.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Belum ada pengeluaran dicatat.</td></tr>`; 
+                document.getElementById('pengeluaran-page-info').textContent = 'Menampilkan 0-0 dari 0';
+                document.getElementById('btn-prev-pengeluaran').disabled = true; document.getElementById('btn-next-pengeluaran').disabled = true;
+                return; 
+            }
             
             const isAdmin = userRole === 'admin';
             const sortedData = [...data].reverse();
 
-            sortedData.forEach((row, idx) => {
+            const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE) || 1;
+            if (currentPengeluaranPage > totalPages) currentPengeluaranPage = totalPages;
+            
+            const startIdx = (currentPengeluaranPage - 1) * ITEMS_PER_PAGE;
+            const endIdx = startIdx + ITEMS_PER_PAGE;
+            const paginatedData = sortedData.slice(startIdx, endIdx);
+
+            paginatedData.forEach((row, idx) => {
                 let d = new Date(row.tanggal); let dStr = isNaN(d.getTime()) ? row.tanggal : d.toLocaleDateString('id-ID',{day:'numeric', month:'long', year:'numeric'});
                 const tr = document.createElement('tr'); tr.className = 'hover:bg-slate-50/80 transition-all-custom';
                 tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${idx * 20}ms`; 
@@ -1303,6 +1399,11 @@ function doPost(e) {
                 `;
                 tbody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (idx * 20));
             });
+
+            // Update Info & Tombol Pagination
+            document.getElementById('pengeluaran-page-info').textContent = `Menampilkan ${startIdx + 1}-${Math.min(endIdx, sortedData.length)} dari ${sortedData.length}`;
+            document.getElementById('btn-prev-pengeluaran').disabled = currentPengeluaranPage === 1;
+            document.getElementById('btn-next-pengeluaran').disabled = currentPengeluaranPage === totalPages;
         }
 
         // --- HAPUS PENGELUARAN ---
@@ -1337,15 +1438,22 @@ function doPost(e) {
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
-                    // UPDATE NAMA APLIKASI & ADMIN
+                    // UPDATE PENGATURAN
                     let pApp = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_aplikasi');
                     if(pApp && pApp.value) globalAppName = pApp.value.toString().trim();
                     
                     let pAdmin = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'nama_admin');
                     if(pAdmin && pAdmin.value) globalAdminName = pAdmin.value.toString().trim();
+
+                    let pTarget = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'target_tagihan');
+                    if(pTarget && pTarget.value) { 
+                        globalTargetTagihan = Number(pTarget.value); 
+                        localStorage.setItem('globalTargetNexus', globalTargetTagihan);
+                    }
                     
                     const inputAppName = document.getElementById('setting-app-name'); if(inputAppName) inputAppName.value = globalAppName;
                     const inputAdminName = document.getElementById('setting-admin-name'); if(inputAdminName) inputAdminName.value = globalAdminName;
+                    const inputTargetTagihan = document.getElementById('global-target-input'); if(inputTargetTagihan) inputTargetTagihan.value = new Intl.NumberFormat('id-ID').format(globalTargetTagihan);
 
                     document.title = `${globalAppName} - Aplikasi Bendahara Premium`;
                     const sidebarName = document.getElementById('app-name-sidebar'); if(sidebarName) sidebarName.textContent = globalAppName;
@@ -1403,6 +1511,11 @@ function doPost(e) {
             let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
             document.getElementById('setoran-avatar').textContent = initials;
             document.getElementById('setoran-nama').textContent = row.nama || '-'; document.getElementById('setoran-nohp').textContent = row.nohp || 'Tidak ada kontak';
+            
+            let infoBank = (row.bank || '').toUpperCase();
+            if (row.norek) infoBank += (infoBank ? ' - ' : '') + row.norek;
+            document.getElementById('setoran-bank').textContent = infoBank || 'Tidak ada info bank';
+
             document.getElementById('setoran-tagihan').textContent = formatRp(globalTargetTagihan); document.getElementById('setoran-dibayar').textContent = formatRp(row.dibayar);
             const dibayar = parseNominal(row.dibayar); const badge = document.getElementById('setoran-badge');
             if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
