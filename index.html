@@ -456,6 +456,12 @@ function doPost(e) {
           newRow.push(val);
         });
         sheet.appendRow(newRow);
+        
+        // OTOMATIS MENGURUTKAN DATABASE GOOGLE SHEETS (A-Z) BERDASARKAN KOLOM A (NAMA)
+        if (sheet.getLastRow() > 1) {
+          sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).sort(1);
+        }
+
         return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
       }
       
@@ -895,10 +901,13 @@ function doPost(e) {
                 const jsonRes = JSON.parse(rawText);
                 
                 if(jsonRes.status === 'success') {
-                    const newDataStr = JSON.stringify(jsonRes.pasis || []);
+                    // Mengurutkan data pasis berdasarkan abjad nama (A-Z)
+                    const sortedPasis = (jsonRes.pasis || []).sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+                    
+                    const newDataStr = JSON.stringify(sortedPasis);
                     const oldDataStr = JSON.stringify(window.pasisDataGlobal || []);
                     if (newDataStr !== oldDataStr) {
-                        window.pasisDataGlobal = jsonRes.pasis || [];
+                        window.pasisDataGlobal = sortedPasis;
                         renderTabelPasis(window.pasisDataGlobal);
                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
                     }
@@ -1638,7 +1647,8 @@ function doPost(e) {
                 try { jsonRes = JSON.parse(rawText); } catch(e) { throw new Error("SERVER_AKSES_DITOLAK"); }
                 
                 if(jsonRes.status === 'success') {
-                    window.pasisDataGlobal = jsonRes.pasis || [];
+                    // Mengurutkan data pasis berdasarkan abjad nama (A-Z)
+                    window.pasisDataGlobal = (jsonRes.pasis || []).sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
