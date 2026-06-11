@@ -87,7 +87,7 @@
                 <i class="ph ph-arrow-up-right text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pengeluaran
             </a>
             <a href="#" class="nav-link admin-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pindah-dana">
-                <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pindahkan Dana
+                <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Serah Terima Kas
             </a>
 
             <div class="pt-6 mt-6 border-t border-slate-100"></div>
@@ -167,7 +167,7 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-900">Transparansi Keuangan</h2>
-                        <p class="text-slate-500 mt-1">Ringkasan tagihan, pemasukan, pengeluaran, dan serah-terima dana sistem.</p>
+                        <p class="text-slate-500 mt-1">Ringkasan tagihan, pemasukan, pengeluaran, dan serah-terima pemegang kas.</p>
                     </div>
                     <div id="dash-loading-status" class="flex items-center gap-2 text-xs font-medium text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm animate-pulse-soft">
                         <i class="ph ph-spinner-gap animate-spin text-brand-500 text-base"></i> Memuat...
@@ -181,7 +181,7 @@
                             <div><p class="text-brand-100 text-sm font-medium mb-1">Saldo Kas Saat Ini</p><h3 id="dash-saldo" class="text-2xl font-bold tracking-tight">Rp 0</h3></div>
                             <div class="p-2 bg-white/10 rounded-xl"><i class="ph ph-vault text-2xl text-white"></i></div>
                         </div>
-                        <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Sisa uang bendahara setelah pengeluaran & pindah dana</div>
+                        <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Saldo kas kelas yang tetap aktif untuk pemegang kas saat ini</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
@@ -192,10 +192,10 @@
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
-                            <div><p class="text-slate-500 text-sm font-medium mb-1">Dana Keluar</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
+                            <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pengeluaran</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
                             <div class="p-2 bg-red-50 text-red-600 rounded-xl"><i class="ph ph-arrow-up-right text-2xl"></i></div>
                         </div>
-                        <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran & pindah dana</div>
+                        <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran kas</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
@@ -213,7 +213,7 @@
                     </div>
                     <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[360px]">
                         <div class="flex items-center justify-between mb-6">
-                            <h3 class="font-bold text-lg text-slate-900">Pengeluaran Terkini</h3>
+                            <h3 class="font-bold text-lg text-slate-900">Aktivitas Kas Terkini</h3>
                             <button onclick="document.querySelector('[data-target=\'pengeluaran\']').click()" class="text-brand-600 hover:underline text-sm font-medium">Kelola</button>
                         </div>
                         <div id="dash-recent-keluar" class="flex-1 overflow-y-auto pr-2 space-y-5 custom-scrollbar"></div>
@@ -336,26 +336,27 @@
             <div id="view-pindah-dana" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-900">Pindahkan Dana</h2>
-                        <p class="text-slate-500 mt-1">Catat dana yang diserahkan dari bendahara kepada ketua kelas.</p>
+                        <h2 class="text-2xl font-bold text-slate-900">Serah Terima Kas</h2>
+                        <p class="text-slate-500 mt-1">Catat perpindahan pemegang kas dari bendahara ke ketua kelas tanpa mengurangi saldo kas kelas.</p>
                     </div>
-                    <button onclick="bukaModalPindahDana()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium text-sm w-full sm:w-auto"><i class="ph ph-hand-coins text-lg"></i> Pindahkan Dana</button>
+                    <button onclick="bukaModalPindahDana()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium text-sm w-full sm:w-auto"><i class="ph ph-hand-coins text-lg"></i> Catat Serah Terima</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                        <p class="text-slate-500 text-sm font-medium mb-1">Total Sudah Dipindahkan</p>
+                        <p class="text-slate-500 text-sm font-medium mb-1">Total Dana Diserahterimakan</p>
                         <h3 id="pindah-total-nominal" class="text-2xl font-bold text-slate-900">Rp 0</h3>
-                        <p class="text-xs text-slate-500 mt-2">Dana yang sudah diserahterimakan.</p>
+                        <p class="text-xs text-slate-500 mt-2">Catatan audit dana yang berpindah pemegang.</p>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
                         <p class="text-slate-500 text-sm font-medium mb-1">Jumlah Serah Terima</p>
                         <h3 id="pindah-total-transaksi" class="text-2xl font-bold text-slate-900">0 Transaksi</h3>
-                        <p class="text-xs text-slate-500 mt-2">Riwayat pindah dana yang tercatat.</p>
+                        <p class="text-xs text-slate-500 mt-2">Riwayat serah-terima yang tercatat.</p>
                     </div>
                     <div class="bg-amber-50 rounded-3xl p-6 shadow-sm border border-amber-100">
-                        <p class="text-amber-700 text-sm font-medium mb-1">Catatan</p>
-                        <p class="text-sm text-amber-800 leading-relaxed">Nominal di menu ini otomatis mengurangi saldo kas bendahara, karena dana sudah berpindah ke ketua kelas.</p>
+                        <p class="text-amber-700 text-sm font-medium mb-1">Saldo Kas Aktif</p>
+                        <h3 id="pindah-saldo-aktif" class="text-2xl font-bold text-amber-900">Rp 0</h3>
+                        <p class="text-xs text-amber-800 mt-2 leading-relaxed">Tetap menjadi saldo kelas yang bisa dipakai ketua kelas setelah handover.</p>
                     </div>
                 </div>
 
@@ -372,7 +373,7 @@
                                     <th class="p-4">Penerima</th>
                                     <th class="p-4">Metode</th>
                                     <th class="p-4">Keterangan</th>
-                                    <th class="p-4">Nominal</th>
+                                    <th class="p-4">Nominal Audit</th>
                                     <th class="p-4 pr-6 text-right">Aksi</th>
                                 </tr>
                             </thead>
@@ -627,7 +628,7 @@ function doPost(e) {
        var rowIndex = -1;
        for(var r = 1; r < data.length; r++) { if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; } }
        if(rowIndex > -1) { sheet.deleteRow(rowIndex); return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON); } 
-       else { throw new Error("Data pindah dana tidak ditemukan."); }
+       else { throw new Error("Data serah terima kas tidak ditemukan."); }
     }
 
     // --- AKSI UPDATE PENGATURAN ---
@@ -690,7 +691,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pindah Dana</p>
-                                <p>Kolom A-F: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">id, tanggal, penerima, metode, keterangan, nominal</code>. Sheet ini mencatat dana yang diserahkan ke ketua kelas.</p>
+                                <p>Kolom A-F: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">id, tanggal, penerima, metode, keterangan, nominal</code>. Sheet ini mencatat serah-terima pemegang kas; nominalnya bukan pengeluaran kas kelas.</p>
                             </div>
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">4</div>
@@ -775,7 +776,7 @@ function doPost(e) {
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-amber-50/50">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600"><i class="ph-fill ph-hand-coins text-xl"></i></div>
-                    <div><h3 class="font-bold text-slate-900">Pindahkan Dana</h3><p class="text-xs text-slate-500">Catat serah-terima dana ke ketua kelas.</p></div>
+                    <div><h3 class="font-bold text-slate-900">Serah Terima Kas</h3><p class="text-xs text-slate-500">Catat pengalihan pemegang kas ke ketua kelas.</p></div>
                 </div>
                 <button id="close-pindah-dana-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 focus:outline-none btn-press"><i class="ph ph-x text-lg"></i></button>
             </div>
@@ -808,7 +809,7 @@ function doPost(e) {
                             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-slate-400">Rp</span>
                             <input type="text" id="transfer-nominal" class="w-full pl-11 pr-4 py-3 bg-white border-2 border-amber-100 rounded-xl text-lg font-bold text-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0">
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-2">Nominal ini akan mengurangi saldo kas bendahara.</p>
+                        <p class="text-[11px] text-slate-400 mt-2">Nominal ini hanya menjadi catatan serah-terima. Saldo kas kelas tidak berkurang dan tetap bisa dipakai pemegang baru.</p>
                     </div>
                 </div>
             </div>
@@ -1248,7 +1249,7 @@ function doPost(e) {
                     let titleText = 'Dashboard Utama';
                     if (targetId === 'pasis') titleText = 'Data Administrasi Pasis';
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
-                    if (targetId === 'pindah-dana') titleText = 'Pindahkan Dana';
+                    if (targetId === 'pindah-dana') titleText = 'Serah Terima Kas';
                     if (targetId === 'pengaturan') titleText = 'Pengaturan Sistem';
                     pageTitle.textContent = titleText; pageTitle.style.opacity = 1; pageTitle.style.transform = 'translateY(0)';
                 }, 200);
@@ -1483,11 +1484,10 @@ function doPost(e) {
 
                 const totalMasuk = (window.pasisDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.dibayar), 0);
                 const totalPengeluaran = (window.pengeluaranDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
-                const totalPindah = (window.pindahDanaDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
-                const saldoSaatIni = totalMasuk - totalPengeluaran - totalPindah;
-                if(nom > saldoSaatIni) {
-                    const lanjut = confirm(`Nominal pindah dana lebih besar dari saldo kas bendahara saat ini (${formatRp(saldoSaatIni)}). Tetap simpan?`);
-                    if(!lanjut) return;
+                const saldoKasAktif = totalMasuk - totalPengeluaran;
+                if(nom > saldoKasAktif) {
+                    showToast(`Nominal serah terima melebihi saldo kas aktif (${formatRp(saldoKasAktif)}).`);
+                    return;
                 }
 
                 const payload = { action: 'create_pindah_dana', data: { tanggal: tgl, penerima: penerima, metode: metode, keterangan: ket, nominal: nom } };
@@ -1496,8 +1496,8 @@ function doPost(e) {
                 try {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                     const json = await res.json();
-                    if(json.status === 'success') { showToast('Pindah dana berhasil dicatat!'); closeModalPindahDana(); fetchDataDariGoogleSheets(); } else showToast('Gagal: ' + (json.message || 'Tidak diketahui'));
-                } catch(e) { showToast('Gagal memproses pindah dana.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
+                    if(json.status === 'success') { showToast('Serah terima kas berhasil dicatat!'); closeModalPindahDana(); fetchDataDariGoogleSheets(); } else showToast('Gagal: ' + (json.message || 'Tidak diketahui'));
+                } catch(e) { showToast('Gagal memproses serah terima kas.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
             // UPDATE PENGATURAN (PROFIL)
@@ -1606,19 +1606,21 @@ function doPost(e) {
             const pindahArr = dataPindahDana || [];
             pindahArr.forEach(p => { totalPindahDana += parseNominal(p.nominal); });
             
-            let totalDanaKeluar = totalKeluar + totalPindahDana;
-            let saldoAktif = totalMasuk - totalDanaKeluar;
+            // Serah terima kas TIDAK dihitung sebagai pengeluaran kelas.
+            // Dana hanya berpindah pemegang dari bendahara ke ketua kelas, sehingga saldo kas aktif tetap dapat digunakan oleh pemegang baru.
+            let saldoAktif = totalMasuk - totalKeluar;
 
             const ds = document.getElementById('dash-saldo'); if(ds) ds.textContent = formatRp(saldoAktif);
             const dt = document.getElementById('dash-total-dana'); if(dt) dt.textContent = formatRp(totalMasuk);
-            const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalDanaKeluar);
+            const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalKeluar);
             const dpt = document.getElementById('dash-total-piutang'); if(dpt) dpt.textContent = formatRp(totalPiutang);
             
             const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas`;
-            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran + ${pindahArr.length} Pindah Dana`;
+            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran`;
 
             const pindahTotalNominal = document.getElementById('pindah-total-nominal'); if(pindahTotalNominal) pindahTotalNominal.textContent = formatRp(totalPindahDana);
             const pindahTotalTransaksi = document.getElementById('pindah-total-transaksi'); if(pindahTotalTransaksi) pindahTotalTransaksi.textContent = `${pindahArr.length} Transaksi`;
+            const pindahSaldoAktif = document.getElementById('pindah-saldo-aktif'); if(pindahSaldoAktif) pindahSaldoAktif.textContent = formatRp(saldoAktif);
             
             const bankCounts = {};
             pasisArr.forEach(d => { 
@@ -1657,7 +1659,7 @@ function doPost(e) {
                                     <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center ${txt}"><i class="ph ${icon} text-lg"></i></div>
                                     <div><p class="font-semibold text-sm text-slate-900 truncate max-w-[120px] sm:max-w-[200px]">${label}</p><p class="text-xs text-slate-500">${sub}</p></div>
                                 </div>
-                                <div class="text-right text-sm font-bold ${txt}">- ${formatRp(item.nominal)}</div>
+                                <div class="text-right text-sm font-bold ${txt}">${isPindah ? 'Audit ' : '- '}${formatRp(item.nominal)}</div>
                             </div>`;
                     });
                 } else {
@@ -1818,7 +1820,7 @@ function doPost(e) {
             const totalTrxEl = document.getElementById('pindah-total-transaksi'); if(totalTrxEl) totalTrxEl.textContent = `${(data || []).length} Transaksi`;
             
             if (!data || data.length === 0) { 
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada riwayat pindah dana.</td></tr>`; 
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada riwayat serah terima kas.</td></tr>`; 
                 document.getElementById('pindah-dana-page-info').textContent = 'Menampilkan 0-0 dari 0';
                 document.getElementById('btn-prev-pindah-dana').disabled = true; document.getElementById('btn-next-pindah-dana').disabled = true;
                 return; 
@@ -1846,7 +1848,7 @@ function doPost(e) {
                     <td class="p-4 text-slate-900 font-bold">${row.penerima || 'Ketua Kelas'}</td>
                     <td class="p-4"><span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-semibold">${row.metode || '-'}</span></td>
                     <td class="p-4 text-slate-600">${row.keterangan || '-'}</td>
-                    <td class="p-4 font-bold text-amber-600">- ${formatRp(row.nominal)}</td>
+                    <td class="p-4 font-bold text-amber-600">Audit ${formatRp(row.nominal)}</td>
                     <td class="p-4 pr-6 text-right">${btnHapus}</td>
                 `;
                 tbody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (idx * 20));
@@ -1894,13 +1896,13 @@ function doPost(e) {
         // --- HAPUS PINDAH DANA ---
         window.hapusPindahDana = async function(idStr) {
             if(userRole !== 'admin') return;
-            if(!confirm('Apakah Anda yakin ingin menghapus riwayat pindah dana ini?')) return;
+            if(!confirm('Apakah Anda yakin ingin menghapus riwayat serah terima kas ini?')) return;
             
-            showToast('Menghapus data pindah dana...');
+            showToast('Menghapus data serah terima kas...');
             try {
                 const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pindah_dana', data: { id: idStr } }) });
                 const json = await res.json();
-                if(json.status === 'success') { showToast('Riwayat pindah dana berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus: ' + (json.message || 'Tidak diketahui'));
+                if(json.status === 'success') { showToast('Riwayat serah terima kas berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus: ' + (json.message || 'Tidak diketahui'));
             } catch(e) { showToast('Gagal koneksi server.'); }
         }
         
