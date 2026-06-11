@@ -86,6 +86,9 @@
             <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pengeluaran">
                 <i class="ph ph-arrow-up-right text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pengeluaran
             </a>
+            <a href="#" class="nav-link admin-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pindah-dana">
+                <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pindahkan Dana
+            </a>
 
             <div class="pt-6 mt-6 border-t border-slate-100"></div>
             <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Sistem</p>
@@ -164,7 +167,7 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-900">Transparansi Keuangan</h2>
-                        <p class="text-slate-500 mt-1">Ringkasan tagihan, pemasukan, dan pengeluaran sistem.</p>
+                        <p class="text-slate-500 mt-1">Ringkasan tagihan, pemasukan, pengeluaran, dan serah-terima dana sistem.</p>
                     </div>
                     <div id="dash-loading-status" class="flex items-center gap-2 text-xs font-medium text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm animate-pulse-soft">
                         <i class="ph ph-spinner-gap animate-spin text-brand-500 text-base"></i> Memuat...
@@ -178,7 +181,7 @@
                             <div><p class="text-brand-100 text-sm font-medium mb-1">Saldo Kas Saat Ini</p><h3 id="dash-saldo" class="text-2xl font-bold tracking-tight">Rp 0</h3></div>
                             <div class="p-2 bg-white/10 rounded-xl"><i class="ph ph-vault text-2xl text-white"></i></div>
                         </div>
-                        <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Sisa Uang Tersedia</div>
+                        <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Sisa uang bendahara setelah pengeluaran & pindah dana</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
@@ -189,10 +192,10 @@
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
-                            <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pengeluaran</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
+                            <div><p class="text-slate-500 text-sm font-medium mb-1">Dana Keluar</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
                             <div class="p-2 bg-red-50 text-red-600 rounded-xl"><i class="ph ph-arrow-up-right text-2xl"></i></div>
                         </div>
-                        <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran</div>
+                        <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran & pindah dana</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
@@ -328,6 +331,64 @@
                 </div>
             </div>
 
+
+            <!-- VIEW: PINDAHKAN DANA / SERAH TERIMA -->
+            <div id="view-pindah-dana" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Pindahkan Dana</h2>
+                        <p class="text-slate-500 mt-1">Catat dana yang diserahkan dari bendahara kepada ketua kelas.</p>
+                    </div>
+                    <button onclick="bukaModalPindahDana()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium text-sm w-full sm:w-auto"><i class="ph ph-hand-coins text-lg"></i> Pindahkan Dana</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-sm font-medium mb-1">Total Sudah Dipindahkan</p>
+                        <h3 id="pindah-total-nominal" class="text-2xl font-bold text-slate-900">Rp 0</h3>
+                        <p class="text-xs text-slate-500 mt-2">Dana yang sudah diserahterimakan.</p>
+                    </div>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-sm font-medium mb-1">Jumlah Serah Terima</p>
+                        <h3 id="pindah-total-transaksi" class="text-2xl font-bold text-slate-900">0 Transaksi</h3>
+                        <p class="text-xs text-slate-500 mt-2">Riwayat pindah dana yang tercatat.</p>
+                    </div>
+                    <div class="bg-amber-50 rounded-3xl p-6 shadow-sm border border-amber-100">
+                        <p class="text-amber-700 text-sm font-medium mb-1">Catatan</p>
+                        <p class="text-sm text-amber-800 leading-relaxed">Nominal di menu ini otomatis mengurangi saldo kas bendahara, karena dana sudah berpindah ke ketua kelas.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col">
+                    <div id="table-loading-pindah-dana" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
+                        <i class="ph ph-spinner-gap text-4xl text-amber-500 animate-spin mb-2"></i>
+                        <p class="text-sm font-medium">Sinkronisasi Data...</p>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/90 backdrop-blur-sm border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                                    <th class="p-4 pl-6">Tanggal</th>
+                                    <th class="p-4">Penerima</th>
+                                    <th class="p-4">Metode</th>
+                                    <th class="p-4">Keterangan</th>
+                                    <th class="p-4">Nominal</th>
+                                    <th class="p-4 pr-6 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pindah-dana-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <span class="text-xs font-medium text-slate-500" id="pindah-dana-page-info">Menampilkan 0-0 dari 0</span>
+                        <div class="flex gap-2">
+                            <button id="btn-prev-pindah-dana" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-left"></i></button>
+                            <button id="btn-next-pindah-dana" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all-custom disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- VIEW: PENGATURAN -->
             <div id="view-pengaturan" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="mb-4">
@@ -360,7 +421,7 @@
                                 <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
                             </div>
                             <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
- * API BACKEND NEXUS (PASIS + PENGELUARAN + PENGATURAN + VISITOR TRAFFIC)
+ * API BACKEND NEXUS (PASIS + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC)
  */
 
 function getSheetSafe(name) {
@@ -368,6 +429,18 @@ function getSheetSafe(name) {
   if (!ss) throw new Error("Koneksi ditolak.");
   var sheet = ss.getSheetByName(name);
   if (!sheet) throw new Error("Tab '" + name + "' tidak ditemukan.");
+  return sheet;
+}
+
+function getOrCreateSheet(name, headers) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error("Koneksi ditolak.");
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.appendRow(headers);
+  }
+  if (sheet.getLastRow() === 0) sheet.appendRow(headers);
   return sheet;
 }
 
@@ -391,6 +464,7 @@ function doGet(e) {
     var result = { status: 'success' };
     try { result.pasis = sheetToJSON(getSheetSafe("Data Pasis")); } catch(e) { result.pasis = []; }
     try { result.pengeluaran = sheetToJSON(getSheetSafe("Pengeluaran")); } catch(e) { result.pengeluaran = []; }
+    try { result.pindah_dana = sheetToJSON(getSheetSafe("Pindah Dana")); } catch(e) { result.pindah_dana = []; }
     try { result.pengaturan = sheetToJSON(getSheetSafe("Pengaturan")); } catch(e) { result.pengaturan = []; }
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
@@ -418,7 +492,7 @@ function doPost(e) {
         }
         cache.put('nexus_active_users', JSON.stringify(activeUsers), 300);
 
-        var sheet = getSheetSafe("Pengaturan");
+        var sheet = getOrCreateSheet("Pengaturan", ['key', 'value']);
         var totalViews = 0;
         if (sheet) {
             var data = sheet.getDataRange().getDisplayValues();
@@ -505,7 +579,7 @@ function doPost(e) {
 
     // --- AKSI PENGELUARAN ---
     if (payload.action === 'create_pengeluaran') {
-       var sheet = getSheetSafe("Pengeluaran");
+       var sheet = getOrCreateSheet("Pengeluaran", ['id', 'tanggal', 'keterangan', 'nominal']);
        var headers = sheet.getDataRange().getDisplayValues()[0];
        var newRow = [];
        headers.forEach(function(header) {
@@ -529,9 +603,36 @@ function doPost(e) {
        else { throw new Error("Pengeluaran tidak ditemukan."); }
     }
 
+    // --- AKSI PINDAH DANA / SERAH TERIMA KE KETUA KELAS ---
+    if (payload.action === 'create_pindah_dana') {
+       var sheet = getOrCreateSheet("Pindah Dana", ['id', 'tanggal', 'penerima', 'metode', 'keterangan', 'nominal']);
+       var headers = sheet.getDataRange().getDisplayValues()[0];
+       var newRow = [];
+       headers.forEach(function(header) {
+         var key = header.toString().toLowerCase().trim();
+         var val = payload.data[key] !== undefined ? payload.data[key] : "";
+         if (key === 'id' && val === "") val = new Date().getTime().toString();
+         newRow.push(val);
+       });
+       sheet.appendRow(newRow);
+       return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (payload.action === 'delete_pindah_dana') {
+       var sheet = getSheetSafe("Pindah Dana");
+       var data = sheet.getDataRange().getDisplayValues();
+       var idIndex = -1;
+       for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; } }
+       if(idIndex === -1) throw new Error("Kolom 'id' tidak ditemukan.");
+       var rowIndex = -1;
+       for(var r = 1; r < data.length; r++) { if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; } }
+       if(rowIndex > -1) { sheet.deleteRow(rowIndex); return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON); } 
+       else { throw new Error("Data pindah dana tidak ditemukan."); }
+    }
+
     // --- AKSI UPDATE PENGATURAN ---
     if (payload.action === 'update_pengaturan') {
-        var sheet = getSheetSafe("Pengaturan");
+        var sheet = getOrCreateSheet("Pengaturan", ['key', 'value']);
         var data = sheet.getDataRange().getDisplayValues();
         var keysToUpdate = payload.data; 
         for (var k in keysToUpdate) {
@@ -588,6 +689,11 @@ function doPost(e) {
                             </div>
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">3</div>
+                                <p class="font-semibold text-slate-900">Sheet: Pindah Dana</p>
+                                <p>Kolom A-F: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">id, tanggal, penerima, metode, keterangan, nominal</code>. Sheet ini mencatat dana yang diserahkan ke ketua kelas.</p>
+                            </div>
+                            <div class="relative pl-8">
+                                <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">4</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
                                 <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Sistem akan membuat total_views otomatis)</p>
                             </div>
@@ -658,6 +764,57 @@ function doPost(e) {
             <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
                 <button type="button" id="cancel-pengeluaran-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
                 <button type="button" id="submit-pengeluaran-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-red-600 hover:bg-red-700 shadow-soft btn-press"><i class="ph ph-floppy-disk text-lg align-middle"></i> Simpan</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL FORM PINDAH DANA / SERAH TERIMA -->
+    <div id="modal-pindah-dana" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[66] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-pindah-dana-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-amber-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600"><i class="ph-fill ph-hand-coins text-xl"></i></div>
+                    <div><h3 class="font-bold text-slate-900">Pindahkan Dana</h3><p class="text-xs text-slate-500">Catat serah-terima dana ke ketua kelas.</p></div>
+                </div>
+                <button id="close-pindah-dana-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 focus:outline-none btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tanggal Serah Terima</label>
+                        <input type="date" id="transfer-tanggal" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Penerima Dana</label>
+                        <input type="text" id="transfer-penerima" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="Contoh: Ketua Kelas">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Metode Penyerahan</label>
+                        <select id="transfer-metode" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Keterangan</label>
+                        <textarea id="transfer-keterangan" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none" placeholder="Contoh: Serah terima kas kelas periode Juni"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">Nominal Dipindahkan (Rp)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                            <input type="text" id="transfer-nominal" class="w-full pl-11 pr-4 py-3 bg-white border-2 border-amber-100 rounded-xl text-lg font-bold text-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0">
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Nominal ini akan mengurangi saldo kas bendahara.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
+                <button type="button" id="cancel-pindah-dana-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button type="button" id="submit-pindah-dana-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-amber-600 hover:bg-amber-700 shadow-soft btn-press"><i class="ph ph-hand-coins text-lg align-middle"></i> Simpan</button>
             </div>
         </div>
     </div>
@@ -818,6 +975,7 @@ function doPost(e) {
         let myDashboardChart = null;
         window.pasisDataGlobal = [];
         window.pengeluaranDataGlobal = [];
+        window.pindahDanaDataGlobal = [];
         window.pengaturanGlobal = [];
         let lockoutTimerInterval = null; 
         
@@ -829,6 +987,7 @@ function doPost(e) {
         // STATE PAGINATION
         let currentPasisPage = 1;
         let currentPengeluaranPage = 1;
+        let currentPindahDanaPage = 1;
         const ITEMS_PER_PAGE = 10;
         
         // SISTEM PING VISITOR
@@ -891,6 +1050,7 @@ function doPost(e) {
             const modalOpen = !document.getElementById('global-modal').classList.contains('hidden') || 
                               !document.getElementById('modal-bayar').classList.contains('hidden') || 
                               !document.getElementById('modal-pengeluaran').classList.contains('hidden') ||
+                              !document.getElementById('modal-pindah-dana').classList.contains('hidden') ||
                               !document.getElementById('modal-broadcast').classList.contains('hidden');
             if (modalOpen) return;
 
@@ -909,7 +1069,7 @@ function doPost(e) {
                     if (newDataStr !== oldDataStr) {
                         window.pasisDataGlobal = sortedPasis;
                         renderTabelPasis(window.pasisDataGlobal);
-                        perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
+                        perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     }
                     
                     const newPengeluaranStr = JSON.stringify(jsonRes.pengeluaran || []);
@@ -917,7 +1077,15 @@ function doPost(e) {
                     if (newPengeluaranStr !== oldPengeluaranStr) {
                          window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                          renderTabelPengeluaran(window.pengeluaranDataGlobal);
-                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
+                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
+                    }
+
+                    const newPindahDanaStr = JSON.stringify(jsonRes.pindah_dana || []);
+                    const oldPindahDanaStr = JSON.stringify(window.pindahDanaDataGlobal || []);
+                    if (newPindahDanaStr !== oldPindahDanaStr) {
+                         window.pindahDanaDataGlobal = jsonRes.pindah_dana || [];
+                         renderTabelPindahDana(window.pindahDanaDataGlobal);
+                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     }
                     
                     const syncStatus = document.getElementById('sync-status');
@@ -967,6 +1135,7 @@ function doPost(e) {
             }
             if(window.pasisDataGlobal.length > 0) renderTabelPasis(window.pasisDataGlobal);
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
+            if(window.pindahDanaDataGlobal.length > 0) renderTabelPindahDana(window.pindahDanaDataGlobal);
         }
 
         function checkLockoutState() {
@@ -1079,6 +1248,7 @@ function doPost(e) {
                     let titleText = 'Dashboard Utama';
                     if (targetId === 'pasis') titleText = 'Data Administrasi Pasis';
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
+                    if (targetId === 'pindah-dana') titleText = 'Pindahkan Dana';
                     if (targetId === 'pengaturan') titleText = 'Pengaturan Sistem';
                     pageTitle.textContent = titleText; pageTitle.style.opacity = 1; pageTitle.style.transform = 'translateY(0)';
                 }, 200);
@@ -1140,6 +1310,19 @@ function doPost(e) {
                 document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
             });
 
+            document.getElementById('btn-prev-pindah-dana')?.addEventListener('click', () => { 
+                if(currentPindahDanaPage > 1) { 
+                    currentPindahDanaPage--; 
+                    renderTabelPindahDana(window.pindahDanaDataGlobal); 
+                    document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+                } 
+            });
+            document.getElementById('btn-next-pindah-dana')?.addEventListener('click', () => { 
+                currentPindahDanaPage++; 
+                renderTabelPindahDana(window.pindahDanaDataGlobal); 
+                document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
             // SIMPAN TARGET TAGIHAN OTOMATIS KE DB SAAT SELESAI MENGETIK
             const gInput = document.getElementById('global-target-input');
             if (gInput) {
@@ -1166,6 +1349,7 @@ function doPost(e) {
             }
             
             document.getElementById('keluar-nominal')?.addEventListener('input', formatInputRibuan);
+            document.getElementById('transfer-nominal')?.addEventListener('input', formatInputRibuan);
             document.getElementById('bayar-nominal')?.addEventListener('input', formatInputRibuan);
             
             // TOAST & MODALS
@@ -1187,6 +1371,15 @@ function doPost(e) {
                     document.getElementById(`cancel-${mType==='modal'?'modal':mType}-btn`)?.addEventListener('click', window['closeModal'+(mType==='modal'?'':mType.charAt(0).toUpperCase()+mType.slice(1))]);
                 }
             });
+
+            window.closeModalPindahDana = function() {
+                const m = document.getElementById('modal-pindah-dana');
+                const mc = document.getElementById('modal-pindah-dana-content');
+                if(!m || !mc) return;
+                m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(()=>m.classList.add('hidden'), 300);
+            };
+            document.getElementById('close-pindah-dana-btn')?.addEventListener('click', window.closeModalPindahDana);
+            document.getElementById('cancel-pindah-dana-btn')?.addEventListener('click', window.closeModalPindahDana);
 
             document.getElementById('copy-script-btn')?.addEventListener('click', function() {
                 const codeElement = document.getElementById('app-script-code');
@@ -1275,6 +1468,38 @@ function doPost(e) {
                 } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
+
+
+            // SUBMIT PINDAH DANA / SERAH TERIMA
+            document.getElementById('submit-pindah-dana-btn')?.addEventListener('click', async function() {
+                const tgl = document.getElementById('transfer-tanggal').value;
+                const penerima = document.getElementById('transfer-penerima').value.trim();
+                const metode = document.getElementById('transfer-metode').value;
+                const ket = document.getElementById('transfer-keterangan').value.trim();
+                const nom = parseNominal(document.getElementById('transfer-nominal').value);
+
+                if(!tgl || !penerima || !ket || nom <= 0) { showToast('Lengkapi data pindah dana dengan benar!'); return; }
+                if(GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database.'); return; }
+
+                const totalMasuk = (window.pasisDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.dibayar), 0);
+                const totalPengeluaran = (window.pengeluaranDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
+                const totalPindah = (window.pindahDanaDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
+                const saldoSaatIni = totalMasuk - totalPengeluaran - totalPindah;
+                if(nom > saldoSaatIni) {
+                    const lanjut = confirm(`Nominal pindah dana lebih besar dari saldo kas bendahara saat ini (${formatRp(saldoSaatIni)}). Tetap simpan?`);
+                    if(!lanjut) return;
+                }
+
+                const payload = { action: 'create_pindah_dana', data: { tanggal: tgl, penerima: penerima, metode: metode, keterangan: ket, nominal: nom } };
+                const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
+
+                try {
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                    const json = await res.json();
+                    if(json.status === 'success') { showToast('Pindah dana berhasil dicatat!'); closeModalPindahDana(); fetchDataDariGoogleSheets(); } else showToast('Gagal: ' + (json.message || 'Tidak diketahui'));
+                } catch(e) { showToast('Gagal memproses pindah dana.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
+            });
+
             // UPDATE PENGATURAN (PROFIL)
             document.getElementById('save-setting-btn')?.addEventListener('click', async function() {
                 const newAppName = document.getElementById('setting-app-name').value;
@@ -1360,7 +1585,7 @@ function doPost(e) {
         }
 
         // --- DASHBOARD RENDER ---
-        function perbaruiDashboard(dataPasis, dataPengeluaran) {
+        function perbaruiDashboard(dataPasis, dataPengeluaran, dataPindahDana = window.pindahDanaDataGlobal) {
             let totalMasuk = 0; let totalPiutang = 0; let totalLunas = 0;
             const pasisArr = dataPasis || [];
             pasisArr.forEach(d => {
@@ -1376,16 +1601,24 @@ function doPost(e) {
             let totalKeluar = 0;
             const keluarArr = dataPengeluaran || [];
             keluarArr.forEach(p => { totalKeluar += parseNominal(p.nominal); });
+
+            let totalPindahDana = 0;
+            const pindahArr = dataPindahDana || [];
+            pindahArr.forEach(p => { totalPindahDana += parseNominal(p.nominal); });
             
-            let saldoAktif = totalMasuk - totalKeluar;
+            let totalDanaKeluar = totalKeluar + totalPindahDana;
+            let saldoAktif = totalMasuk - totalDanaKeluar;
 
             const ds = document.getElementById('dash-saldo'); if(ds) ds.textContent = formatRp(saldoAktif);
             const dt = document.getElementById('dash-total-dana'); if(dt) dt.textContent = formatRp(totalMasuk);
-            const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalKeluar);
+            const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalDanaKeluar);
             const dpt = document.getElementById('dash-total-piutang'); if(dpt) dpt.textContent = formatRp(totalPiutang);
             
             const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas`;
-            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Transaksi`;
+            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran + ${pindahArr.length} Pindah Dana`;
+
+            const pindahTotalNominal = document.getElementById('pindah-total-nominal'); if(pindahTotalNominal) pindahTotalNominal.textContent = formatRp(totalPindahDana);
+            const pindahTotalTransaksi = document.getElementById('pindah-total-transaksi'); if(pindahTotalTransaksi) pindahTotalTransaksi.textContent = `${pindahArr.length} Transaksi`;
             
             const bankCounts = {};
             pasisArr.forEach(d => { 
@@ -1404,21 +1637,31 @@ function doPost(e) {
             const recentList = document.getElementById('dash-recent-keluar');
             if(recentList) {
                 recentList.innerHTML = '';
-                if(keluarArr.length > 0) {
-                    const recentKeluar = [...keluarArr].reverse().slice(0,4);
-                    recentKeluar.forEach(item => {
+                const aktivitas = [
+                    ...keluarArr.map(item => ({...item, jenis: 'pengeluaran'})),
+                    ...pindahArr.map(item => ({...item, jenis: 'pindah'}))
+                ].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0,4);
+
+                if(aktivitas.length > 0) {
+                    aktivitas.forEach(item => {
                         let d = new Date(item.tanggal); let dStr = isNaN(d.getTime()) ? item.tanggal : d.toLocaleDateString('id-ID',{day:'numeric', month:'short'});
+                        const isPindah = item.jenis === 'pindah';
+                        const icon = isPindah ? 'ph-hand-coins' : 'ph-receipt';
+                        const bg = isPindah ? 'bg-amber-50' : 'bg-red-50';
+                        const txt = isPindah ? 'text-amber-600' : 'text-red-600';
+                        const label = isPindah ? `Pindah ke ${item.penerima || 'Ketua Kelas'}` : item.keterangan;
+                        const sub = isPindah ? `${dStr} • ${item.metode || '-'}` : dStr;
                         recentList.innerHTML += `
                             <div class="flex items-center justify-between border-b border-slate-50 pb-3 last:border-0 last:pb-0">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><i class="ph ph-receipt text-lg"></i></div>
-                                    <div><p class="font-semibold text-sm text-slate-900 truncate max-w-[120px] sm:max-w-[200px]">${item.keterangan}</p><p class="text-xs text-slate-500">${dStr}</p></div>
+                                    <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center ${txt}"><i class="ph ${icon} text-lg"></i></div>
+                                    <div><p class="font-semibold text-sm text-slate-900 truncate max-w-[120px] sm:max-w-[200px]">${label}</p><p class="text-xs text-slate-500">${sub}</p></div>
                                 </div>
-                                <div class="text-right text-sm font-bold text-red-600">- ${formatRp(item.nominal)}</div>
+                                <div class="text-right text-sm font-bold ${txt}">- ${formatRp(item.nominal)}</div>
                             </div>`;
                     });
                 } else {
-                    recentList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-50"><i class="ph ph-receipt text-3xl mb-2"></i><p class="text-xs">Belum ada pengeluaran.</p></div>`;
+                    recentList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-50"><i class="ph ph-receipt text-3xl mb-2"></i><p class="text-xs">Belum ada aktivitas dana keluar.</p></div>`;
                 }
             }
         }
@@ -1565,6 +1808,55 @@ function doPost(e) {
             document.getElementById('btn-next-pengeluaran').disabled = currentPengeluaranPage === totalPages;
         }
 
+        // --- RENDER TABEL PINDAH DANA (PAGINATION) ---
+        function renderTabelPindahDana(data) {
+            const tbody = document.getElementById('pindah-dana-table-body');
+            if(!tbody) return; tbody.innerHTML = '';
+
+            const totalNominal = (data || []).reduce((sum, row) => sum + parseNominal(row.nominal), 0);
+            const totalNominalEl = document.getElementById('pindah-total-nominal'); if(totalNominalEl) totalNominalEl.textContent = formatRp(totalNominal);
+            const totalTrxEl = document.getElementById('pindah-total-transaksi'); if(totalTrxEl) totalTrxEl.textContent = `${(data || []).length} Transaksi`;
+            
+            if (!data || data.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada riwayat pindah dana.</td></tr>`; 
+                document.getElementById('pindah-dana-page-info').textContent = 'Menampilkan 0-0 dari 0';
+                document.getElementById('btn-prev-pindah-dana').disabled = true; document.getElementById('btn-next-pindah-dana').disabled = true;
+                return; 
+            }
+            
+            const isAdmin = userRole === 'admin';
+            const sortedData = [...data].reverse();
+
+            const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE) || 1;
+            if (currentPindahDanaPage > totalPages) currentPindahDanaPage = totalPages;
+            
+            const startIdx = (currentPindahDanaPage - 1) * ITEMS_PER_PAGE;
+            const endIdx = startIdx + ITEMS_PER_PAGE;
+            const paginatedData = sortedData.slice(startIdx, endIdx);
+
+            paginatedData.forEach((row, idx) => {
+                let d = new Date(row.tanggal); let dStr = isNaN(d.getTime()) ? row.tanggal : d.toLocaleDateString('id-ID',{day:'numeric', month:'long', year:'numeric'});
+                const tr = document.createElement('tr'); tr.className = 'hover:bg-slate-50/80 transition-all-custom';
+                tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${idx * 20}ms`; 
+                
+                let btnHapus = isAdmin ? `<button onclick="window.hapusPindahDana('${row.id}')" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><i class="ph ph-trash text-lg"></i></button>` : `<span class="text-xs text-slate-400 italic">No Access</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-4 pl-6 text-slate-700 font-medium">${dStr}</td>
+                    <td class="p-4 text-slate-900 font-bold">${row.penerima || 'Ketua Kelas'}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-semibold">${row.metode || '-'}</span></td>
+                    <td class="p-4 text-slate-600">${row.keterangan || '-'}</td>
+                    <td class="p-4 font-bold text-amber-600">- ${formatRp(row.nominal)}</td>
+                    <td class="p-4 pr-6 text-right">${btnHapus}</td>
+                `;
+                tbody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (idx * 20));
+            });
+
+            document.getElementById('pindah-dana-page-info').textContent = `Menampilkan ${startIdx + 1}-${Math.min(endIdx, sortedData.length)} dari ${sortedData.length}`;
+            document.getElementById('btn-prev-pindah-dana').disabled = currentPindahDanaPage === 1;
+            document.getElementById('btn-next-pindah-dana').disabled = currentPindahDanaPage === totalPages;
+        }
+
         // --- FITUR 6: HAPUS DATA PASIS ---
         window.hapusPasis = async function(index) {
             if(userRole !== 'admin') return;
@@ -1596,6 +1888,19 @@ function doPost(e) {
                 const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pengeluaran', data: { id: idStr } }) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus.');
+            } catch(e) { showToast('Gagal koneksi server.'); }
+        }
+        
+        // --- HAPUS PINDAH DANA ---
+        window.hapusPindahDana = async function(idStr) {
+            if(userRole !== 'admin') return;
+            if(!confirm('Apakah Anda yakin ingin menghapus riwayat pindah dana ini?')) return;
+            
+            showToast('Menghapus data pindah dana...');
+            try {
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pindah_dana', data: { id: idStr } }) });
+                const json = await res.json();
+                if(json.status === 'success') { showToast('Riwayat pindah dana berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus: ' + (json.message || 'Tidak diketahui'));
             } catch(e) { showToast('Gagal koneksi server.'); }
         }
         
@@ -1634,7 +1939,7 @@ function doPost(e) {
 
         // --- FETCH DATA API MULTI-SHEET ---
         async function fetchDataDariGoogleSheets() {
-            const loaders = ['table-loading-pasis', 'table-loading-pengeluaran'];
+            const loaders = ['table-loading-pasis', 'table-loading-pengeluaran', 'table-loading-pindah-dana'];
             loaders.forEach(id => { const el = document.getElementById(id); if(el) { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; } });
             document.querySelectorAll('tbody').forEach(el => el.style.opacity = '0.3');
             
@@ -1650,6 +1955,7 @@ function doPost(e) {
                     // Mengurutkan data pasis berdasarkan abjad nama (A-Z)
                     window.pasisDataGlobal = (jsonRes.pasis || []).sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
+                    window.pindahDanaDataGlobal = jsonRes.pindah_dana || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
                     // UPDATE PENGATURAN
@@ -1674,9 +1980,10 @@ function doPost(e) {
                     const footerName = document.getElementById('app-name-footer'); if(footerName) footerName.textContent = globalAppName;
                     
                     updateRoleUI();
-                    perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal);
+                    perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     renderTabelPasis(window.pasisDataGlobal);
                     renderTabelPengeluaran(window.pengeluaranDataGlobal);
+                    renderTabelPindahDana(window.pindahDanaDataGlobal);
                 } else { throw new Error(jsonRes.message); }
 
             } catch (error) {
@@ -1791,11 +2098,22 @@ function doPost(e) {
             setTimeout(() => document.getElementById('keluar-keterangan').focus(), 300);
         }
 
+        window.bukaModalPindahDana = function() {
+            if(userRole !== 'admin') return;
+            document.getElementById('transfer-penerima').value = 'Ketua Kelas';
+            document.getElementById('transfer-metode').value = 'Tunai';
+            document.getElementById('transfer-keterangan').value = '';
+            document.getElementById('transfer-nominal').value = '';
+            const offset = (new Date()).getTimezoneOffset() * 60000; document.getElementById('transfer-tanggal').value = (new Date(Date.now() - offset)).toISOString().split('T')[0];
+            const m = document.getElementById('modal-pindah-dana'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-pindah-dana-content').classList.remove('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('transfer-nominal').focus(), 300);
+        }
+
         document.getElementById('close-setoran-btn')?.addEventListener('click', () => { const m = document.getElementById('modal-setoran'); const mc = document.getElementById('modal-setoran-content'); m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 400); });
         document.getElementById('modal-setoran')?.addEventListener('click', (e) => { if(e.target === document.getElementById('modal-setoran')) document.getElementById('close-setoran-btn').click(); });
 
         // PENYEMPURNAAN: Tutup modal lain saat klik area gelap (backdrop)
-        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-broadcast'];
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-broadcast'];
         modalBackdrops.forEach(id => {
             const el = document.getElementById(id);
             el?.addEventListener('click', (e) => {
