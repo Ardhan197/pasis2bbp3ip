@@ -53,6 +53,11 @@
         .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .admin-only.hidden-role { display: none !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .dashboard-glow { position: absolute; inset: auto -4rem -6rem auto; width: 18rem; height: 18rem; border-radius: 9999px; background: rgba(20,184,166,.25); filter: blur(50px); pointer-events: none; }
+        .metric-glass { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(14px); }
+        .dash-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+        .dash-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(15,23,42,.35); }
+        .shine-line { background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
@@ -164,57 +169,144 @@
 
             <!-- VIEW: DASHBOARD -->
             <div id="view-dashboard" class="view-section max-w-7xl mx-auto space-y-8">
-                <div class="flex justify-between items-end">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-900">Transparansi Keuangan</h2>
-                        <p class="text-slate-500 mt-1">Ringkasan tagihan, pemasukan, pengeluaran, dan serah-terima pemegang kas.</p>
-                    </div>
-                    <div id="dash-loading-status" class="flex items-center gap-2 text-xs font-medium text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm animate-pulse-soft">
-                        <i class="ph ph-spinner-gap animate-spin text-brand-500 text-base"></i> Memuat...
+                <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-950 via-slate-900 to-slate-950 text-white shadow-2xl border border-white/10">
+                    <div class="dashboard-glow"></div>
+                    <div class="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-brand-500/10 blur-3xl"></div>
+                    <div class="absolute inset-x-0 top-0 h-px shine-line"></div>
+                    <div class="relative z-10 p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+                            <div class="max-w-2xl">
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-brand-100 text-xs font-semibold mb-5">
+                                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-300"></span></span>
+                                    Dashboard Keuangan Live
+                                </div>
+                                <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Transparansi Keuangan</h2>
+                                <p class="text-brand-50/70 mt-3 leading-relaxed">Pantau saldo kas, pemasukan, pengeluaran, refund, dan piutang dalam satu tampilan yang lebih jelas.</p>
+                            </div>
+                            <div id="dash-loading-status" class="self-start flex items-center gap-2 text-xs font-semibold text-brand-50 bg-white/10 px-4 py-2 rounded-full border border-white/10 shadow-sm animate-pulse-soft">
+                                <i class="ph ph-spinner-gap animate-spin text-brand-300 text-base"></i> Memuat...
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-8">
+                            <div class="xl:col-span-5 rounded-3xl bg-white text-slate-950 p-6 shadow-xl relative overflow-hidden">
+                                <div class="absolute -right-10 -top-10 w-40 h-40 bg-brand-100 rounded-full blur-2xl opacity-70"></div>
+                                <div class="relative z-10">
+                                    <p class="text-sm font-semibold text-slate-500 flex items-center gap-2"><i class="ph-fill ph-vault text-brand-600"></i> Saldo Kas Aktif</p>
+                                    <h3 id="dash-saldo" class="text-4xl sm:text-5xl font-black tracking-tight mt-3">Rp 0</h3>
+                                    <p id="dash-net-desc" class="text-xs text-slate-500 mt-4 leading-relaxed">Saldo = total pemasukan dikurangi pengeluaran dan refund yang sudah dicatat.</p>
+                                    <span id="dash-info-trx" class="hidden">0 Pengeluaran</span>
+                                    <div class="grid grid-cols-2 gap-3 mt-6">
+                                        <div class="rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
+                                            <p class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">Masuk</p>
+                                            <p id="dash-total-dana" class="text-lg font-black text-emerald-700 mt-1">Rp 0</p>
+                                        </div>
+                                        <div class="rounded-2xl bg-red-50 p-4 border border-red-100">
+                                            <p class="text-[11px] uppercase tracking-wider font-bold text-red-700">Keluar</p>
+                                            <p id="dash-total-pengeluaran" class="text-lg font-black text-red-700 mt-1">Rp 0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="xl:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Piutang/Sisa</p><h3 id="dash-total-piutang" class="text-2xl font-black mt-2">Rp 0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-amber-400/15 text-amber-200 flex items-center justify-center"><i class="ph-fill ph-chart-polar text-2xl"></i></div>
+                                    </div>
+                                    <p class="text-xs text-white/60 mt-4"><i class="ph ph-warning-circle"></i> Sisa kewajiban yang belum terpenuhi.</p>
+                                </div>
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Refund Berhasil</p><h3 id="dash-total-refund" class="text-2xl font-black mt-2">Rp 0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-orange-400/15 text-orange-200 flex items-center justify-center"><i class="ph-fill ph-arrow-u-up-left text-2xl"></i></div>
+                                    </div>
+                                    <p id="dash-refund-count" class="text-xs text-white/60 mt-4">0 data refund tercatat.</p>
+                                </div>
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Pasis Aktif</p><h3 id="dash-active-pasis" class="text-2xl font-black mt-2">0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-emerald-400/15 text-emerald-200 flex items-center justify-center"><i class="ph-fill ph-users-three text-2xl"></i></div>
+                                    </div>
+                                    <p id="dash-info-lunas" class="text-xs text-white/60 mt-4">0 Lunas</p>
+                                </div>
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Status Cuti</p><h3 id="dash-cuti-pasis" class="text-2xl font-black mt-2">0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-slate-100/15 text-slate-100 flex items-center justify-center"><i class="ph-fill ph-pause-circle text-2xl"></i></div>
+                                    </div>
+                                    <p id="dash-cuti-kurang" class="text-xs text-white/60 mt-4">0 cuti masih kurang target.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-brand-950 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all-custom hover:-translate-y-1 hover:shadow-2xl">
-                        <div class="absolute top-0 right-0 w-32 h-32 rounded-full bg-white opacity-5 blur-2xl -mr-8 -mt-8"></div>
-                        <div class="flex justify-between items-start mb-6 relative z-10">
-                            <div><p class="text-brand-100 text-sm font-medium mb-1">Saldo Kas Saat Ini</p><h3 id="dash-saldo" class="text-2xl font-bold tracking-tight">Rp 0</h3></div>
-                            <div class="p-2 bg-white/10 rounded-xl"><i class="ph ph-vault text-2xl text-white"></i></div>
+                <div id="refund-success-panel" class="hidden bg-emerald-50 border border-emerald-100 rounded-3xl p-5 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm"><i class="ph-fill ph-check-circle text-2xl"></i></div>
+                            <div>
+                                <h3 class="font-black text-emerald-900">Pengembalian Dana Berhasil Dicatat</h3>
+                                <p id="refund-success-text" class="text-sm text-emerald-700 mt-1">Data refund sudah masuk ke database dan akan mengurangi saldo kas aktif.</p>
+                            </div>
                         </div>
-                        <div class="text-xs text-brand-100/80 relative z-10"><i class="ph ph-check-circle"></i> Saldo kas kelas yang tetap aktif untuk pemegang kas saat ini</div>
+                        <button onclick="document.getElementById('refund-success-panel')?.classList.add('hidden')" class="btn-press px-4 py-2 bg-white border border-emerald-100 text-emerald-700 rounded-xl text-sm font-bold hover:bg-emerald-100">Tutup</button>
                     </div>
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
-                        <div class="flex justify-between items-start mb-6">
-                            <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pemasukan</p><h3 id="dash-total-dana" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
-                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl"><i class="ph ph-arrow-down-left text-2xl"></i></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 p-6 dash-card">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-900">Progress Target Pembayaran</h3>
+                                <p id="dash-progress-text" class="text-xs text-slate-500 mt-1">Mengukur total dana masuk dibanding target seluruh pasis.</p>
+                            </div>
+                            <div class="text-right">
+                                <p id="dash-progress-percent" class="text-3xl font-black text-brand-600">0%</p>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Terkumpul</p>
+                            </div>
                         </div>
-                        <div class="text-xs text-slate-500"><span class="font-medium text-emerald-600" id="dash-info-lunas">0 Lunas</span> dari Pasis Aktif</div>
+                        <div class="w-full h-4 rounded-full bg-slate-100 overflow-hidden shadow-inner">
+                            <div id="dash-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-400 transition-all duration-700" style="width:0%"></div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+                            <div class="bg-slate-50 rounded-2xl p-4"><p class="text-[11px] text-slate-500 font-bold uppercase">Total Pasis</p><p id="dash-total-pasis" class="text-xl font-black text-slate-900 mt-1">0</p></div>
+                            <div class="bg-emerald-50 rounded-2xl p-4"><p class="text-[11px] text-emerald-700 font-bold uppercase">Lunas</p><p id="dash-lunas-pasis" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
+                            <div class="bg-orange-50 rounded-2xl p-4"><p class="text-[11px] text-orange-700 font-bold uppercase">Refund</p><p id="dash-refund-success-count" class="text-xl font-black text-orange-700 mt-1">0</p></div>
+                            <div class="bg-amber-50 rounded-2xl p-4"><p class="text-[11px] text-amber-700 font-bold uppercase">Cuti Kurang</p><p id="dash-cuti-kurang-count" class="text-xl font-black text-amber-700 mt-1">0</p></div>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
-                        <div class="flex justify-between items-start mb-6">
-                            <div><p class="text-slate-500 text-sm font-medium mb-1">Total Pengeluaran</p><h3 id="dash-total-pengeluaran" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
-                            <div class="p-2 bg-red-50 text-red-600 rounded-xl"><i class="ph ph-arrow-up-right text-2xl"></i></div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 dash-card">
+                        <div class="mb-5">
+                            <h3 class="font-black text-lg text-slate-900">Target Global</h3>
+                            <p class="text-xs text-slate-500 mt-1">Target aktif dan cuti/refund terkunci dari pengaturan global.</p>
                         </div>
-                        <div class="text-xs text-slate-500"><span class="font-medium text-red-500" id="dash-info-trx">0 Transaksi</span> pengeluaran kas</div>
-                    </div>
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 transition-all-custom hover:-translate-y-1 hover:shadow-md">
-                        <div class="flex justify-between items-start mb-6">
-                            <div><p class="text-slate-500 text-sm font-medium mb-1">Total Piutang (Sisa)</p><h3 id="dash-total-piutang" class="text-2xl font-bold text-slate-900">Rp 0</h3></div>
-                            <div class="p-2 bg-amber-50 text-amber-600 rounded-xl"><i class="ph ph-chart-polar text-2xl"></i></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between bg-brand-50 border border-brand-100 p-4 rounded-2xl"><span class="text-xs font-bold text-brand-700 uppercase">Target Aktif</span><span id="dash-target-tagihan" class="font-black text-brand-900">Rp 0</span></div>
+                            <div class="flex items-center justify-between bg-orange-50 border border-orange-100 p-4 rounded-2xl"><span class="text-xs font-bold text-orange-700 uppercase">Target Cuti/Refund</span><span id="dash-target-cuti-refund" class="font-black text-orange-900">Rp 0</span></div>
+                            <div id="dash-last-refund" class="bg-slate-50 border border-slate-100 p-4 rounded-2xl text-xs text-slate-500">Belum ada refund berhasil.</div>
                         </div>
-                        <div class="text-xs text-slate-500"><i class="ph ph-warning-circle text-amber-500"></i> Menunggu pembayaran</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <div class="mb-6"><h3 class="font-bold text-lg text-slate-900">Statistik Bank Pasis</h3><p class="text-xs text-slate-500">Distribusi rekening bank (Pasis Aktif)</p></div>
-                        <div class="relative w-full min-h-[250px]"><canvas id="dashboardChart"></canvas></div>
+                    <div class="lg:col-span-2 grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 dash-card">
+                            <div class="mb-6"><h3 class="font-black text-lg text-slate-900">Arus Kas</h3><p class="text-xs text-slate-500">Perbandingan dana masuk, pengeluaran, refund, dan saldo.</p></div>
+                            <div class="relative w-full min-h-[250px]"><canvas id="cashflowChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 dash-card">
+                            <div class="mb-6"><h3 class="font-black text-lg text-slate-900">Statistik Bank Pasis</h3><p class="text-xs text-slate-500">Distribusi rekening bank untuk pasis aktif.</p></div>
+                            <div class="relative w-full min-h-[250px]"><canvas id="dashboardChart"></canvas></div>
+                        </div>
                     </div>
-                    <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[360px]">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[420px] dash-card">
                         <div class="flex items-center justify-between mb-6">
-                            <h3 class="font-bold text-lg text-slate-900">Aktivitas Kas Terkini</h3>
-                            <button onclick="document.querySelector('[data-target=\'pengeluaran\']').click()" class="text-brand-600 hover:underline text-sm font-medium">Kelola</button>
+                            <div><h3 class="font-black text-lg text-slate-900">Aktivitas Terkini</h3><p class="text-xs text-slate-500 mt-1">Pengeluaran, serah-terima, dan refund.</p></div>
+                            <button onclick="document.querySelector('[data-target=\'pengeluaran\']').click()" class="text-brand-600 hover:underline text-sm font-bold">Kelola</button>
                         </div>
                         <div id="dash-recent-keluar" class="flex-1 overflow-y-auto pr-2 space-y-5 custom-scrollbar"></div>
                     </div>
@@ -236,14 +328,26 @@
                     </div>
                 </div>
 
-                <div class="admin-only hidden-role bg-gradient-to-r from-brand-900 to-brand-950 p-5 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4 text-white">
+                <div class="admin-only hidden-role bg-gradient-to-r from-brand-900 to-brand-950 p-5 rounded-2xl shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 text-white">
                     <div>
-                        <h3 class="font-bold text-lg flex items-center gap-2"><i class="ph-fill ph-target text-brand-400"></i> Target Tagihan Wajib</h3>
-                        <p class="text-brand-100/70 text-xs mt-1">Sisa tagihan setiap Pasis mengacu pada nominal ini. (Otomatis Tersimpan)</p>
+                        <h3 class="font-bold text-lg flex items-center gap-2"><i class="ph-fill ph-target text-brand-400"></i> Target Dana Global</h3>
+                        <p class="text-brand-100/70 text-xs mt-1">Target aktif dan target cuti/refund dikunci global agar tidak salah input per pasis. (Otomatis Tersimpan)</p>
                     </div>
-                    <div class="relative w-full sm:w-64">
-                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-brand-300">Rp</span>
-                        <input type="text" id="global-target-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-950/50 border border-brand-700/50 rounded-xl text-lg font-bold text-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30 transition-all-custom" value="15.000.000">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-[34rem]">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-brand-100 uppercase tracking-wider mb-1.5">Target Aktif</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-brand-300">Rp</span>
+                                <input type="text" id="global-target-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-950/50 border border-brand-700/50 rounded-xl text-lg font-bold text-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30 transition-all-custom" value="15.000.000">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-amber-100 uppercase tracking-wider mb-1.5">Target Cuti / Refund</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-amber-200">Rp</span>
+                                <input type="text" id="global-target-cuti-refund-input" class="w-full pl-10 pr-4 py-2.5 bg-amber-950/30 border border-amber-500/40 rounded-xl text-lg font-bold text-amber-50 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-300/30 transition-all-custom" value="0">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -300,7 +404,10 @@
                         <h2 class="text-2xl font-bold text-slate-900">Data Pengeluaran</h2>
                         <p class="text-slate-500 mt-1">Catat dan pantau seluruh arus kas keluar organisasi.</p>
                     </div>
-                    <button onclick="bukaModalPengeluaran()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm w-full sm:w-auto"><i class="ph ph-receipt text-lg"></i> Tambah Pengeluaran</button>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <button onclick="shareRekapPengeluaranWA()" class="btn-press flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-xl hover:bg-[#1DA851] font-medium text-sm w-full sm:w-auto shadow-sm"><i class="ph-fill ph-whatsapp-logo text-lg"></i> Share Rekap WA</button>
+                        <button onclick="bukaModalPengeluaran()" class="admin-only hidden-role btn-press flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm w-full sm:w-auto"><i class="ph ph-receipt text-lg"></i> Tambah Pengeluaran</button>
+                    </div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col">
                     <div id="table-loading-pengeluaran" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity">
@@ -422,235 +529,334 @@
                                 <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
                             </div>
                             <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
- * API BACKEND NEXUS (PASIS + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC)
+ * API BACKEND NEXUS
+ * PASIS + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC
+ * Update: target cuti/refund global + indikator refund sukses + dashboard premium + share pengeluaran WhatsApp.
  */
 
-function getSheetSafe(name) {
+var DATA_PASIS_HEADERS = [
+  &#x27;nama&#x27;, &#x27;nohp&#x27;, &#x27;jk&#x27;, &#x27;bank&#x27;, &#x27;norek&#x27;,
+  &#x27;dibayar&#x27;, &#x27;tgl_bayar&#x27;, &#x27;riwayat&#x27;, &#x27;status_aktif&#x27;,
+  &#x27;target_khusus&#x27;, &#x27;refund&#x27;, &#x27;tgl_refund&#x27;, &#x27;catatan_refund&#x27;,
+  &#x27;status_refund&#x27;, &#x27;waktu_refund&#x27;
+];
+
+var PENGELUARAN_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
+var PINDAH_DANA_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;penerima&#x27;, &#x27;metode&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
+var PENGATURAN_HEADERS = [&#x27;key&#x27;, &#x27;value&#x27;];
+
+var DEFAULT_SETTINGS = {
+  target_tagihan: 15000000,
+  target_cuti_refund: 0
+};
+
+function getSpreadsheetSafe() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error("Koneksi ditolak.");
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error("Tab '" + name + "' tidak ditemukan.");
+  if (!ss) throw new Error(&quot;Koneksi ditolak. Pastikan script ditempel pada Apps Script milik Google Sheets.&quot;);
+  return ss;
+}
+
+function normalizeHeader(value) {
+  return String(value || &#x27;&#x27;).toLowerCase().trim();
+}
+
+function ensureHeaders(sheet, requiredHeaders) {
+  if (!sheet) throw new Error(&quot;Sheet tidak valid.&quot;);
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(requiredHeaders);
+    return sheet;
+  }
+
+  var lastColumn = Math.max(sheet.getLastColumn(), 1);
+  var headerValues = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+  var existing = {};
+  headerValues.forEach(function(header) {
+    existing[normalizeHeader(header)] = true;
+  });
+
+  requiredHeaders.forEach(function(header) {
+    if (!existing[normalizeHeader(header)]) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
+      existing[normalizeHeader(header)] = true;
+    }
+  });
+
   return sheet;
 }
 
 function getOrCreateSheet(name, headers) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error("Koneksi ditolak.");
+  var ss = getSpreadsheetSafe();
   var sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
     sheet.appendRow(headers);
   }
-  if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+  return ensureHeaders(sheet, headers);
+}
+
+function getSheetSafe(name) {
+  var ss = getSpreadsheetSafe();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) throw new Error(&quot;Tab &#x27;&quot; + name + &quot;&#x27; tidak ditemukan.&quot;);
   return sheet;
 }
 
+function getDataPasisSheet() {
+  return getOrCreateSheet(&quot;Data Pasis&quot;, DATA_PASIS_HEADERS);
+}
+
+function getPengeluaranSheet() {
+  return getOrCreateSheet(&quot;Pengeluaran&quot;, PENGELUARAN_HEADERS);
+}
+
+function getPindahDanaSheet() {
+  return getOrCreateSheet(&quot;Pindah Dana&quot;, PINDAH_DANA_HEADERS);
+}
+
+function getPengaturanSheet() {
+  var sheet = getOrCreateSheet(&quot;Pengaturan&quot;, PENGATURAN_HEADERS);
+  ensureDefaultSettings(sheet);
+  return sheet;
+}
+
+function ensureDefaultSettings(sheet) {
+  var data = sheet.getDataRange().getDisplayValues();
+  var existing = {};
+  for (var r = 1; r &lt; data.length; r++) {
+    existing[normalizeHeader(data[r][0])] = true;
+  }
+
+  for (var key in DEFAULT_SETTINGS) {
+    if (!existing[normalizeHeader(key)]) {
+      sheet.appendRow([key, DEFAULT_SETTINGS[key]]);
+      existing[normalizeHeader(key)] = true;
+    }
+  }
+}
+
 function sheetToJSON(sheet) {
-  if(!sheet) return [];
-  var data = sheet.getDataRange().getDisplayValues(); 
-  if(data.length < 2) return [];
-  var headers = data[0];
+  if (!sheet) return [];
+  var data = sheet.getDataRange().getDisplayValues();
+  if (data.length &lt; 2) return [];
+
+  var headers = data[0].map(function(header) {
+    return normalizeHeader(header);
+  });
+
   return data.slice(1).map(function(row) {
     var obj = {};
-    headers.forEach(function(header, index) { obj[header.toString().toLowerCase().trim()] = row[index]; });
+    headers.forEach(function(header, index) {
+      if (header) obj[header] = row[index];
+    });
     return obj;
-  }).filter(function(r) { 
-     var firstKey = headers[0].toString().toLowerCase().trim();
-     return r[firstKey] && r[firstKey] !== ""; 
+  }).filter(function(r) {
+    var firstKey = headers[0];
+    return r[firstKey] &amp;&amp; r[firstKey] !== &quot;&quot;;
   });
+}
+
+function makeOutput(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function findRowByHeaderValue(sheet, headerName, targetValue) {
+  var data = sheet.getDataRange().getDisplayValues();
+  if (data.length &lt; 2) return -1;
+
+  var headers = data[0].map(normalizeHeader);
+  var targetIndex = headers.indexOf(normalizeHeader(headerName));
+  if (targetIndex === -1) throw new Error(&quot;Kolom &#x27;&quot; + headerName + &quot;&#x27; tidak ditemukan.&quot;);
+
+  var target = String(targetValue || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
+  for (var r = 1; r &lt; data.length; r++) {
+    var cell = String(data[r][targetIndex] || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
+    if (cell === target) return r + 1;
+  }
+
+  return -1;
+}
+
+function writeByHeaders(sheet, rowIndex, payloadData) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+
+  headers.forEach(function(header, idx) {
+    var key = normalizeHeader(header);
+    if (payloadData[key] !== undefined) {
+      var val = payloadData[key];
+      if (val !== &quot;&quot; &amp;&amp; (key === &#x27;nohp&#x27; || key === &#x27;norek&#x27;)) val = &quot;&#x27;&quot; + val;
+      sheet.getRange(rowIndex, idx + 1).setValue(val);
+    }
+  });
+}
+
+function appendByHeaders(sheet, payloadData) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+  var newRow = [];
+
+  headers.forEach(function(header) {
+    var key = normalizeHeader(header);
+    var val = payloadData[key] !== undefined ? payloadData[key] : &quot;&quot;;
+    if (key === &#x27;id&#x27; &amp;&amp; val === &quot;&quot;) val = new Date().getTime().toString();
+    if (val !== &quot;&quot; &amp;&amp; (key === &#x27;nohp&#x27; || key === &#x27;norek&#x27;)) val = &quot;&#x27;&quot; + val;
+    newRow.push(val);
+  });
+
+  sheet.appendRow(newRow);
+}
+
+function sortDataRowsByFirstColumn(sheet) {
+  if (sheet.getLastRow() &gt; 1) {
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).sort(1);
+  }
 }
 
 function doGet(e) {
   try {
-    var result = { status: 'success' };
-    try { result.pasis = sheetToJSON(getSheetSafe("Data Pasis")); } catch(e) { result.pasis = []; }
-    try { result.pengeluaran = sheetToJSON(getSheetSafe("Pengeluaran")); } catch(e) { result.pengeluaran = []; }
-    try { result.pindah_dana = sheetToJSON(getSheetSafe("Pindah Dana")); } catch(e) { result.pindah_dana = []; }
-    try { result.pengaturan = sheetToJSON(getSheetSafe("Pengaturan")); } catch(e) { result.pengaturan = []; }
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+    var result = { status: &#x27;success&#x27; };
+
+    try { result.pasis = sheetToJSON(getDataPasisSheet()); } catch (errPasis) { result.pasis = []; }
+    try { result.pengeluaran = sheetToJSON(getPengeluaranSheet()); } catch (errPengeluaran) { result.pengeluaran = []; }
+    try { result.pindah_dana = sheetToJSON(getPindahDanaSheet()); } catch (errPindah) { result.pindah_dana = []; }
+    try { result.pengaturan = sheetToJSON(getPengaturanSheet()); } catch (errPengaturan) { result.pengaturan = []; }
+
+    return makeOutput(result);
   } catch (error) {
-     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() })).setMimeType(ContentService.MimeType.JSON);
+    return makeOutput({ status: &#x27;error&#x27;, message: error.toString() });
   }
 }
 
 function doPost(e) {
   try {
-    var payload = JSON.parse(e.postData.contents);
-    
-    // --- AKSI PING (KUNJUNGAN & USER AKTIF) ---
-    if (payload.action === 'ping') {
-        var cache = CacheService.getScriptCache();
-        var activeUsersStr = cache.get('nexus_active_users');
-        var activeUsers = activeUsersStr ? JSON.parse(activeUsersStr) : {};
-        var now = new Date().getTime();
+    var payload = JSON.parse(e.postData.contents || &#x27;{}&#x27;);
+    if (!payload.action) throw new Error(&quot;Action kosong.&quot;);
 
-        if (payload.sessionId) activeUsers[payload.sessionId] = now;
+    // --- AKSI PING (KUNJUNGAN &amp; USER AKTIF) ---
+    if (payload.action === &#x27;ping&#x27;) {
+      var cache = CacheService.getScriptCache();
+      var activeUsersStr = cache.get(&#x27;nexus_active_users&#x27;);
+      var activeUsers = activeUsersStr ? JSON.parse(activeUsersStr) : {};
+      var now = new Date().getTime();
 
-        var activeCount = 0;
-        for (var key in activeUsers) {
-            if (now - activeUsers[key] > 120000) { delete activeUsers[key]; } // Expire 2 min
-            else { activeCount++; }
+      if (payload.sessionId) activeUsers[payload.sessionId] = now;
+
+      var activeCount = 0;
+      for (var key in activeUsers) {
+        if (now - activeUsers[key] &gt; 120000) delete activeUsers[key];
+        else activeCount++;
+      }
+      cache.put(&#x27;nexus_active_users&#x27;, JSON.stringify(activeUsers), 300);
+
+      var sheetPengaturan = getPengaturanSheet();
+      var dataPengaturan = sheetPengaturan.getDataRange().getDisplayValues();
+      var totalViews = 0;
+      var viewRowIndex = -1;
+
+      for (var r = 1; r &lt; dataPengaturan.length; r++) {
+        if (normalizeHeader(dataPengaturan[r][0]) === &#x27;total_views&#x27;) {
+          viewRowIndex = r + 1;
+          totalViews = parseInt(dataPengaturan[r][1]) || 0;
+          break;
         }
-        cache.put('nexus_active_users', JSON.stringify(activeUsers), 300);
+      }
 
-        var sheet = getOrCreateSheet("Pengaturan", ['key', 'value']);
-        var totalViews = 0;
-        if (sheet) {
-            var data = sheet.getDataRange().getDisplayValues();
-            var viewRowIndex = -1;
-            for (var r = 1; r < data.length; r++) {
-                if (data[r][0].toString().toLowerCase().trim() === 'total_views') {
-                    viewRowIndex = r + 1;
-                    totalViews = parseInt(data[r][1]) || 0;
-                    break;
-                }
-            }
-            if (payload.isNewVisit) {
-                totalViews++;
-                if (viewRowIndex > -1) sheet.getRange(viewRowIndex, 2).setValue(totalViews);
-                else sheet.appendRow(['total_views', totalViews]);
-            }
-        }
+      if (payload.isNewVisit) {
+        totalViews++;
+        if (viewRowIndex &gt; -1) sheetPengaturan.getRange(viewRowIndex, 2).setValue(totalViews);
+        else sheetPengaturan.appendRow([&#x27;total_views&#x27;, totalViews]);
+      }
 
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success', activeUsers: activeCount, totalViews: totalViews })).setMimeType(ContentService.MimeType.JSON);
+      return makeOutput({ status: &#x27;success&#x27;, activeUsers: activeCount, totalViews: totalViews });
     }
-    
+
     // --- AKSI DATA PASIS ---
-    if (payload.action === 'create' || payload.action === 'update') {
-      var sheet = getSheetSafe("Data Pasis");
-      if(!sheet) throw new Error("Sheet 'Data Pasis' tidak ditemukan.");
-      var data = sheet.getDataRange().getDisplayValues();
-      var headers = data[0];
-      
-      if (payload.action === 'create') {
-        var newRow = [];
-        headers.forEach(function(header) {
-          var key = header.toString().toLowerCase().trim();
-          var val = payload.data[key] !== undefined ? payload.data[key] : "";
-          if (val !== "" && (key === 'nohp' || key === 'norek')) val = "'" + val;
-          newRow.push(val);
-        });
-        sheet.appendRow(newRow);
-        
-        // OTOMATIS MENGURUTKAN DATABASE GOOGLE SHEETS (A-Z) BERDASARKAN KOLOM A (NAMA)
-        if (sheet.getLastRow() > 1) {
-          sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).sort(1);
-        }
+    if (payload.action === &#x27;create&#x27; || payload.action === &#x27;update&#x27;) {
+      var sheetPasis = getDataPasisSheet();
 
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+      if (payload.action === &#x27;create&#x27;) {
+        appendByHeaders(sheetPasis, payload.data || {});
+        sortDataRowsByFirstColumn(sheetPasis);
+        return makeOutput({ status: &#x27;success&#x27; });
       }
-      
-      if (payload.action === 'update') {
-        var nohpIndex = -1;
-        for(var i = 0; i < headers.length; i++) { if(headers[i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; } }
-        if(nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
-        
-        var targetNohp = payload.data.original_nohp || payload.data.nohp;
-        var rowIndex = -1;
-        for(var r = 1; r < data.length; r++) { if(data[r][nohpIndex] == targetNohp) { rowIndex = r + 1; break; } }
-        
-        if (rowIndex > -1) {
-          headers.forEach(function(header, idx) {
-            var key = header.toString().toLowerCase().trim();
-            if (payload.data[key] !== undefined) {
-              var val = payload.data[key];
-              if (val !== "" && (key === 'nohp' || key === 'norek')) val = "'" + val;
-              sheet.getRange(rowIndex, idx + 1).setValue(val);
-            }
-          });
-          return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
-        } else { throw new Error("Data tidak ditemukan."); }
+
+      if (payload.action === &#x27;update&#x27;) {
+        var data = payload.data || {};
+        var targetNohp = data.original_nohp || data.nohp;
+        if (!targetNohp) throw new Error(&quot;Nomor HP target kosong.&quot;);
+
+        var rowIndex = findRowByHeaderValue(sheetPasis, &#x27;nohp&#x27;, targetNohp);
+        if (rowIndex === -1) throw new Error(&quot;Data tidak ditemukan.&quot;);
+
+        writeByHeaders(sheetPasis, rowIndex, data);
+        return makeOutput({ status: &#x27;success&#x27; });
       }
     }
-    
-    if (payload.action === 'delete_pasis') {
-      var sheet = getSheetSafe("Data Pasis");
-      var data = sheet.getDataRange().getDisplayValues();
-      var nohpIndex = -1;
-      for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'nohp') { nohpIndex = i; break; } }
-      if(nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
-      
-      var rowIndex = -1;
-      for(var r = 1; r < data.length; r++) { if(data[r][nohpIndex] == payload.data.nohp) { rowIndex = r + 1; break; } }
-      if (rowIndex > -1) {
-        sheet.deleteRow(rowIndex);
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
-      } else { throw new Error("Pasis tidak ditemukan."); }
+
+    if (payload.action === &#x27;delete_pasis&#x27;) {
+      var sheetDeletePasis = getDataPasisSheet();
+      var rowDelete = findRowByHeaderValue(sheetDeletePasis, &#x27;nohp&#x27;, payload.data &amp;&amp; payload.data.nohp);
+      if (rowDelete === -1) throw new Error(&quot;Pasis tidak ditemukan.&quot;);
+
+      sheetDeletePasis.deleteRow(rowDelete);
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
     // --- AKSI PENGELUARAN ---
-    if (payload.action === 'create_pengeluaran') {
-       var sheet = getOrCreateSheet("Pengeluaran", ['id', 'tanggal', 'keterangan', 'nominal']);
-       var headers = sheet.getDataRange().getDisplayValues()[0];
-       var newRow = [];
-       headers.forEach(function(header) {
-         var key = header.toString().toLowerCase().trim();
-         var val = payload.data[key] !== undefined ? payload.data[key] : "";
-         if (key === 'id' && val === "") val = new Date().getTime().toString();
-         newRow.push(val);
-       });
-       sheet.appendRow(newRow);
-       return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    if (payload.action === &#x27;create_pengeluaran&#x27;) {
+      appendByHeaders(getPengeluaranSheet(), payload.data || {});
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
-    if (payload.action === 'delete_pengeluaran') {
-       var sheet = getSheetSafe("Pengeluaran");
-       var data = sheet.getDataRange().getDisplayValues();
-       var idIndex = -1;
-       for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; } }
-       var rowIndex = -1;
-       for(var r = 1; r < data.length; r++) { if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; } }
-       if(rowIndex > -1) { sheet.deleteRow(rowIndex); return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON); } 
-       else { throw new Error("Pengeluaran tidak ditemukan."); }
+    if (payload.action === &#x27;delete_pengeluaran&#x27;) {
+      var sheetPengeluaran = getPengeluaranSheet();
+      var rowPengeluaran = findRowByHeaderValue(sheetPengeluaran, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
+      if (rowPengeluaran === -1) throw new Error(&quot;Pengeluaran tidak ditemukan.&quot;);
+
+      sheetPengeluaran.deleteRow(rowPengeluaran);
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
     // --- AKSI PINDAH DANA / SERAH TERIMA KE KETUA KELAS ---
-    if (payload.action === 'create_pindah_dana') {
-       var sheet = getOrCreateSheet("Pindah Dana", ['id', 'tanggal', 'penerima', 'metode', 'keterangan', 'nominal']);
-       var headers = sheet.getDataRange().getDisplayValues()[0];
-       var newRow = [];
-       headers.forEach(function(header) {
-         var key = header.toString().toLowerCase().trim();
-         var val = payload.data[key] !== undefined ? payload.data[key] : "";
-         if (key === 'id' && val === "") val = new Date().getTime().toString();
-         newRow.push(val);
-       });
-       sheet.appendRow(newRow);
-       return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    if (payload.action === &#x27;create_pindah_dana&#x27;) {
+      appendByHeaders(getPindahDanaSheet(), payload.data || {});
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
-    if (payload.action === 'delete_pindah_dana') {
-       var sheet = getSheetSafe("Pindah Dana");
-       var data = sheet.getDataRange().getDisplayValues();
-       var idIndex = -1;
-       for(var i = 0; i < data[0].length; i++) { if(data[0][i].toString().toLowerCase().trim() === 'id') { idIndex = i; break; } }
-       if(idIndex === -1) throw new Error("Kolom 'id' tidak ditemukan.");
-       var rowIndex = -1;
-       for(var r = 1; r < data.length; r++) { if(data[r][idIndex] == payload.data.id) { rowIndex = r + 1; break; } }
-       if(rowIndex > -1) { sheet.deleteRow(rowIndex); return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON); } 
-       else { throw new Error("Data serah terima kas tidak ditemukan."); }
+    if (payload.action === &#x27;delete_pindah_dana&#x27;) {
+      var sheetPindah = getPindahDanaSheet();
+      var rowPindah = findRowByHeaderValue(sheetPindah, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
+      if (rowPindah === -1) throw new Error(&quot;Data serah terima kas tidak ditemukan.&quot;);
+
+      sheetPindah.deleteRow(rowPindah);
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
     // --- AKSI UPDATE PENGATURAN ---
-    if (payload.action === 'update_pengaturan') {
-        var sheet = getOrCreateSheet("Pengaturan", ['key', 'value']);
-        var data = sheet.getDataRange().getDisplayValues();
-        var keysToUpdate = payload.data; 
-        for (var k in keysToUpdate) {
-            var found = false;
-            for (var r = 1; r < data.length; r++) {
-                if (data[r][0].toString().toLowerCase().trim() === k.toLowerCase()) {
-                    sheet.getRange(r + 1, 2).setValue(keysToUpdate[k]); found = true; break;
-                }
-            }
-            if (!found) sheet.appendRow([k, keysToUpdate[k]]);
+    if (payload.action === &#x27;update_pengaturan&#x27;) {
+      var sheetSetting = getPengaturanSheet();
+      var settingData = sheetSetting.getDataRange().getDisplayValues();
+      var keysToUpdate = payload.data || {};
+
+      for (var k in keysToUpdate) {
+        var found = false;
+        for (var s = 1; s &lt; settingData.length; s++) {
+          if (normalizeHeader(settingData[s][0]) === normalizeHeader(k)) {
+            sheetSetting.getRange(s + 1, 2).setValue(keysToUpdate[k]);
+            found = true;
+            break;
+          }
         }
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+        if (!found) sheetSetting.appendRow([k, keysToUpdate[k]]);
+      }
+
+      return makeOutput({ status: &#x27;success&#x27; });
     }
 
-    throw new Error("Action tidak valid.");
+    throw new Error(&quot;Action tidak valid: &quot; + payload.action);
   } catch (err) {
-     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+    return makeOutput({ status: &#x27;error&#x27;, message: err.toString() });
   }
 }</code></pre>
                         </div>
@@ -681,7 +887,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
                                 <p class="font-semibold text-slate-900">Sheet: Data Pasis</p>
-                                <p>Kolom A-I: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat, status_aktif</code></p>
+                                <p>Kolom utama: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat, status_aktif, refund, tgl_refund, catatan_refund</code></p>
                             </div>
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">2</div>
@@ -696,7 +902,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">4</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. (Sistem akan membuat total_views otomatis)</p>
+                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. Key penting: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_tagihan</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_cuti_refund</code>, dan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">total_views</code>.</p>
                             </div>
                         </div>
                     </div>
@@ -864,6 +1070,11 @@ function doPost(e) {
                             <option value="Cuti">Cuti (Dibebaskan dari kewajiban)</option>
                         </select>
                     </div>
+                    <div class="sm:col-span-2 bg-brand-50 border border-brand-100 rounded-xl p-4 text-xs text-brand-800">
+                        <input type="hidden" id="form-target-khusus" value="">
+                        <p class="font-semibold flex items-center gap-2"><i class="ph-fill ph-lock-key"></i> Target dana tidak diisi per pasis.</p>
+                        <p class="mt-1 leading-relaxed">Target aktif dan target cuti/refund mengikuti nominal global di halaman Data Pasis agar tidak ada perbedaan input antar anggota.</p>
+                    </div>
                 </div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
@@ -914,6 +1125,75 @@ function doPost(e) {
             <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
                 <button type="button" id="cancel-bayar-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
                 <button type="button" id="submit-bayar-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-soft btn-press"><i class="ph ph-check-circle text-lg align-middle"></i> Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL CUTI / TARGET KHUSUS / PENGEMBALIAN DANA -->
+    <div id="modal-cuti-refund" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[68] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-cuti-refund-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-amber-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700"><i class="ph-fill ph-arrow-u-up-left text-xl"></i></div>
+                    <div><h3 class="font-bold text-slate-900">Cuti & Pengembalian Dana</h3><p class="text-xs text-slate-500">Target refund mengikuti pengaturan global; sistem menampilkan tanda sukses setelah refund tersimpan.</p></div>
+                </div>
+                <button id="close-cuti-refund-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <input type="hidden" id="cuti-refund-index" />
+                <div class="mb-5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-xs text-slate-500 mb-1">Pasis</p>
+                    <p id="cuti-refund-nama" class="font-bold text-slate-900 text-lg">Nama Pasis</p>
+                    <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
+                        <div>
+                            <span class="text-slate-500 block text-xs">Dibayar</span>
+                            <span id="cuti-refund-dibayar" class="font-bold text-emerald-600">Rp 0</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block text-xs">Saran Refund</span>
+                            <span id="cuti-refund-saran" class="font-bold text-amber-600">Rp 0</span>
+                        </div>
+                    </div>
+                    <p id="cuti-refund-status-info" class="mt-3 text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-xl px-3 py-2 leading-relaxed">Status refund akan dihitung otomatis dari target cuti/refund global.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Status Pasis</label>
+                        <select id="cuti-refund-status" class="w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Cuti">Cuti</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">Target Cuti / Refund Global (Rp)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                            <input type="text" id="cuti-refund-target" readonly class="w-full pl-11 pr-4 py-3 bg-slate-100 border-2 border-slate-200 rounded-xl text-lg font-bold text-slate-700 cursor-not-allowed" placeholder="0">
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Nominal ini mengikuti Target Cuti/Refund Global. Ubah dari kartu Target Dana Global, bukan dari data pasis satu per satu.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-red-600 uppercase tracking-wider mb-2">Nominal Pengembalian Dana / Refund (Rp)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                            <input type="text" id="cuti-refund-nominal" class="w-full pl-11 pr-4 py-3 bg-white border-2 border-red-100 rounded-xl text-lg font-bold text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500" placeholder="0">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tanggal Refund</label>
+                        <input type="date" id="cuti-refund-tanggal" class="w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Catatan</label>
+                        <textarea id="cuti-refund-catatan" rows="3" class="w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none" placeholder="Contoh: Cuti mulai bulan ini, target khusus disesuaikan."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
+                <button type="button" id="cancel-cuti-refund-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button type="button" id="submit-cuti-refund-btn" class="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-amber-600 hover:bg-amber-700 shadow-soft btn-press"><i class="ph ph-check-circle text-lg align-middle"></i> Simpan</button>
             </div>
         </div>
     </div>
@@ -974,16 +1254,70 @@ function doPost(e) {
         const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec'; 
         
         let myDashboardChart = null;
+        let myCashflowChart = null;
         window.pasisDataGlobal = [];
         window.pengeluaranDataGlobal = [];
         window.pindahDanaDataGlobal = [];
         window.pengaturanGlobal = [];
-        let lockoutTimerInterval = null; 
-        
+        let lockoutTimerInterval = null;
+        let adminSessionInterval = null;
+        let lastAdminActivityWrite = 0;
+
+        // PENGATURAN KEAMANAN LOGIN ADMIN
+        // Ubah angka ini kalau mau lebih longgar/ketat.
+        const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;      // logout setelah 15 menit tidak ada aktivitas
+        const ADMIN_ABSENCE_TIMEOUT_MS = 30 * 60 * 1000;   // logout jika web ditinggal/ditutup lebih dari 30 menit
+        const ADMIN_SESSION_KEY = 'nexus_admin_session_v2';
+
         let globalAppName = 'Nexus';
         let globalAdminName = 'Bendahara Utama';
         let globalTargetTagihan = Number(localStorage.getItem('globalTargetNexus')) || 15000000;
-        let userRole = localStorage.getItem('nexusRole') || 'viewer';
+        let globalTargetCutiRefund = Number(localStorage.getItem('globalTargetCutiRefundNexus')) || 0;
+
+        function getAdminSession() {
+            try {
+                return JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || 'null');
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function clearAdminSession() {
+            localStorage.removeItem(ADMIN_SESSION_KEY);
+            localStorage.removeItem('nexusRole');
+        }
+
+        function saveAdminSession() {
+            const now = Date.now();
+            localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+                role: 'admin',
+                loginAt: now,
+                lastActive: now,
+                lastSeen: now
+            }));
+            localStorage.setItem('nexusRole', 'admin');
+        }
+
+        function getAdminSessionRole() {
+            const session = getAdminSession();
+            if (!session || session.role !== 'admin') {
+                clearAdminSession();
+                return 'viewer';
+            }
+
+            const now = Date.now();
+            const idleExpired = now - Number(session.lastActive || 0) > ADMIN_IDLE_TIMEOUT_MS;
+            const absenceExpired = now - Number(session.lastSeen || session.lastActive || 0) > ADMIN_ABSENCE_TIMEOUT_MS;
+
+            if (idleExpired || absenceExpired) {
+                clearAdminSession();
+                return 'viewer';
+            }
+
+            return 'admin';
+        }
+
+        let userRole = getAdminSessionRole();
 
         // STATE PAGINATION
         let currentPasisPage = 1;
@@ -1023,6 +1357,39 @@ function doPost(e) {
             if (formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
             return formatted;
         };
+
+        const hasCustomTarget = (row) => {
+            return row && row.target_khusus !== undefined && row.target_khusus !== null && String(row.target_khusus).trim() !== '';
+        };
+
+        const getCutiRefundTarget = () => Math.max(parseNominal(globalTargetCutiRefund), 0);
+
+        const getEffectiveTarget = (row) => {
+            const isCuti = (row?.status_aktif || '').toLowerCase() === 'cuti';
+            // Target cuti/refund dibuat global agar tidak ada kesalahan input per pasis.
+            return isCuti ? getCutiRefundTarget() : globalTargetTagihan;
+        };
+
+        const getSisaTagihan = (row) => {
+            return Math.max(getEffectiveTarget(row) - parseNominal(row?.dibayar), 0);
+        };
+
+        const getRefundNominal = (row) => {
+            return parseNominal(row?.refund);
+        };
+
+        const getSaranRefund = (row) => {
+            return Math.max(parseNominal(row?.dibayar) - getEffectiveTarget(row) - getRefundNominal(row), 0);
+        };
+
+        const getCutiShortage = (row) => {
+            const isCuti = (row?.status_aktif || '').toLowerCase() === 'cuti';
+            return isCuti ? getSisaTagihan(row) : 0;
+        };
+
+        const getTotalRefund = (dataPasis) => {
+            return (dataPasis || []).reduce((sum, row) => sum + getRefundNominal(row), 0);
+        };
         
         // PING SERVER FUNGSI
         async function pingServer() {
@@ -1052,6 +1419,7 @@ function doPost(e) {
                               !document.getElementById('modal-bayar').classList.contains('hidden') || 
                               !document.getElementById('modal-pengeluaran').classList.contains('hidden') ||
                               !document.getElementById('modal-pindah-dana').classList.contains('hidden') ||
+                              !document.getElementById('modal-cuti-refund').classList.contains('hidden') ||
                               !document.getElementById('modal-broadcast').classList.contains('hidden');
             if (modalOpen) return;
 
@@ -1099,21 +1467,99 @@ function doPost(e) {
         }
         
         // AUTH & ROLE UI
+        function refreshAdminSessionActivity(force = false) {
+            if (userRole !== 'admin') return;
+            const now = Date.now();
+
+            // Batasi penulisan localStorage agar tidak terlalu sering saat mouse bergerak.
+            if (!force && now - lastAdminActivityWrite < 10000) return;
+
+            const session = getAdminSession();
+            if (!session || session.role !== 'admin') return;
+
+            session.lastActive = now;
+            session.lastSeen = now;
+            localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+            lastAdminActivityWrite = now;
+        }
+
+        function markAdminSeen() {
+            if (userRole !== 'admin') return;
+            const session = getAdminSession();
+            if (!session || session.role !== 'admin') return;
+
+            session.lastSeen = Date.now();
+            localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+        }
+
+        function getAdminRemainingMinutes() {
+            const session = getAdminSession();
+            if (!session || session.role !== 'admin') return 0;
+
+            const now = Date.now();
+            const idleRemaining = ADMIN_IDLE_TIMEOUT_MS - (now - Number(session.lastActive || 0));
+            const absenceRemaining = ADMIN_ABSENCE_TIMEOUT_MS - (now - Number(session.lastSeen || session.lastActive || 0));
+            return Math.max(0, Math.floor(Math.min(idleRemaining, absenceRemaining) / 60000));
+        }
+
+        function validateAdminSession(showMessage = false) {
+            if (userRole !== 'admin') return false;
+
+            const stillAdmin = getAdminSessionRole() === 'admin';
+            if (!stillAdmin) {
+                userRole = 'viewer';
+                updateRoleUI();
+                if (showMessage && typeof showToast === 'function') {
+                    showToast('Sesi Admin berakhir. Silakan login ulang untuk akses admin.');
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        function initAdminSessionWatcher() {
+            if (adminSessionInterval) clearInterval(adminSessionInterval);
+
+            const activityEvents = ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'];
+            activityEvents.forEach(evt => {
+                document.addEventListener(evt, () => {
+                    if (validateAdminSession(false)) refreshAdminSessionActivity(false);
+                }, { passive: true });
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    markAdminSeen();
+                } else {
+                    if (validateAdminSession(true)) refreshAdminSessionActivity(true);
+                }
+            });
+
+            window.addEventListener('beforeunload', markAdminSeen);
+
+            adminSessionInterval = setInterval(() => {
+                validateAdminSession(true);
+            }, 30000);
+        }
+
         function updateRoleUI() {
+            validateAdminSession(false);
             const isAdmin = userRole === 'admin';
             document.querySelectorAll('.admin-only').forEach(el => {
                 if(isAdmin) el.classList.remove('hidden-role'); else el.classList.add('hidden-role');
             });
-            
+
             const profileContainer = document.getElementById('auth-profile-container');
             if(profileContainer) {
                 if(isAdmin) {
+                    const sisaMenit = getAdminRemainingMinutes();
                     profileContainer.innerHTML = `
                         <div onclick="window.prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group">
                             <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">${globalAdminName}</p>
-                                <p class="text-xs text-slate-500 group-hover:text-red-500 truncate">Mode Admin (Klik Keluar)</p>
+                                <p class="text-xs text-slate-500 group-hover:text-red-500 truncate">Admin aktif • sesi ±${sisaMenit} menit</p>
                             </div>
                             <i class="ph ph-sign-out text-slate-400 group-hover:text-red-600"></i>
                         </div>`;
@@ -1123,16 +1569,18 @@ function doPost(e) {
                             <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shadow-sm"><i class="ph-fill ph-user text-xl"></i></div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-slate-900 group-hover:text-brand-700 truncate">Mode Penonton</p>
-                                <p class="text-xs text-slate-500 group-hover:text-brand-500 truncate">Lihat data (Klik Login)</p>
+                                <p class="text-xs text-slate-500 group-hover:text-brand-500 truncate">Login ulang untuk akses admin</p>
                             </div>
                             <i class="ph ph-lock-key text-slate-400 group-hover:text-brand-600"></i>
                         </div>`;
                 }
             }
-            
+
             if(!isAdmin) {
                 const settingSection = document.getElementById('view-pengaturan');
+                const pindahSection = document.getElementById('view-pindah-dana');
                 if(settingSection && !settingSection.classList.contains('hidden')) document.querySelector('[data-target="dashboard"]').click();
+                if(pindahSection && !pindahSection.classList.contains('hidden')) document.querySelector('[data-target="dashboard"]').click();
             }
             if(window.pasisDataGlobal.length > 0) renderTabelPasis(window.pasisDataGlobal);
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
@@ -1143,14 +1591,14 @@ function doPost(e) {
             const pinInput = document.getElementById('login-pin');
             const infoText = document.getElementById('login-info-text');
             const btnSubmit = document.getElementById('btn-submit-login');
-            
+
             let lockoutUntil = localStorage.getItem('nexus_lockout');
-            
+
             if (lockoutUntil && Date.now() < parseInt(lockoutUntil)) {
                 pinInput.disabled = true; btnSubmit.disabled = true;
                 pinInput.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
                 btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-                
+
                 let sisaDetik = Math.ceil((parseInt(lockoutUntil) - Date.now()) / 1000);
                 infoText.innerHTML = `<span class="text-red-500 font-semibold"><i class="ph-fill ph-warning-circle align-middle"></i> Sistem login terkunci. Coba lagi dalam <b class="text-red-600">${sisaDetik}</b> detik.</span>`;
                 return true;
@@ -1159,7 +1607,7 @@ function doPost(e) {
                 pinInput.disabled = false; btnSubmit.disabled = false;
                 pinInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
                 btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
-                infoText.innerHTML = `Sistem mengambil PIN dari database Anda secara otomatis.`;
+                infoText.innerHTML = `Sesi admin otomatis keluar setelah 15 menit tidak aktif atau 30 menit tidak membuka web.`;
                 return false;
             }
         }
@@ -1172,7 +1620,7 @@ function doPost(e) {
             const m = document.getElementById('modal-login'); 
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); 
             document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
-            
+
             if (!document.getElementById('login-pin').disabled) { setTimeout(() => document.getElementById('login-pin').focus(), 300); }
         };
 
@@ -1181,7 +1629,7 @@ function doPost(e) {
             const m = document.getElementById('modal-login'); const mc = document.getElementById('modal-login-content');
             m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
         };
-        
+
         window.prosesLogin = function() {
             if (checkLockoutState()) return;
 
@@ -1195,28 +1643,38 @@ function doPost(e) {
             }
 
             if(pinInput === dbPin) {
-                localStorage.removeItem('nexus_attempts'); localStorage.removeItem('nexus_lockout');
-                userRole = 'admin'; localStorage.setItem('nexusRole', 'admin');
-                closeModalLogin(); updateRoleUI(); showToast('Autentikasi Berhasil! Anda masuk Mode Admin.');
+                localStorage.removeItem('nexus_attempts');
+                localStorage.removeItem('nexus_lockout');
+                saveAdminSession();
+                userRole = 'admin';
+                refreshAdminSessionActivity(true);
+                closeModalLogin();
+                updateRoleUI();
+                showToast('Autentikasi berhasil. Mode Admin aktif.');
             } else {
                 let attempts = parseInt(localStorage.getItem('nexus_attempts') || '0') + 1;
                 localStorage.setItem('nexus_attempts', attempts);
-                
+
                 if (attempts >= 3) {
-                    let lockTime = Date.now() + (3 * 60 * 1000); localStorage.setItem('nexus_lockout', lockTime);
-                    showToast('Terlalu banyak percobaan salah! Sistem login dikunci sementara.');
+                    let lockTime = Date.now() + (3 * 60 * 1000);
+                    localStorage.setItem('nexus_lockout', lockTime);
+                    showToast('Terlalu banyak percobaan salah. Login dikunci sementara.');
                     document.getElementById('login-pin').value = '';
-                    checkLockoutState(); lockoutTimerInterval = setInterval(checkLockoutState, 1000);
+                    checkLockoutState();
+                    lockoutTimerInterval = setInterval(checkLockoutState, 1000);
                 } else {
-                    document.getElementById('login-pin').value = ''; document.getElementById('login-pin').focus();
-                    showToast(`PIN Salah! Anda memiliki ${3 - attempts} percobaan lagi.`);
+                    document.getElementById('login-pin').value = '';
+                    document.getElementById('login-pin').focus();
+                    showToast(`PIN salah. Sisa percobaan: ${3 - attempts}.`);
                 }
             }
         };
 
         window.prosesLogout = function() {
-            userRole = 'viewer'; localStorage.setItem('nexusRole', 'viewer');
-            updateRoleUI(); showToast('Anda keluar dari Mode Admin.');
+            userRole = 'viewer';
+            clearAdminSession();
+            updateRoleUI();
+            showToast('Anda keluar dari Mode Admin.');
         };
 
         function toggleSidebar(buka) {
@@ -1229,6 +1687,7 @@ function doPost(e) {
         }
 
         function switchView(targetId, targetLink) {
+            validateAdminSession(true);
             if(userRole !== 'admin' && targetLink.classList.contains('admin-only')) { showToast('Akses ditolak. Silakan login Admin.'); return; }
             
             const targetSection = document.getElementById(`view-${targetId}`);
@@ -1268,6 +1727,8 @@ function doPost(e) {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            initAdminSessionWatcher();
+            validateAdminSession(false);
             updateRoleUI();
             
             pingServer(); setInterval(pingServer, 60000); 
@@ -1324,34 +1785,54 @@ function doPost(e) {
                 document.getElementById('main-content-scroll').scrollTo({ top: 0, behavior: 'smooth' });
             });
 
-            // SIMPAN TARGET TAGIHAN OTOMATIS KE DB SAAT SELESAI MENGETIK
-            const gInput = document.getElementById('global-target-input');
-            if (gInput) {
-                gInput.value = new Intl.NumberFormat('id-ID').format(globalTargetTagihan);
-                gInput.addEventListener('input', formatInputRibuan);
-                gInput.addEventListener('change', async (e) => {
-                    let val = Number(e.target.value.replace(/\./g, ''));
-                    if(val >= 0) {
-                        globalTargetTagihan = val; localStorage.setItem('globalTargetNexus', val);
-                        if(window.pasisDataGlobal.length > 0) { renderTabelPasis(window.pasisDataGlobal); perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal); }
-                        
-                        if(userRole === 'admin' && !GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) {
-                            showToast('Menyimpan Target Tagihan ke Database...');
-                            try {
-                                const payload = { action: 'update_pengaturan', data: { target_tagihan: val } };
-                                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
-                                const json = await res.json();
-                                if(json.status === 'success') { showToast('Target Tagihan Tersimpan secara Global!'); }
-                                else showToast('Gagal menyimpan target tagihan.');
-                            } catch(err) { showToast('Gagal koneksi menyimpan pengaturan.'); }
+            // SIMPAN TARGET GLOBAL OTOMATIS KE DB SAAT SELESAI MENGETIK
+            function bindGlobalTargetInput(inputId, settingKey, localKey, getLabel, setValueFn) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                input.value = new Intl.NumberFormat('id-ID').format(setValueFn());
+                input.addEventListener('input', formatInputRibuan);
+                input.addEventListener('change', async (e) => {
+                    let val = parseNominal(e.target.value);
+                    if (val < 0) return;
+
+                    setValueFn(val);
+                    localStorage.setItem(localKey, val);
+                    if (window.pasisDataGlobal.length > 0) {
+                        renderTabelPasis(window.pasisDataGlobal);
+                        perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
+                    }
+
+                    if (userRole === 'admin' && !GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) {
+                        showToast(`Menyimpan ${getLabel()} ke Database...`);
+                        try {
+                            const payload = { action: 'update_pengaturan', data: { [settingKey]: val } };
+                            const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                            const json = await res.json();
+                            if (json.status === 'success') showToast(`${getLabel()} tersimpan secara global!`);
+                            else showToast(`Gagal menyimpan ${getLabel()}.`);
+                        } catch (err) {
+                            showToast('Gagal koneksi menyimpan pengaturan.');
                         }
                     }
                 });
             }
+
+            bindGlobalTargetInput('global-target-input', 'target_tagihan', 'globalTargetNexus', () => 'Target Aktif', (val) => {
+                if (val !== undefined) globalTargetTagihan = val;
+                return globalTargetTagihan;
+            });
+
+            bindGlobalTargetInput('global-target-cuti-refund-input', 'target_cuti_refund', 'globalTargetCutiRefundNexus', () => 'Target Cuti/Refund', (val) => {
+                if (val !== undefined) globalTargetCutiRefund = val;
+                return globalTargetCutiRefund;
+            });
             
             document.getElementById('keluar-nominal')?.addEventListener('input', formatInputRibuan);
             document.getElementById('transfer-nominal')?.addEventListener('input', formatInputRibuan);
             document.getElementById('bayar-nominal')?.addEventListener('input', formatInputRibuan);
+            document.getElementById('form-target-khusus')?.addEventListener('input', formatInputRibuan);
+            document.getElementById('cuti-refund-target')?.addEventListener('input', formatInputRibuan);
+            document.getElementById('cuti-refund-nominal')?.addEventListener('input', formatInputRibuan);
             
             // TOAST & MODALS
             const toast = document.getElementById('global-toast'); const toastMsg = document.getElementById('toast-message'); let toastTimeout;
@@ -1372,6 +1853,16 @@ function doPost(e) {
                     document.getElementById(`cancel-${mType==='modal'?'modal':mType}-btn`)?.addEventListener('click', window['closeModal'+(mType==='modal'?'':mType.charAt(0).toUpperCase()+mType.slice(1))]);
                 }
             });
+
+
+            window.closeModalCutiRefund = function() {
+                const m = document.getElementById('modal-cuti-refund');
+                const mc = document.getElementById('modal-cuti-refund-content');
+                if(!m || !mc) return;
+                m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(()=>m.classList.add('hidden'), 300);
+            };
+            document.getElementById('close-cuti-refund-btn')?.addEventListener('click', window.closeModalCutiRefund);
+            document.getElementById('cancel-cuti-refund-btn')?.addEventListener('click', window.closeModalCutiRefund);
 
             window.closeModalPindahDana = function() {
                 const m = document.getElementById('modal-pindah-dana');
@@ -1404,7 +1895,7 @@ function doPost(e) {
                 if (!nohp || !nama) { showToast('No HP dan Nama wajib diisi!'); return; }
                 if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi GOOGLE_SHEET_API_URL di menu Pengaturan.'); return; }
 
-                const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, status_aktif: statusAktif, dibayar: formMode === 'add' ? 0 : undefined }};
+                const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, status_aktif: statusAktif, target_khusus: '', dibayar: formMode === 'add' ? 0 : undefined }};
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
                 try {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
@@ -1426,7 +1917,8 @@ function doPost(e) {
                 
                 const currentDibayar = parseNominal(row.dibayar);
                 const newDibayar = currentDibayar + nominal;
-                const sisaTgh = Math.max(globalTargetTagihan - newDibayar, 0);
+                const targetEfektif = getEffectiveTarget(row);
+                const sisaTgh = Math.max(targetEfektif - newDibayar, 0);
 
                 const newRecord = `${tanggalBayar}::${nominal}`;
                 const existingRiwayat = row.riwayat || "";
@@ -1444,11 +1936,77 @@ function doPost(e) {
                             const nohpFmt = formatNoHP(row.nohp);
                             let dStr = tanggalBayar; try { const d = new Date(tanggalBayar); if(!isNaN(d.getTime())) dStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
                             
-                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
+                            const msg = `Halo *${row.nama}*,\n\nTerima kasih, setoran administrasi Anda sebesar *Rp ${nominalStr}* pada tanggal *${dStr}* telah berhasil dicatat.\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(targetEfektif)}*\n- Total Terkumpul: *${formatRp(newDibayar)}*\n- Sisa Piutang: *${formatRp(sisaTgh)}*\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                             setTimeout(() => { window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank'); }, 500);
                         }
                     } else { showToast('Gagal.'); }
                 } catch(e) { showToast('Gagal memproses setoran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
+            });
+
+
+            // SUBMIT CUTI / TARGET GLOBAL / PENGEMBALIAN DANA
+            document.getElementById('submit-cuti-refund-btn')?.addEventListener('click', async function() {
+                if(!validateAdminSession(true)) { showToast('Sesi admin berakhir. Login ulang.'); return; }
+
+                const index = document.getElementById('cuti-refund-index').value;
+                const row = window.pasisDataGlobal[index];
+                if(!row) { showToast('Data pasis tidak ditemukan.'); return; }
+
+                const statusAktif = document.getElementById('cuti-refund-status').value;
+                const targetGlobalRefund = getCutiRefundTarget();
+                const dibayar = parseNominal(row.dibayar);
+                const refundMaksimal = Math.max(dibayar - targetGlobalRefund, 0);
+                const refundNominal = parseNominal(document.getElementById('cuti-refund-nominal').value);
+                const tanggalRefund = document.getElementById('cuti-refund-tanggal').value;
+                const catatanRefund = document.getElementById('cuti-refund-catatan').value.trim();
+
+                if (statusAktif === 'Cuti' && dibayar < targetGlobalRefund && refundNominal > 0) {
+                    showToast(`Belum bisa refund. Dana masuk baru ${formatRp(dibayar)}, target cuti/refund global ${formatRp(targetGlobalRefund)}.`);
+                    return;
+                }
+                if(refundNominal > 0 && !tanggalRefund) { showToast('Tanggal refund wajib diisi jika ada pengembalian dana.'); return; }
+                if(refundNominal > dibayar) { showToast('Refund tidak boleh melebihi total yang sudah dibayar.'); return; }
+                if(refundNominal > refundMaksimal) { showToast(`Refund maksimal ${formatRp(refundMaksimal)} sesuai target cuti/refund global.`); return; }
+
+                const payload = {
+                    action: 'update',
+                    data: {
+                        original_nohp: row.nohp,
+                        status_aktif: statusAktif,
+                        target_khusus: '',
+                        refund: refundNominal,
+                        tgl_refund: refundNominal > 0 ? tanggalRefund : '',
+                        catatan_refund: catatanRefund,
+                        status_refund: refundNominal > 0 ? 'Berhasil' : '',
+                        waktu_refund: refundNominal > 0 ? new Date().toLocaleString('id-ID') : ''
+                    }
+                };
+
+                const oHtml = this.innerHTML;
+                this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...';
+                this.disabled = true;
+
+                try {
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                    const json = await res.json();
+                    if(json.status === 'success') {
+                        if(refundNominal > 0) {
+                            showToast(`Pengembalian dana berhasil dicatat: ${formatRp(refundNominal)}.`);
+                            showRefundSuccessPanel(row.nama, refundNominal, tanggalRefund);
+                        } else {
+                            showToast('Status cuti berhasil diperbarui.');
+                        }
+                        closeModalCutiRefund();
+                        fetchDataDariGoogleSheets();
+                    } else {
+                        showToast('Gagal: ' + (json.message || 'Tidak diketahui'));
+                    }
+                } catch(e) {
+                    showToast('Gagal memproses cuti/refund.');
+                } finally {
+                    this.innerHTML = oHtml;
+                    this.disabled = false;
+                }
             });
 
             // SUBMIT PENGELUARAN
@@ -1484,7 +2042,8 @@ function doPost(e) {
 
                 const totalMasuk = (window.pasisDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.dibayar), 0);
                 const totalPengeluaran = (window.pengeluaranDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
-                const saldoKasAktif = totalMasuk - totalPengeluaran;
+                const totalRefund = getTotalRefund(window.pasisDataGlobal);
+                const saldoKasAktif = totalMasuk - totalPengeluaran - totalRefund;
                 if(nom > saldoKasAktif) {
                     showToast(`Nominal serah terima melebihi saldo kas aktif (${formatRp(saldoKasAktif)}).`);
                     return;
@@ -1584,44 +2143,121 @@ function doPost(e) {
             }, 500);
         }
 
+        function showRefundSuccessPanel(nama, nominal, tanggal) {
+            const panel = document.getElementById('refund-success-panel');
+            const text = document.getElementById('refund-success-text');
+            if(!panel || !text) return;
+            let tglText = tanggal || '-';
+            try {
+                const d = new Date(tanggal);
+                if(!isNaN(d.getTime())) tglText = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            } catch(e) {}
+            text.textContent = `Refund ${nama || '-'} sebesar ${formatRp(nominal)} berhasil dicatat pada ${tglText}. Saldo kas otomatis berkurang dan riwayat refund muncul di dashboard.`;
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         // --- DASHBOARD RENDER ---
         function perbaruiDashboard(dataPasis, dataPengeluaran, dataPindahDana = window.pindahDanaDataGlobal) {
-            let totalMasuk = 0; let totalPiutang = 0; let totalLunas = 0;
+            let totalMasuk = 0;
+            let totalTarget = 0;
+            let totalPiutang = 0;
+            let totalLunas = 0;
+            let totalRefund = 0;
+            let jumlahRefund = 0;
+            let totalAktif = 0;
+            let totalCuti = 0;
+            let totalCutiKurang = 0;
+
             const pasisArr = dataPasis || [];
             pasisArr.forEach(d => {
-                let dibayar = parseNominal(d.dibayar); totalMasuk += dibayar;
+                let dibayar = parseNominal(d.dibayar);
+                let targetEfektif = getEffectiveTarget(d);
+                let refund = getRefundNominal(d);
+                let sisa = Math.max(targetEfektif - dibayar, 0);
                 let isCuti = (d.status_aktif || '').toLowerCase() === 'cuti';
-                let sisa = globalTargetTagihan - dibayar;
-                if (!isCuti) {
-                    if(sisa > 0) totalPiutang += sisa;
-                    if(globalTargetTagihan > 0 && dibayar >= globalTargetTagihan) totalLunas++;
+
+                totalMasuk += dibayar;
+                totalTarget += targetEfektif;
+                totalRefund += refund;
+                if (refund > 0) jumlahRefund++;
+
+                if(isCuti) {
+                    totalCuti++;
+                    if(sisa > 0) totalCutiKurang++;
+                } else {
+                    totalAktif++;
                 }
+
+                if(sisa > 0) totalPiutang += sisa;
+                if(!isCuti && targetEfektif > 0 && dibayar >= targetEfektif) totalLunas++;
             });
 
-            let totalKeluar = 0;
+            let totalPengeluaranManual = 0;
             const keluarArr = dataPengeluaran || [];
-            keluarArr.forEach(p => { totalKeluar += parseNominal(p.nominal); });
+            keluarArr.forEach(p => { totalPengeluaranManual += parseNominal(p.nominal); });
+
+            let totalKeluar = totalPengeluaranManual + totalRefund;
 
             let totalPindahDana = 0;
             const pindahArr = dataPindahDana || [];
             pindahArr.forEach(p => { totalPindahDana += parseNominal(p.nominal); });
-            
+
             // Serah terima kas TIDAK dihitung sebagai pengeluaran kelas.
-            // Dana hanya berpindah pemegang dari bendahara ke ketua kelas, sehingga saldo kas aktif tetap dapat digunakan oleh pemegang baru.
+            // Refund/pengembalian dana dihitung sebagai kas keluar agar saldo kas tetap akurat.
             let saldoAktif = totalMasuk - totalKeluar;
+            let persenTarget = totalTarget > 0 ? Math.min(Math.round((totalMasuk / totalTarget) * 100), 100) : 0;
 
             const ds = document.getElementById('dash-saldo'); if(ds) ds.textContent = formatRp(saldoAktif);
             const dt = document.getElementById('dash-total-dana'); if(dt) dt.textContent = formatRp(totalMasuk);
             const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalKeluar);
             const dpt = document.getElementById('dash-total-piutang'); if(dpt) dpt.textContent = formatRp(totalPiutang);
-            
-            const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas`;
-            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran`;
+            const dr = document.getElementById('dash-total-refund'); if(dr) dr.textContent = formatRp(totalRefund);
+
+            const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas dari ${totalAktif} Pasis Aktif`;
+            const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran${jumlahRefund ? ` + ${jumlahRefund} Refund` : ''}`;
+            const dRefundCount = document.getElementById('dash-refund-count'); if(dRefundCount) dRefundCount.textContent = `${jumlahRefund} refund berhasil tercatat.`;
+            const dActive = document.getElementById('dash-active-pasis'); if(dActive) dActive.textContent = totalAktif;
+            const dCuti = document.getElementById('dash-cuti-pasis'); if(dCuti) dCuti.textContent = totalCuti;
+            const dCutiKurang = document.getElementById('dash-cuti-kurang'); if(dCutiKurang) dCutiKurang.textContent = `${totalCutiKurang} cuti masih kurang target.`;
+            const dTotalPasis = document.getElementById('dash-total-pasis'); if(dTotalPasis) dTotalPasis.textContent = pasisArr.length;
+            const dLunasPasis = document.getElementById('dash-lunas-pasis'); if(dLunasPasis) dLunasPasis.textContent = totalLunas;
+            const dRefundSuccessCount = document.getElementById('dash-refund-success-count'); if(dRefundSuccessCount) dRefundSuccessCount.textContent = jumlahRefund;
+            const dCutiKurangCount = document.getElementById('dash-cuti-kurang-count'); if(dCutiKurangCount) dCutiKurangCount.textContent = totalCutiKurang;
+            const dProgressPercent = document.getElementById('dash-progress-percent'); if(dProgressPercent) dProgressPercent.textContent = `${persenTarget}%`;
+            const dProgressBar = document.getElementById('dash-progress-bar'); if(dProgressBar) dProgressBar.style.width = `${persenTarget}%`;
+            const dProgressText = document.getElementById('dash-progress-text'); if(dProgressText) dProgressText.textContent = `${formatRp(totalMasuk)} terkumpul dari total target ${formatRp(totalTarget)}.`;
+            const dTargetTagihan = document.getElementById('dash-target-tagihan'); if(dTargetTagihan) dTargetTagihan.textContent = formatRp(globalTargetTagihan);
+            const dTargetCutiRefund = document.getElementById('dash-target-cuti-refund'); if(dTargetCutiRefund) dTargetCutiRefund.textContent = formatRp(globalTargetCutiRefund);
+
+            const refundArr = pasisArr
+                .filter(item => getRefundNominal(item) > 0)
+                .map(item => ({
+                    tanggal: item.tgl_refund || item.tgl_bayar || '',
+                    nominal: getRefundNominal(item),
+                    nama: item.nama,
+                    catatan_refund: item.catatan_refund,
+                    status_refund: item.status_refund || 'Berhasil',
+                    jenis: 'refund'
+                }))
+                .sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            const lastRefund = document.getElementById('dash-last-refund');
+            if(lastRefund) {
+                if(refundArr.length > 0) {
+                    const item = refundArr[0];
+                    let d = new Date(item.tanggal);
+                    let dStr = isNaN(d.getTime()) ? (item.tanggal || '-') : d.toLocaleDateString('id-ID',{day:'numeric', month:'long', year:'numeric'});
+                    lastRefund.innerHTML = `<div class="flex items-start gap-3"><div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center"><i class="ph-fill ph-check-circle text-lg"></i></div><div><p class="font-black text-slate-900">Refund terakhir berhasil</p><p class="text-xs text-slate-500 mt-1">${item.nama || '-'} • ${formatRp(item.nominal)} • ${dStr}</p></div></div>`;
+                } else {
+                    lastRefund.textContent = 'Belum ada refund berhasil.';
+                }
+            }
 
             const pindahTotalNominal = document.getElementById('pindah-total-nominal'); if(pindahTotalNominal) pindahTotalNominal.textContent = formatRp(totalPindahDana);
             const pindahTotalTransaksi = document.getElementById('pindah-total-transaksi'); if(pindahTotalTransaksi) pindahTotalTransaksi.textContent = `${pindahArr.length} Transaksi`;
             const pindahSaldoAktif = document.getElementById('pindah-saldo-aktif'); if(pindahSaldoAktif) pindahSaldoAktif.textContent = formatRp(saldoAktif);
-            
+
             const bankCounts = {};
             pasisArr.forEach(d => { 
                 let isCuti = (d.status_aktif || '').toLowerCase() === 'cuti';
@@ -1633,7 +2269,24 @@ function doPost(e) {
             const ctx = document.getElementById('dashboardChart')?.getContext('2d');
             if(ctx) {
                 if(myDashboardChart) myDashboardChart.destroy();
-                myDashboardChart = new Chart(ctx, { type: 'bar', data: { labels: sortedBanks.map(i=>i[0]), datasets: [{ data: sortedBanks.map(i=>i[1]), backgroundColor: '#14b8a6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{stepSize:1}} } }});
+                myDashboardChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: sortedBanks.map(i=>i[0]), datasets: [{ data: sortedBanks.map(i=>i[1]), backgroundColor: '#14b8a6', borderRadius: 10, maxBarThickness: 42 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw} Pasis` } } }, scales: { x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{stepSize:1}} } }
+                });
+            }
+
+            const cashCtx = document.getElementById('cashflowChart')?.getContext('2d');
+            if(cashCtx) {
+                if(myCashflowChart) myCashflowChart.destroy();
+                myCashflowChart = new Chart(cashCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pemasukan', 'Pengeluaran', 'Refund', 'Saldo Aktif'],
+                        datasets: [{ data: [totalMasuk, totalPengeluaranManual, totalRefund, Math.max(saldoAktif, 0)], backgroundColor: ['#10b981', '#ef4444', '#f97316', '#0f766e'], borderWidth: 0, hoverOffset: 8 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatRp(ctx.raw)}` } } } }
+                });
             }
 
             const recentList = document.getElementById('dash-recent-keluar');
@@ -1641,29 +2294,32 @@ function doPost(e) {
                 recentList.innerHTML = '';
                 const aktivitas = [
                     ...keluarArr.map(item => ({...item, jenis: 'pengeluaran'})),
-                    ...pindahArr.map(item => ({...item, jenis: 'pindah'}))
-                ].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0,4);
+                    ...pindahArr.map(item => ({...item, jenis: 'pindah'})),
+                    ...refundArr
+                ].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0,6);
 
                 if(aktivitas.length > 0) {
                     aktivitas.forEach(item => {
-                        let d = new Date(item.tanggal); let dStr = isNaN(d.getTime()) ? item.tanggal : d.toLocaleDateString('id-ID',{day:'numeric', month:'short'});
+                        let d = new Date(item.tanggal); let dStr = isNaN(d.getTime()) ? (item.tanggal || '-') : d.toLocaleDateString('id-ID',{day:'numeric', month:'short'});
                         const isPindah = item.jenis === 'pindah';
-                        const icon = isPindah ? 'ph-hand-coins' : 'ph-receipt';
-                        const bg = isPindah ? 'bg-amber-50' : 'bg-red-50';
-                        const txt = isPindah ? 'text-amber-600' : 'text-red-600';
-                        const label = isPindah ? `Pindah ke ${item.penerima || 'Ketua Kelas'}` : item.keterangan;
-                        const sub = isPindah ? `${dStr} • ${item.metode || '-'}` : dStr;
+                        const isRefund = item.jenis === 'refund';
+                        const icon = isPindah ? 'ph-hand-coins' : (isRefund ? 'ph-check-circle' : 'ph-receipt');
+                        const bg = isPindah ? 'bg-amber-50' : (isRefund ? 'bg-emerald-50' : 'bg-red-50');
+                        const txt = isPindah ? 'text-amber-600' : (isRefund ? 'text-emerald-600' : 'text-red-600');
+                        const label = isPindah ? `Serah terima ke ${item.penerima || 'Ketua Kelas'}` : (isRefund ? `Refund berhasil: ${item.nama || '-'}` : item.keterangan);
+                        const sub = isPindah ? `${dStr} • ${item.metode || '-'}` : (isRefund ? `${dStr} • Pengembalian dana sukses` : dStr);
+                        const prefix = isPindah ? 'Audit ' : '- ';
                         recentList.innerHTML += `
                             <div class="flex items-center justify-between border-b border-slate-50 pb-3 last:border-0 last:pb-0">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center ${txt}"><i class="ph ${icon} text-lg"></i></div>
-                                    <div><p class="font-semibold text-sm text-slate-900 truncate max-w-[120px] sm:max-w-[200px]">${label}</p><p class="text-xs text-slate-500">${sub}</p></div>
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 h-10 rounded-2xl ${bg} flex-shrink-0 flex items-center justify-center ${txt}"><i class="ph-fill ${icon} text-lg"></i></div>
+                                    <div class="min-w-0"><p class="font-bold text-sm text-slate-900 truncate max-w-[150px] sm:max-w-[220px]">${label}</p><p class="text-xs text-slate-500">${sub}</p></div>
                                 </div>
-                                <div class="text-right text-sm font-bold ${txt}">${isPindah ? 'Audit ' : '- '}${formatRp(item.nominal)}</div>
+                                <div class="text-right text-sm font-black ${txt}">${prefix}${formatRp(item.nominal)}</div>
                             </div>`;
                     });
                 } else {
-                    recentList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-50"><i class="ph ph-receipt text-3xl mb-2"></i><p class="text-xs">Belum ada aktivitas dana keluar.</p></div>`;
+                    recentList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-400 opacity-60"><i class="ph ph-receipt text-4xl mb-2"></i><p class="text-xs">Belum ada aktivitas dana keluar.</p></div>`;
                 }
             }
         }
@@ -1681,11 +2337,12 @@ function doPost(e) {
             // Filter data dan rekam nomor index original dari database
             const filteredData = (data || []).map((row, index) => ({...row, originalIndex: index})).filter(row => {
                 let dibayar = parseNominal(row.dibayar);
+                let targetEfektif = getEffectiveTarget(row);
                 let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
                 let statusRaw = 'Belum';
-                
+
                 if (isCuti) statusRaw = 'Cuti';
-                else if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) statusRaw = 'Lunas'; 
+                else if (dibayar >= targetEfektif && targetEfektif > 0) statusRaw = 'Lunas'; 
                 else if (dibayar > 0) statusRaw = 'Cicilan'; 
                 
                 const nama = (row.nama || '').toLowerCase();
@@ -1715,14 +2372,24 @@ function doPost(e) {
 
             paginatedData.forEach((row, relativeIndex) => {
                 let dibayar = parseNominal(row.dibayar);
-                let persen = globalTargetTagihan > 0 ? Math.min(Math.round((dibayar/globalTargetTagihan)*100), 100) : 0;
+                let targetEfektif = getEffectiveTarget(row);
+                let refundNominal = getRefundNominal(row);
+                let persen = targetEfektif > 0 ? Math.min(Math.round((dibayar/targetEfektif)*100), 100) : 100;
                 let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
-                
+
                 let statusBadge = ''; let progressColor = 'bg-red-500';
+                const cutiShortage = getCutiShortage(row);
+                const refundBerhasil = refundNominal > 0 && ((row.status_refund || '').toLowerCase().includes('berhasil') || !row.status_refund);
                 if (isCuti) {
-                    statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md"><i class="ph-fill ph-pause-circle mr-1"></i>Cuti</span>`; progressColor = 'bg-slate-300';
+                    if (cutiShortage > 0) {
+                        statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md"><i class="ph-fill ph-warning-circle mr-1"></i>Cuti • Kurang</span>`; progressColor = 'bg-amber-400';
+                    } else if (refundBerhasil) {
+                        statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Cuti • Refund Berhasil</span>`; progressColor = 'bg-emerald-500';
+                    } else {
+                        statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md"><i class="ph-fill ph-pause-circle mr-1"></i>Cuti</span>`; progressColor = 'bg-slate-300';
+                    }
                 }
-                else if (dibayar >= globalTargetTagihan && globalTargetTagihan > 0) { 
+                else if (dibayar >= targetEfektif && targetEfektif > 0) { 
                     statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md"><i class="ph-fill ph-check-circle mr-1"></i>Lunas</span>`; progressColor = 'bg-emerald-500'; 
                 } 
                 else if (dibayar > 0) { 
@@ -1748,6 +2415,7 @@ function doPost(e) {
                 // Fitur 6: Tambahan Tombol Hapus Pasis di Sini
                 if (isAdmin) { actionButtons += `
                     <button onclick="event.stopPropagation(); window.bukaModalBayar(${row.originalIndex})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button>
+                    <button onclick="event.stopPropagation(); window.bukaModalCutiRefund(${row.originalIndex})" class="btn-press p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg ml-1" title="Cuti / Refund"><i class="ph-fill ph-arrow-u-up-left text-lg"></i></button>
                     <button onclick="event.stopPropagation(); window.bukaModalEdit(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>
                     <button onclick="event.stopPropagation(); window.hapusPasis(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg ml-1" title="Hapus Pasis"><i class="ph ph-trash text-lg"></i></button>
                 `; }
@@ -1755,7 +2423,7 @@ function doPost(e) {
                 tr.innerHTML = `
                     <td class="p-4 pl-6"><div class="flex items-center gap-3"><span class="text-slate-400 font-bold text-sm min-w-[20px] text-right">${row.originalIndex + 1}.</span>${avatarHtml}<div><div class="flex items-center gap-2"><p class="font-bold text-slate-900 group-hover:text-brand-600">${row.nama}</p>${statusAktifBadge}</div><p class="text-xs text-slate-500 mt-0.5"><i class="ph ph-phone"></i> ${row.nohp||'-'}</p></div></div></td>
                     <td class="p-4 text-slate-600 text-xs"><p class="font-bold">${(row.bank||'-').toUpperCase()}</p><p class="font-mono text-slate-500">${row.norek||'-'}</p></td>
-                    <td class="p-4 w-48"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Terkumpul:</span> <span class="font-bold text-slate-700">${persen}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 mb-1 overflow-hidden"><div class="${progressColor} h-1.5 rounded-full" style="width: ${persen}%"></div></div><div class="text-[10px] text-slate-400 text-right">${formatRp(dibayar)} / ${formatRp(globalTargetTagihan)}</div>${tglText ? `<div class="text-[10px] text-slate-500 font-medium mt-1"><i class="ph ph-clock-counter-clockwise"></i> ${tglText}</div>` : ''}</td>
+                    <td class="p-4 w-48"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Terkumpul:</span> <span class="font-bold text-slate-700">${persen}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 mb-1 overflow-hidden"><div class="${progressColor} h-1.5 rounded-full" style="width: ${persen}%"></div></div><div class="text-[10px] text-slate-400 text-right">${formatRp(dibayar)} / ${formatRp(targetEfektif)}${cutiShortage > 0 ? `<br><span class="text-amber-600 font-semibold">Kurang target cuti: ${formatRp(cutiShortage)}</span>` : ''}${refundNominal > 0 ? `<br><span class="text-emerald-600 font-semibold"><i class="ph-fill ph-check-circle"></i> Refund berhasil: ${formatRp(refundNominal)}${row.tgl_refund ? ` (${row.tgl_refund})` : ''}</span>` : ''}</div>${tglText ? `<div class="text-[10px] text-slate-500 font-medium mt-1"><i class="ph ph-clock-counter-clockwise"></i> ${tglText}</div>` : ''}</td>
                     <td class="p-4 text-xs font-medium">${statusBadge}</td>
                     <td class="p-4 pr-6 text-right"><div class="flex items-center justify-end">${actionButtons}</div></td>
                 `;
@@ -1794,13 +2462,14 @@ function doPost(e) {
                 const tr = document.createElement('tr'); tr.className = 'hover:bg-slate-50/80 transition-all-custom';
                 tr.style.opacity = '0'; tr.style.transform = 'translateY(10px)'; tr.style.transitionDelay = `${idx * 20}ms`; 
                 
-                let btnHapus = isAdmin ? `<button onclick="window.hapusPengeluaran('${row.id}')" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><i class="ph ph-trash text-lg"></i></button>` : `<span class="text-xs text-slate-400 italic">No Access</span>`;
+                let btnShare = `<button onclick="window.sharePengeluaranWA('${row.id}')" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg" title="Share WhatsApp"><i class="ph-fill ph-whatsapp-logo text-lg"></i></button>`;
+                let btnHapus = isAdmin ? `<button onclick="window.hapusPengeluaran('${row.id}')" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Hapus"><i class="ph ph-trash text-lg"></i></button>` : '';
 
                 tr.innerHTML = `
                     <td class="p-4 pl-6 text-slate-700 font-medium">${dStr}</td>
                     <td class="p-4 text-slate-900 font-bold">${row.keterangan}</td>
                     <td class="p-4 font-bold text-red-600">- ${formatRp(row.nominal)}</td>
-                    <td class="p-4 pr-6 text-right">${btnHapus}</td>
+                    <td class="p-4 pr-6 text-right"><div class="flex items-center justify-end gap-1.5">${btnShare}${btnHapus}</div></td>
                 `;
                 tbody.appendChild(tr); setTimeout(() => { tr.style.opacity = '1'; tr.style.transform = 'translateY(0)'; }, 50 + (idx * 20));
             });
@@ -1861,7 +2530,7 @@ function doPost(e) {
 
         // --- FITUR 6: HAPUS DATA PASIS ---
         window.hapusPasis = async function(index) {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             const row = window.pasisDataGlobal[index];
             const konfirmasi = prompt(`PERINGATAN: Anda akan menghapus data Pasis beserta riwayat setorannya.\n\nKetik kata "HAPUS" untuk menghapus data ${row.nama} :`);
             
@@ -1881,8 +2550,48 @@ function doPost(e) {
         }
 
         // --- HAPUS PENGELUARAN ---
+        function formatTanggalPengeluaran(tanggal) {
+            const d = new Date(tanggal);
+            return isNaN(d.getTime()) ? (tanggal || '-') : d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function buildPengeluaranMessage(row) {
+            return `*Laporan Pengeluaran ${globalAppName}*
+
+Tanggal: *${formatTanggalPengeluaran(row.tanggal)}*
+Keterangan: *${row.keterangan || '-'}*
+Nominal: *${formatRp(row.nominal)}*
+
+Dibagikan oleh *${globalAdminName}*.`;
+        }
+
+        window.sharePengeluaranWA = function(idStr) {
+            const row = (window.pengeluaranDataGlobal || []).find(item => String(item.id) === String(idStr));
+            if (!row) { showToast('Data pengeluaran tidak ditemukan.'); return; }
+            window.open(`https://wa.me/?text=${encodeURIComponent(buildPengeluaranMessage(row))}`, '_blank');
+        };
+
+        window.shareRekapPengeluaranWA = function() {
+            const data = window.pengeluaranDataGlobal || [];
+            if (!data.length) { showToast('Belum ada pengeluaran untuk dibagikan.'); return; }
+            const sorted = [...data].reverse();
+            const total = sorted.reduce((sum, row) => sum + parseNominal(row.nominal), 0);
+            const detail = sorted.slice(0, 30).map((row, idx) => `${idx + 1}. ${formatTanggalPengeluaran(row.tanggal)} - ${row.keterangan || '-'} - ${formatRp(row.nominal)}`).join('\n');
+            const tambahan = sorted.length > 30 ? `
+...dan ${sorted.length - 30} pengeluaran lain.` : '';
+            const msg = `*Rekap Pengeluaran ${globalAppName}*
+
+Total pengeluaran: *${formatRp(total)}*
+Jumlah transaksi: *${sorted.length}*
+
+${detail}${tambahan}
+
+Dibagikan oleh *${globalAdminName}*.`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
         window.hapusPengeluaran = async function(idStr) {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             if(!confirm('Apakah Anda yakin ingin menghapus data pengeluaran ini?')) return;
             
             showToast('Menghapus data...');
@@ -1895,7 +2604,7 @@ function doPost(e) {
         
         // --- HAPUS PINDAH DANA ---
         window.hapusPindahDana = async function(idStr) {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             if(!confirm('Apakah Anda yakin ingin menghapus riwayat serah terima kas ini?')) return;
             
             showToast('Menghapus data serah terima kas...');
@@ -1908,10 +2617,13 @@ function doPost(e) {
         
         // --- FITUR 2: BROADCAST TAGIHAN ---
         window.bukaModalBroadcast = function() {
-            if (userRole !== 'admin') return;
-            
-            // Filter pasis yang belum lunas dan punya no hp
-            const pendingList = window.pasisDataGlobal.filter(p => (p.status_aktif || '').toLowerCase() !== 'cuti' && parseNominal(p.dibayar) < globalTargetTagihan && p.nohp && p.nohp.trim() !== '');
+            if(!validateAdminSession(true)) return;
+
+            // Filter pasis yang belum lunas, punya no hp, dan target efektifnya masih ada.
+            const pendingList = window.pasisDataGlobal.filter(p => {
+                const targetEfektif = getEffectiveTarget(p);
+                return targetEfektif > 0 && parseNominal(p.dibayar) < targetEfektif && p.nohp && p.nohp.trim() !== '';
+            });
             const listContainer = document.getElementById('broadcast-list');
             listContainer.innerHTML = '';
 
@@ -1919,15 +2631,17 @@ function doPost(e) {
                 listContainer.innerHTML = `<div class="py-8 flex flex-col items-center justify-center text-slate-400 opacity-70"><i class="ph-fill ph-check-circle text-4xl mb-2 text-emerald-400"></i><p class="text-sm">Hore! Semua Pasis sudah Lunas / Tidak ada yang bisa ditagih.</p></div>`;
             } else {
                 pendingList.forEach(p => {
-                    const sisa = globalTargetTagihan - parseNominal(p.dibayar);
-                    const msg = `Halo *${p.nama}*,\n\nBerikut adalah informasi tagihan iuran administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(p.dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon bantuannya untuk melakukan pelunasan sisa tagihan tersebut.\n\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*`;
+                    const targetEfektif = getEffectiveTarget(p);
+                    const sisa = Math.max(targetEfektif - parseNominal(p.dibayar), 0);
+                    const msg = `Halo *${p.nama}*,\n\nBerikut adalah informasi tagihan iuran administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib/Khusus: *${formatRp(targetEfektif)}*\n- Telah Dibayar: *${formatRp(p.dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon bantuannya untuk melakukan pelunasan sisa tagihan tersebut.\n\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*`;
                     const waLink = `https://wa.me/${formatNoHP(p.nohp)}?text=${encodeURIComponent(msg)}`;
-                    
+
                     listContainer.innerHTML += `
                         <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100 mb-3 shadow-sm">
                             <div>
                                 <p class="font-bold text-sm text-slate-900">${p.nama}</p>
                                 <p class="text-xs font-semibold text-red-500">Sisa Tagihan: ${formatRp(sisa)}</p>
+                                <p class="text-[11px] text-slate-400">Target: ${formatRp(targetEfektif)}</p>
                             </div>
                             <a href="${waLink}" target="_blank" class="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] text-white rounded-lg text-xs font-medium hover:bg-[#1DA851] transition-colors shadow-sm"><i class="ph-fill ph-whatsapp-logo text-base"></i> Kirim WA</a>
                         </div>`;
@@ -1968,14 +2682,21 @@ function doPost(e) {
                     if(pAdmin && pAdmin.value) globalAdminName = pAdmin.value.toString().trim();
 
                     let pTarget = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'target_tagihan');
-                    if(pTarget && pTarget.value) { 
-                        globalTargetTagihan = Number(pTarget.value); 
+                    if(pTarget && pTarget.value !== undefined && pTarget.value !== '') { 
+                        globalTargetTagihan = parseNominal(pTarget.value); 
                         localStorage.setItem('globalTargetNexus', globalTargetTagihan);
+                    }
+
+                    let pTargetCutiRefund = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'target_cuti_refund');
+                    if(pTargetCutiRefund && pTargetCutiRefund.value !== undefined && pTargetCutiRefund.value !== '') {
+                        globalTargetCutiRefund = parseNominal(pTargetCutiRefund.value);
+                        localStorage.setItem('globalTargetCutiRefundNexus', globalTargetCutiRefund);
                     }
                     
                     const inputAppName = document.getElementById('setting-app-name'); if(inputAppName) inputAppName.value = globalAppName;
                     const inputAdminName = document.getElementById('setting-admin-name'); if(inputAdminName) inputAdminName.value = globalAdminName;
                     const inputTargetTagihan = document.getElementById('global-target-input'); if(inputTargetTagihan) inputTargetTagihan.value = new Intl.NumberFormat('id-ID').format(globalTargetTagihan);
+                    const inputTargetCutiRefund = document.getElementById('global-target-cuti-refund-input'); if(inputTargetCutiRefund) inputTargetCutiRefund.value = new Intl.NumberFormat('id-ID').format(globalTargetCutiRefund);
 
                     document.title = `${globalAppName} - Aplikasi Bendahara Premium`;
                     const sidebarName = document.getElementById('app-name-sidebar'); if(sidebarName) sidebarName.textContent = globalAppName;
@@ -2001,79 +2722,156 @@ function doPost(e) {
             }
         }
 
+        // Ekspos fungsi refresh ke window agar tombol inline onclick selalu aman di semua browser.
+        window.fetchDataDariGoogleSheets = fetchDataDariGoogleSheets;
+
         window.bukaModalTambah = function() {
-            if(userRole !== 'admin') { showToast("Gunakan mode admin"); return; }
-            document.getElementById('form-mode').value = 'add'; document.getElementById('form-original-nohp').value = '';
-            document.getElementById('form-nohp').value = ''; document.getElementById('form-nohp').readOnly = false;
-            document.getElementById('form-nama').value = ''; document.getElementById('form-bank').value = ''; document.getElementById('form-norek').value = '';
+            if(!validateAdminSession(true)) { showToast("Sesi admin berakhir. Login ulang."); return; }
+            document.getElementById('form-mode').value = 'add';
+            document.getElementById('form-original-nohp').value = '';
+            document.getElementById('form-nohp').value = '';
+            document.getElementById('form-nohp').readOnly = false;
+            document.getElementById('form-nama').value = '';
+            document.getElementById('form-bank').value = '';
+            document.getElementById('form-norek').value = '';
             document.getElementById('form-status-aktif').value = 'Aktif';
+            document.getElementById('form-target-khusus').value = '';
             document.getElementById('modal-title').textContent = 'Tambah Pasis';
-            const m = document.getElementById('global-modal'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
+            const m = document.getElementById('global-modal');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
         };
+
         window.bukaModalEdit = function(index) {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             const row = window.pasisDataGlobal[index];
-            document.getElementById('form-mode').value = 'update'; document.getElementById('form-original-nohp').value = row.nohp || '';
-            document.getElementById('form-nohp').value = row.nohp || ''; document.getElementById('form-nohp').readOnly = true;
-            document.getElementById('form-nama').value = row.nama || ''; document.getElementById('form-bank').value = row.bank || ''; document.getElementById('form-norek').value = row.norek || '';
+            document.getElementById('form-mode').value = 'update';
+            document.getElementById('form-original-nohp').value = row.nohp || '';
+            document.getElementById('form-nohp').value = row.nohp || '';
+            document.getElementById('form-nohp').readOnly = true;
+            document.getElementById('form-nama').value = row.nama || '';
+            document.getElementById('form-bank').value = row.bank || '';
+            document.getElementById('form-norek').value = row.norek || '';
             document.getElementById('form-status-aktif').value = row.status_aktif || 'Aktif';
+            document.getElementById('form-target-khusus').value = ''; // target mengikuti global
             document.getElementById('modal-title').textContent = 'Edit Identitas';
-            const m = document.getElementById('global-modal'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
+            const m = document.getElementById('global-modal');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
         };
+
         window.bukaModalBayar = function(index) {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             const row = window.pasisDataGlobal[index];
-            const dibayar = parseNominal(row.dibayar); const sisa = Math.max(globalTargetTagihan - dibayar, 0);
-            document.getElementById('bayar-index').value = index; document.getElementById('bayar-nama').textContent = row.nama; document.getElementById('bayar-sisa').textContent = formatRp(sisa);
+            const dibayar = parseNominal(row.dibayar);
+            const sisa = getSisaTagihan(row);
+            const targetEfektif = getEffectiveTarget(row);
+            document.getElementById('bayar-index').value = index;
+            document.getElementById('bayar-nama').textContent = `${row.nama} • Target ${formatRp(targetEfektif)}`;
+            document.getElementById('bayar-sisa').textContent = formatRp(sisa);
             document.getElementById('bayar-nominal').value = ''; 
-            const offset = (new Date()).getTimezoneOffset() * 60000; document.getElementById('bayar-tanggal').value = (new Date(Date.now() - offset)).toISOString().split('T')[0];
-            const m = document.getElementById('modal-bayar'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-bayar-content').classList.remove('scale-95', 'opacity-0');
+            const offset = (new Date()).getTimezoneOffset() * 60000;
+            document.getElementById('bayar-tanggal').value = (new Date(Date.now() - offset)).toISOString().split('T')[0];
+            const m = document.getElementById('modal-bayar');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-bayar-content').classList.remove('scale-95', 'opacity-0');
             setTimeout(() => document.getElementById('bayar-nominal').focus(), 300);
+        };
+
+        window.bukaModalCutiRefund = function(index) {
+            if(!validateAdminSession(true)) return;
+            const row = window.pasisDataGlobal[index];
+            const dibayar = parseNominal(row.dibayar);
+            const targetEfektif = getCutiRefundTarget();
+            const shortage = Math.max(targetEfektif - dibayar, 0);
+            const saranRefund = Math.max(dibayar - targetEfektif - getRefundNominal(row), 0);
+
+            document.getElementById('cuti-refund-index').value = index;
+            document.getElementById('cuti-refund-nama').textContent = row.nama || '-';
+            document.getElementById('cuti-refund-dibayar').textContent = formatRp(dibayar);
+            document.getElementById('cuti-refund-saran').textContent = formatRp(saranRefund);
+            document.getElementById('cuti-refund-status').value = row.status_aktif || 'Cuti';
+            document.getElementById('cuti-refund-target').value = new Intl.NumberFormat('id-ID').format(targetEfektif);
+            document.getElementById('cuti-refund-nominal').value = getRefundNominal(row) > 0 ? new Intl.NumberFormat('id-ID').format(getRefundNominal(row)) : (saranRefund > 0 ? new Intl.NumberFormat('id-ID').format(saranRefund) : '');
+            document.getElementById('cuti-refund-catatan').value = row.catatan_refund || '';
+            const infoEl = document.getElementById('cuti-refund-status-info');
+            if (infoEl) {
+                if (shortage > 0) {
+                    infoEl.className = 'mt-3 text-xs bg-amber-50 border border-amber-100 text-amber-700 rounded-xl px-3 py-2 leading-relaxed';
+                    infoEl.textContent = `Target cuti/refund belum cukup. Kekurangan: ${formatRp(shortage)}. Sistem tidak mengizinkan refund sebelum target global terpenuhi.`;
+                } else if (saranRefund > 0 || getRefundNominal(row) > 0) {
+                    infoEl.className = 'mt-3 text-xs bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl px-3 py-2 leading-relaxed';
+                    infoEl.textContent = `Dana sudah melebihi target cuti/refund global. Maksimal refund yang bisa dicatat saat ini: ${formatRp(Math.max(dibayar - targetEfektif, 0))}.`;
+                } else {
+                    infoEl.className = 'mt-3 text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-xl px-3 py-2 leading-relaxed';
+                    infoEl.textContent = 'Tidak ada kelebihan dana. Refund tidak perlu dicatat.';
+                }
+            }
+
+            const offset = (new Date()).getTimezoneOffset() * 60000;
+            document.getElementById('cuti-refund-tanggal').value = row.tgl_refund || (new Date(Date.now() - offset)).toISOString().split('T')[0];
+
+            const m = document.getElementById('modal-cuti-refund');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-cuti-refund-content').classList.remove('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('cuti-refund-nominal').focus(), 300);
         };
 
         window.bukaModalSetoran = function(index) {
             const row = window.pasisDataGlobal[index];
             let initials = row.nama ? row.nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : '?';
             document.getElementById('setoran-avatar').textContent = initials;
-            document.getElementById('setoran-nama').textContent = row.nama || '-'; document.getElementById('setoran-nohp').textContent = row.nohp || 'Tidak ada kontak';
-            
+            document.getElementById('setoran-nama').textContent = row.nama || '-';
+            document.getElementById('setoran-nohp').textContent = row.nohp || 'Tidak ada kontak';
+
             let infoBank = (row.bank || '').toUpperCase();
             if (row.norek) infoBank += (infoBank ? ' - ' : '') + row.norek;
             document.getElementById('setoran-bank').textContent = infoBank || 'Tidak ada info bank';
 
-            document.getElementById('setoran-tagihan').textContent = formatRp(globalTargetTagihan); document.getElementById('setoran-dibayar').textContent = formatRp(row.dibayar);
-            const dibayar = parseNominal(row.dibayar); const badge = document.getElementById('setoran-badge');
-            
+            const targetEfektif = getEffectiveTarget(row);
+            const dibayar = parseNominal(row.dibayar);
+            const refundNominal = getRefundNominal(row);
+            const badge = document.getElementById('setoran-badge');
+
+            document.getElementById('setoran-tagihan').textContent = formatRp(targetEfektif);
+            document.getElementById('setoran-dibayar').textContent = formatRp(dibayar);
+
             let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
             const statusLabel = document.getElementById('setoran-status-label');
-            
+
             if(isCuti) { 
-                statusLabel.textContent = 'Cuti';
+                const cutiShortage = getCutiShortage(row);
+                statusLabel.textContent = cutiShortage > 0 ? 'Cuti • Kurang' : (refundNominal > 0 ? 'Cuti • Refund' : 'Cuti');
                 statusLabel.className = 'text-[10px] px-2 py-0.5 rounded-md font-semibold border border-white/20 bg-black/20 text-white uppercase tracking-wider';
-                badge.textContent='CUTI'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700'; 
+                badge.textContent = cutiShortage > 0 ? `CUTI • KURANG ${formatRp(cutiShortage)}` : (refundNominal > 0 ? `CUTI • REFUND ${formatRp(refundNominal)}` : 'CUTI');
+                badge.className = cutiShortage > 0 ? 'text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700' : 'text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700'; 
             }
             else {
                 statusLabel.textContent = 'Aktif';
                 statusLabel.className = 'text-[10px] px-2 py-0.5 rounded-md font-semibold border border-emerald-400/30 bg-emerald-500/20 text-emerald-300 uppercase tracking-wider';
-                if(dibayar>=globalTargetTagihan && globalTargetTagihan>0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
-                else if(dibayar>0){ badge.textContent='CICILAN'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700'; }
+                if(dibayar >= targetEfektif && targetEfektif > 0){ badge.textContent='LUNAS'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700'; }
+                else if(dibayar > 0){ badge.textContent='CICILAN'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700'; }
                 else { badge.textContent='BELUM BAYAR'; badge.className='text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-700'; }
             }
 
-            // Tombol Kirim Pengingat Tagihan via WA
             const btnWA = document.getElementById('btn-wa-card');
             if (btnWA) {
                 if(row.nohp && userRole === 'admin') {
                     btnWA.style.display = 'flex';
                     btnWA.onclick = function() {
-                        const sisa = Math.max(globalTargetTagihan - dibayar, 0); const nohpFmt = formatNoHP(row.nohp);
-                        const msg = isCuti ? `Halo *${row.nama}*,\n\nStatus administrasi Anda saat ini tercatat sebagai *CUTI*.\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*` : `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(globalTargetTagihan)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
+                        const sisa = getSisaTagihan(row);
+                        const nohpFmt = formatNoHP(row.nohp);
+                        const msg = isCuti
+                            ? `Halo *${row.nama}*,\n\nStatus administrasi Anda saat ini tercatat sebagai *CUTI*.\n- Target Khusus/Cuti: *${formatRp(targetEfektif)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Pengembalian Dana: *${formatRp(refundNominal)}*\n\nTerima kasih,\n*${globalAdminName} - ${globalAppName}*`
+                            : `Halo *${row.nama}*,\n\nBerikut adalah informasi tagihan administrasi Anda saat ini:\n\n📊 *Ringkasan Tagihan*\n- Target Wajib: *${formatRp(targetEfektif)}*\n- Telah Dibayar: *${formatRp(dibayar)}*\n- Sisa Piutang: *${formatRp(sisa)}*\n\nMohon kerjasamanya apabila terdapat sisa tagihan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
                         window.open(`https://wa.me/${nohpFmt}?text=${encodeURIComponent(msg)}`, '_blank');
                     };
                 } else { btnWA.style.display = 'none'; }
             }
 
-            const historyList = document.getElementById('card-history-list'); historyList.innerHTML = '';
+            const historyList = document.getElementById('card-history-list');
+            historyList.innerHTML = '';
+
             if(row.riwayat && row.riwayat.trim() !== '') {
                 const recordsArr = row.riwayat.split('||').reverse();
                 recordsArr.forEach(rec => {
@@ -2081,19 +2879,29 @@ function doPost(e) {
                     if(parts.length === 2) {
                         let dateStr = parts[0]; let nomStr = formatRp(parts[1]);
                         try { const d = new Date(parts[0]); if(!isNaN(d.getTime())) dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
-                        
-                        // Fitur 4: Cetak Kuitansi Button 
-                        let btnCetakHtml = `<button onclick="cetakKuitansi('${row.nama.replace(/'/g, "\\'")}', '${nomStr}', '${dateStr}', '${badge.textContent}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-brand-600 rounded-lg transition-colors" title="Download Kuitansi"><i class="ph ph-printer text-lg"></i></button>`;
-
+                        let btnCetakHtml = `<button onclick="cetakKuitansi('${(row.nama || '').replace(/'/g, "\\'")}', '${nomStr}', '${dateStr}', '${badge.textContent}')" class="p-1.5 bg-slate-100 text-slate-500 hover:text-brand-600 rounded-lg transition-colors" title="Download Kuitansi"><i class="ph ph-printer text-lg"></i></button>`;
                         historyList.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="ph ph-arrow-down-left text-lg"></i></div><div><p class="font-semibold text-sm">Setoran Masuk</p><p class="text-xs text-slate-500">${dateStr}</p></div></div><div class="flex items-center gap-4"><p class="font-bold text-emerald-600 text-sm">+ ${nomStr}</p>${btnCetakHtml}</div></div>`;
                     }
                 });
-            } else { historyList.innerHTML = `<div class="py-8 flex flex-col items-center justify-center text-slate-400 opacity-70"><i class="ph ph-file-dashed text-4xl mb-2"></i><p class="text-sm">Belum ada riwayat setoran.</p></div>`; }
-            const m = document.getElementById('modal-setoran'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-setoran-content').classList.remove('scale-95', 'opacity-0');
+            }
+
+            if(refundNominal > 0) {
+                let dateStr = row.tgl_refund || '-';
+                try { const d = new Date(row.tgl_refund); if(!isNaN(d.getTime())) dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}); } catch(e) {}
+                historyList.innerHTML += `<div class="flex items-center justify-between bg-orange-50 p-4 rounded-xl border border-orange-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="ph ph-arrow-u-up-left text-lg"></i></div><div><p class="font-semibold text-sm text-orange-900">Pengembalian Dana</p><p class="text-xs text-orange-700">${dateStr}${row.catatan_refund ? ' • ' + row.catatan_refund : ''}</p></div></div><p class="font-bold text-orange-600 text-sm">- ${formatRp(refundNominal)}</p></div>`;
+            }
+
+            if(!historyList.innerHTML.trim()) {
+                historyList.innerHTML = `<div class="py-8 flex flex-col items-center justify-center text-slate-400 opacity-70"><i class="ph ph-file-dashed text-4xl mb-2"></i><p class="text-sm">Belum ada riwayat setoran.</p></div>`;
+            }
+
+            const m = document.getElementById('modal-setoran');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-setoran-content').classList.remove('scale-95', 'opacity-0');
         };
-        
+
         window.bukaModalPengeluaran = function() {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             document.getElementById('keluar-keterangan').value = ''; document.getElementById('keluar-nominal').value = '';
             const offset = (new Date()).getTimezoneOffset() * 60000; document.getElementById('keluar-tanggal').value = (new Date(Date.now() - offset)).toISOString().split('T')[0];
             const m = document.getElementById('modal-pengeluaran'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-pengeluaran-content').classList.remove('scale-95', 'opacity-0');
@@ -2101,7 +2909,7 @@ function doPost(e) {
         }
 
         window.bukaModalPindahDana = function() {
-            if(userRole !== 'admin') return;
+            if(!validateAdminSession(true)) return;
             document.getElementById('transfer-penerima').value = 'Ketua Kelas';
             document.getElementById('transfer-metode').value = 'Tunai';
             document.getElementById('transfer-keterangan').value = '';
@@ -2115,7 +2923,7 @@ function doPost(e) {
         document.getElementById('modal-setoran')?.addEventListener('click', (e) => { if(e.target === document.getElementById('modal-setoran')) document.getElementById('close-setoran-btn').click(); });
 
         // PENYEMPURNAAN: Tutup modal lain saat klik area gelap (backdrop)
-        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-broadcast'];
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast'];
         modalBackdrops.forEach(id => {
             const el = document.getElementById(id);
             el?.addEventListener('click', (e) => {
