@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus - Aplikasi Bendahara Premium</title>
+    <title>Nexus Ultra Readable - Aplikasi Bendahara Premium</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -26,7 +26,7 @@
                 extend: {
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], },
                     colors: {
-                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a', 950: '#042f2e', }
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#06b6d4', 600: '#0891b2', 700: '#0e7490', 900: '#164e63', 950: '#083344', }, neon: { cyan: '#22d3ee', blue: '#60a5fa', purple: '#a78bfa', pink: '#f472b6' }
                     },
                     boxShadow: {
                         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
@@ -51,16 +51,821 @@
         .btn-press:active { transform: scale(0.96); }
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .admin-only.hidden-role { display: none !important; }
+        .admin-only.hidden-role, .auth-only.hidden-role { display: none !important; }
+        body.auth-locked #sidebar, body.auth-locked main { filter: blur(8px); opacity: .35; pointer-events: none; user-select: none; }
+        body.auth-locked #modal-login { filter: none; opacity: 1; pointer-events: auto; user-select: auto; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .dashboard-glow { position: absolute; inset: auto -4rem -6rem auto; width: 18rem; height: 18rem; border-radius: 9999px; background: rgba(20,184,166,.25); filter: blur(50px); pointer-events: none; }
         .metric-glass { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(14px); }
         .dash-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
         .dash-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(15,23,42,.35); }
         .shine-line { background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); }
-    </style>
+
+
+        /* =========================================================
+           NEXUS ULTRA UI THEME
+           Tampilan premium futuristik tanpa mengubah logic aplikasi.
+           ========================================================= */
+        :root {
+            --nx-bg-1: #020617;
+            --nx-bg-2: #07111f;
+            --nx-panel: rgba(255, 255, 255, .97);
+            --nx-panel-strong: rgba(255, 255, 255, .995);
+            --nx-glass: rgba(15, 23, 42, .74);
+            --nx-line: rgba(148, 163, 184, .22);
+            --nx-cyan: #22d3ee;
+            --nx-blue: #60a5fa;
+            --nx-purple: #a78bfa;
+            --nx-emerald: #34d399;
+            --nx-shadow: 0 26px 90px -45px rgba(15, 23, 42, .85);
+            --nx-shadow-soft: 0 18px 45px -32px rgba(15, 23, 42, .55);
+        }
+
+        @keyframes nxFloatOrb {
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: .72; }
+            50% { transform: translate3d(28px, -34px, 0) scale(1.08); opacity: .95; }
+        }
+        @keyframes nxGradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes nxShimmer {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(120%); }
+        }
+        @keyframes nxPulseRing {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, .28); }
+            50% { box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+        }
+
+        body.nexus-ultra {
+            background:
+                radial-gradient(circle at 12% 8%, rgba(34, 211, 238, .22), transparent 28rem),
+                radial-gradient(circle at 86% 18%, rgba(167, 139, 250, .18), transparent 34rem),
+                radial-gradient(circle at 70% 92%, rgba(16, 185, 129, .13), transparent 30rem),
+                linear-gradient(135deg, var(--nx-bg-1), #07111f 50%, #030712);
+            color: #0f172a;
+        }
+        body.nexus-ultra::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -3;
+            background-image:
+                linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at center, rgba(0,0,0,.9), transparent 78%);
+        }
+        .nexus-bg-orb {
+            position: fixed;
+            border-radius: 9999px;
+            filter: blur(58px);
+            pointer-events: none;
+            z-index: -2;
+            opacity: .6;
+            animation: nxFloatOrb 9s ease-in-out infinite;
+        }
+        .nexus-bg-orb.one { width: 22rem; height: 22rem; left: 13rem; top: -7rem; background: rgba(34, 211, 238, .28); }
+        .nexus-bg-orb.two { width: 26rem; height: 26rem; right: -8rem; top: 9rem; background: rgba(167, 139, 250, .23); animation-delay: -2s; }
+        .nexus-bg-orb.three { width: 20rem; height: 20rem; right: 25%; bottom: -9rem; background: rgba(52, 211, 153, .18); animation-delay: -5s; }
+
+        body.nexus-ultra #sidebar {
+            background: linear-gradient(180deg, rgba(2, 6, 23, .92), rgba(15, 23, 42, .86)) !important;
+            border-right: 1px solid rgba(148, 163, 184, .18) !important;
+            box-shadow: 30px 0 80px -45px rgba(0, 0, 0, .95) !important;
+            backdrop-filter: blur(26px) saturate(160%);
+        }
+        body.nexus-ultra #sidebar::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 30% 0%, rgba(34, 211, 238, .14), transparent 16rem),
+                radial-gradient(circle at 100% 42%, rgba(167, 139, 250, .10), transparent 18rem);
+        }
+        body.nexus-ultra #sidebar > * { position: relative; z-index: 1; }
+        body.nexus-ultra #sidebar .border-b,
+        body.nexus-ultra #sidebar .border-t { border-color: rgba(148, 163, 184, .14) !important; }
+        body.nexus-ultra #app-name-sidebar {
+            color: #f8fafc !important;
+            letter-spacing: -.04em;
+            text-shadow: 0 0 28px rgba(34, 211, 238, .35);
+        }
+        body.nexus-ultra #sidebar .w-10.h-10 {
+            background: linear-gradient(135deg, #22d3ee, #2563eb 52%, #a78bfa) !important;
+            box-shadow: 0 16px 40px -18px rgba(34, 211, 238, .9), inset 0 1px 0 rgba(255,255,255,.35) !important;
+        }
+        body.nexus-ultra #sidebar nav p {
+            color: rgba(226, 232, 240, .48) !important;
+            letter-spacing: .16em;
+        }
+        body.nexus-ultra #sidebar .nav-link {
+            color: rgba(226, 232, 240, .72) !important;
+            border: 1px solid transparent;
+            background: transparent !important;
+            position: relative;
+            overflow: hidden;
+        }
+        body.nexus-ultra #sidebar .nav-link i { color: rgba(148, 163, 184, .9) !important; }
+        body.nexus-ultra #sidebar .nav-link::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+            transform: translateX(-120%);
+        }
+        body.nexus-ultra #sidebar .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255,255,255,.07) !important;
+            border-color: rgba(255,255,255,.10);
+            transform: translateX(4px);
+        }
+        body.nexus-ultra #sidebar .nav-link:hover::before { animation: nxShimmer .85s ease; }
+        body.nexus-ultra #sidebar .nav-link:hover i { color: #67e8f9 !important; }
+        body.nexus-ultra #sidebar .nav-link.bg-brand-50,
+        body.nexus-ultra #sidebar .nav-link.text-brand-600 {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, rgba(34, 211, 238, .30), rgba(37, 99, 235, .22), rgba(167, 139, 250, .20)) !important;
+            border-color: rgba(103, 232, 249, .35) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 35px -24px rgba(34, 211, 238, .9);
+        }
+        body.nexus-ultra #sidebar .nav-link.bg-brand-50 i,
+        body.nexus-ultra #sidebar .nav-link.text-brand-600 i { color: #67e8f9 !important; }
+        body.nexus-ultra #auth-profile-container {
+            background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+            border-top-color: rgba(148, 163, 184, .12) !important;
+        }
+
+        body.nexus-ultra main {
+            background: transparent !important;
+        }
+        body.nexus-ultra header {
+            background: rgba(2, 6, 23, .72) !important;
+            border-bottom: 1px solid rgba(148, 163, 184, .18) !important;
+            box-shadow: 0 18px 60px -38px rgba(0,0,0,.8);
+            backdrop-filter: blur(22px) saturate(165%);
+        }
+        body.nexus-ultra #page-title,
+        body.nexus-ultra header .text-slate-800,
+        body.nexus-ultra header .text-slate-700 {
+            color: #f8fafc !important;
+        }
+        body.nexus-ultra header .text-slate-500,
+        body.nexus-ultra header .text-slate-400 { color: rgba(226, 232, 240, .68) !important; }
+        body.nexus-ultra #counter-active,
+        body.nexus-ultra #counter-active-mobile { color: #34d399 !important; }
+        body.nexus-ultra #main-content-scroll {
+            background: transparent !important;
+        }
+        body.nexus-ultra #main-content-scroll::before {
+            content: "";
+            position: fixed;
+            inset: 5rem 0 0 18rem;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.08), transparent 30rem);
+        }
+        body.nexus-ultra .view-section { position: relative; z-index: 1; }
+
+        body.nexus-ultra .bg-white {
+            background: var(--nx-panel) !important;
+            backdrop-filter: blur(18px) saturate(150%);
+        }
+        body.nexus-ultra .shadow-sm,
+        body.nexus-ultra .shadow-md,
+        body.nexus-ultra .shadow-lg,
+        body.nexus-ultra .shadow-xl,
+        body.nexus-ultra .shadow-2xl {
+            box-shadow: var(--nx-shadow-soft) !important;
+        }
+        body.nexus-ultra .border-slate-100,
+        body.nexus-ultra .border-slate-200,
+        body.nexus-ultra .border-slate-200\/60 {
+            border-color: rgba(148, 163, 184, .24) !important;
+        }
+        body.nexus-ultra .rounded-2xl,
+        body.nexus-ultra .rounded-3xl,
+        body.nexus-ultra .rounded-\[2rem\] {
+            border-radius: 1.45rem;
+        }
+        body.nexus-ultra .dash-card,
+        body.nexus-ultra #view-pasis .bg-white,
+        body.nexus-ultra #view-pengeluaran .bg-white,
+        body.nexus-ultra #view-pindah-dana .bg-white,
+        body.nexus-ultra #view-akun .bg-white,
+        body.nexus-ultra #view-pengaturan .bg-white {
+            border: 1px solid rgba(255,255,255,.72) !important;
+            box-shadow: 0 22px 70px -48px rgba(15, 23, 42, .9), inset 0 1px 0 rgba(255,255,255,.88) !important;
+        }
+        body.nexus-ultra .dash-card:hover,
+        body.nexus-ultra #view-pasis .bg-white:hover,
+        body.nexus-ultra #view-pengeluaran .bg-white:hover,
+        body.nexus-ultra #view-pindah-dana .bg-white:hover,
+        body.nexus-ultra #view-akun .bg-white:hover,
+        body.nexus-ultra #view-pengaturan .bg-white:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 34px 90px -55px rgba(15, 23, 42, .95), 0 0 0 1px rgba(34, 211, 238, .10) !important;
+        }
+
+        body.nexus-ultra #view-dashboard > .relative.overflow-hidden:first-child {
+            background:
+                radial-gradient(circle at 80% 15%, rgba(34, 211, 238, .26), transparent 21rem),
+                radial-gradient(circle at 15% 20%, rgba(167, 139, 250, .22), transparent 23rem),
+                linear-gradient(135deg, rgba(15, 23, 42, .98), rgba(8, 47, 73, .94) 48%, rgba(2, 6, 23, .98)) !important;
+            border: 1px solid rgba(255,255,255,.16) !important;
+            box-shadow: 0 34px 120px -62px rgba(34, 211, 238, .58), inset 0 1px 0 rgba(255,255,255,.18) !important;
+        }
+        body.nexus-ultra .dashboard-glow {
+            background: conic-gradient(from 180deg, rgba(34,211,238,.30), rgba(167,139,250,.26), rgba(52,211,153,.18), rgba(34,211,238,.30));
+            filter: blur(56px);
+            animation: nxFloatOrb 8s ease-in-out infinite;
+        }
+        body.nexus-ultra .metric-glass {
+            background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07)) !important;
+            border: 1px solid rgba(255,255,255,.18) !important;
+            backdrop-filter: blur(18px) saturate(150%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 45px -38px rgba(0,0,0,.9);
+        }
+        body.nexus-ultra #dash-saldo {
+            background: linear-gradient(135deg, #0f172a, #0891b2, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+        }
+        body.nexus-ultra #dash-loading-status {
+            background: rgba(255,255,255,.12) !important;
+            border-color: rgba(255,255,255,.18) !important;
+            animation: nxPulseRing 2.3s ease-in-out infinite;
+        }
+        body.nexus-ultra #dash-progress-bar {
+            background: linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa, #34d399) !important;
+            background-size: 260% 260%;
+            animation: nxGradientShift 4.5s ease infinite;
+            box-shadow: 0 0 26px rgba(34, 211, 238, .42);
+        }
+
+        body.nexus-ultra button,
+        body.nexus-ultra .btn-press {
+            border-radius: 1rem;
+        }
+        body.nexus-ultra .bg-brand-950,
+        body.nexus-ultra .bg-brand-900,
+        body.nexus-ultra .bg-brand-600,
+        body.nexus-ultra .bg-emerald-600,
+        body.nexus-ultra .bg-amber-600 {
+            background: linear-gradient(135deg, #06b6d4, #2563eb 52%, #7c3aed) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,.22) !important;
+            box-shadow: 0 18px 42px -24px rgba(37, 99, 235, .85), inset 0 1px 0 rgba(255,255,255,.24) !important;
+        }
+        body.nexus-ultra .bg-red-600,
+        body.nexus-ultra .bg-red-700 {
+            background: linear-gradient(135deg, #fb7185, #ef4444, #b91c1c) !important;
+            color: #fff !important;
+        }
+        body.nexus-ultra .bg-\[\#25D366\] {
+            background: linear-gradient(135deg, #22c55e, #16a34a, #059669) !important;
+        }
+        body.nexus-ultra button:hover,
+        body.nexus-ultra .btn-press:hover {
+            transform: translateY(-2px);
+            filter: saturate(1.08);
+        }
+        body.nexus-ultra button:active,
+        body.nexus-ultra .btn-press:active { transform: scale(.96); }
+
+        body.nexus-ultra input,
+        body.nexus-ultra select,
+        body.nexus-ultra textarea {
+            background: rgba(248, 250, 252, .90) !important;
+            border-color: rgba(148, 163, 184, .38) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
+        }
+        body.nexus-ultra input:focus,
+        body.nexus-ultra select:focus,
+        body.nexus-ultra textarea:focus {
+            border-color: rgba(34, 211, 238, .82) !important;
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, .14), inset 0 1px 0 rgba(255,255,255,.75) !important;
+        }
+
+        body.nexus-ultra table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        body.nexus-ultra thead tr {
+            background: linear-gradient(90deg, rgba(15,23,42,.92), rgba(8,47,73,.90)) !important;
+            color: rgba(248,250,252,.86) !important;
+        }
+        body.nexus-ultra thead th {
+            color: rgba(248,250,252,.78) !important;
+            border-bottom: 1px solid rgba(34,211,238,.18);
+        }
+        body.nexus-ultra tbody tr {
+            transition: background .22s ease, transform .22s ease, box-shadow .22s ease;
+        }
+        body.nexus-ultra tbody tr:hover {
+            background: linear-gradient(90deg, rgba(236, 254, 255, .86), rgba(239, 246, 255, .86)) !important;
+            box-shadow: inset 3px 0 0 #22d3ee;
+        }
+        body.nexus-ultra tbody td { border-color: rgba(226,232,240,.72) !important; }
+
+        body.nexus-ultra [id^="modal-"] {
+            backdrop-filter: blur(18px);
+        }
+        body.nexus-ultra [id$="-content"],
+        body.nexus-ultra #modal-content {
+            background: rgba(255,255,255,.96) !important;
+            border: 1px solid rgba(255,255,255,.72) !important;
+            box-shadow: 0 34px 120px -55px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255,255,255,.95) !important;
+        }
+        body.nexus-ultra #modal-login-content {
+            background:
+                radial-gradient(circle at 80% 0%, rgba(34, 211, 238, .18), transparent 18rem),
+                radial-gradient(circle at 0% 100%, rgba(167, 139, 250, .14), transparent 16rem),
+                rgba(255,255,255,.97) !important;
+        }
+        body.nexus-ultra #modal-login-content .w-14,
+        body.nexus-ultra #modal-login-content .w-16,
+        body.nexus-ultra #modal-login-content .w-20,
+        body.nexus-ultra #modal-icon {
+            background: linear-gradient(135deg, #22d3ee, #2563eb, #7c3aed) !important;
+            box-shadow: 0 18px 45px -25px rgba(37, 99, 235, .95) !important;
+        }
+
+        body.nexus-ultra .bg-slate-50 { background: rgba(248, 250, 252, .78) !important; }
+        body.nexus-ultra .bg-brand-50 { background: rgba(236, 254, 255, .88) !important; }
+        body.nexus-ultra .bg-emerald-50 { background: rgba(236, 253, 245, .88) !important; }
+        body.nexus-ultra .bg-orange-50,
+        body.nexus-ultra .bg-amber-50 { background: rgba(255, 251, 235, .90) !important; }
+        body.nexus-ultra .bg-red-50,
+        body.nexus-ultra .bg-rose-50 { background: rgba(255, 241, 242, .90) !important; }
+        body.nexus-ultra .text-brand-600,
+        body.nexus-ultra .text-brand-700 { color: #0891b2 !important; }
+        body.nexus-ultra .text-brand-900,
+        body.nexus-ultra .text-brand-950 { color: #083344 !important; }
+        body.nexus-ultra .bg-gradient-to-r.from-brand-900.to-brand-950,
+        body.nexus-ultra .bg-gradient-to-br.from-brand-950 {
+            background: linear-gradient(135deg, rgba(8,47,73,.98), rgba(30,41,59,.97), rgba(49,46,129,.92)) !important;
+            border: 1px solid rgba(255,255,255,.13) !important;
+            box-shadow: 0 26px 75px -45px rgba(34,211,238,.65) !important;
+        }
+
+        body.nexus-ultra #sync-status::before,
+        body.nexus-ultra #dash-loading-status::before {
+            content: "";
+            display: inline-block;
+            width: .5rem;
+            height: .5rem;
+            margin-right: .35rem;
+            border-radius: 999px;
+            background: #22d3ee;
+            box-shadow: 0 0 16px rgba(34, 211, 238, .85);
+            vertical-align: middle;
+        }
+
+        @media (max-width: 1023px) {
+            body.nexus-ultra #sidebar {
+                width: min(82vw, 20rem);
+            }
+            body.nexus-ultra #main-content-scroll::before { inset: 5rem 0 0 0; }
+        }
+        @media (max-width: 640px) {
+            body.nexus-ultra .nexus-bg-orb.one { left: -7rem; top: -8rem; }
+            body.nexus-ultra .nexus-bg-orb.two { right: -12rem; top: 12rem; }
+            body.nexus-ultra #view-dashboard > .relative.overflow-hidden:first-child { border-radius: 1.6rem !important; }
+            body.nexus-ultra header { padding-left: 1rem !important; padding-right: 1rem !important; }
+        }
+
+
+        /* =========================================================
+           READABILITY & CONTRAST PATCH
+           Menjaga tampilan tetap premium, tetapi semua teks tetap jelas.
+           ========================================================= */
+        body.nexus-ultra {
+            --nx-readable-dark: #0f172a;
+            --nx-readable-body: #334155;
+            --nx-readable-muted: #64748b;
+            --nx-readable-soft: #94a3b8;
+            --nx-readable-light: #f8fafc;
+            --nx-readable-light-muted: #cbd5e1;
+        }
+
+        /* Judul halaman di atas background gelap */
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child h2,
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child h3,
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child .text-slate-900,
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child .text-slate-800 {
+            color: var(--nx-readable-light) !important;
+            text-shadow: 0 2px 18px rgba(0, 0, 0, .35);
+        }
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child p,
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child .text-slate-500,
+        body.nexus-ultra #main-content-scroll > .view-section > div:first-child .text-slate-400 {
+            color: var(--nx-readable-light-muted) !important;
+        }
+
+        /* Semua panel terang wajib memakai teks gelap yang tegas */
+        body.nexus-ultra main .bg-white,
+        body.nexus-ultra main .bg-slate-50,
+        body.nexus-ultra main .bg-brand-50,
+        body.nexus-ultra main .bg-emerald-50,
+        body.nexus-ultra main .bg-orange-50,
+        body.nexus-ultra main .bg-amber-50,
+        body.nexus-ultra main .bg-red-50,
+        body.nexus-ultra main .bg-rose-50,
+        body.nexus-ultra [id$="-content"],
+        body.nexus-ultra #modal-content,
+        body.nexus-ultra #modal-login-content {
+            color: var(--nx-readable-dark) !important;
+        }
+        body.nexus-ultra main .bg-white .text-slate-900,
+        body.nexus-ultra main .bg-white .text-slate-800,
+        body.nexus-ultra main .bg-slate-50 .text-slate-900,
+        body.nexus-ultra main .bg-slate-50 .text-slate-800,
+        body.nexus-ultra [id$="-content"] .text-slate-900,
+        body.nexus-ultra [id$="-content"] .text-slate-800,
+        body.nexus-ultra #modal-content .text-slate-900,
+        body.nexus-ultra #modal-content .text-slate-800,
+        body.nexus-ultra #modal-login-content .text-slate-900,
+        body.nexus-ultra #modal-login-content .text-slate-800 {
+            color: var(--nx-readable-dark) !important;
+        }
+        body.nexus-ultra main .bg-white .text-slate-700,
+        body.nexus-ultra main .bg-slate-50 .text-slate-700,
+        body.nexus-ultra [id$="-content"] .text-slate-700,
+        body.nexus-ultra #modal-content .text-slate-700,
+        body.nexus-ultra #modal-login-content .text-slate-700 {
+            color: var(--nx-readable-body) !important;
+        }
+        body.nexus-ultra main .bg-white .text-slate-600,
+        body.nexus-ultra main .bg-white .text-slate-500,
+        body.nexus-ultra main .bg-white .text-slate-400,
+        body.nexus-ultra main .bg-slate-50 .text-slate-600,
+        body.nexus-ultra main .bg-slate-50 .text-slate-500,
+        body.nexus-ultra main .bg-slate-50 .text-slate-400,
+        body.nexus-ultra [id$="-content"] .text-slate-600,
+        body.nexus-ultra [id$="-content"] .text-slate-500,
+        body.nexus-ultra [id$="-content"] .text-slate-400,
+        body.nexus-ultra #modal-content .text-slate-600,
+        body.nexus-ultra #modal-content .text-slate-500,
+        body.nexus-ultra #modal-content .text-slate-400,
+        body.nexus-ultra #modal-login-content .text-slate-600,
+        body.nexus-ultra #modal-login-content .text-slate-500,
+        body.nexus-ultra #modal-login-content .text-slate-400 {
+            color: var(--nx-readable-muted) !important;
+        }
+
+        /* Input, select, textarea: teks dan placeholder jangan putih di field terang */
+        body.nexus-ultra input,
+        body.nexus-ultra select,
+        body.nexus-ultra textarea {
+            color: var(--nx-readable-dark) !important;
+            caret-color: #0891b2;
+            background: rgba(255, 255, 255, .96) !important;
+        }
+        body.nexus-ultra input::placeholder,
+        body.nexus-ultra textarea::placeholder {
+            color: #64748b !important;
+            opacity: 1;
+        }
+        body.nexus-ultra select option {
+            color: var(--nx-readable-dark) !important;
+            background: #ffffff !important;
+        }
+        body.nexus-ultra input:disabled,
+        body.nexus-ultra select:disabled,
+        body.nexus-ultra textarea:disabled {
+            color: #64748b !important;
+            background: rgba(226, 232, 240, .92) !important;
+        }
+
+        /* Sidebar profile: karena berada di panel gelap, teks harus terang */
+        body.nexus-ultra #auth-profile-container .text-slate-900,
+        body.nexus-ultra #auth-profile-container .text-slate-800,
+        body.nexus-ultra #auth-profile-container .text-slate-700 {
+            color: var(--nx-readable-light) !important;
+        }
+        body.nexus-ultra #auth-profile-container .text-slate-600,
+        body.nexus-ultra #auth-profile-container .text-slate-500,
+        body.nexus-ultra #auth-profile-container .text-slate-400 {
+            color: var(--nx-readable-light-muted) !important;
+        }
+        body.nexus-ultra #auth-profile-container .hover\:bg-red-50:hover,
+        body.nexus-ultra #auth-profile-container .hover\:bg-brand-50:hover {
+            background: rgba(255, 255, 255, .08) !important;
+        }
+        body.nexus-ultra #auth-profile-container .bg-red-50 {
+            background: rgba(244, 63, 94, .12) !important;
+            border: 1px solid rgba(251, 113, 133, .22) !important;
+            color: #fecdd3 !important;
+        }
+        body.nexus-ultra #auth-profile-container .text-red-600,
+        body.nexus-ultra #auth-profile-container .text-red-500 {
+            color: #fecdd3 !important;
+        }
+
+        /* Tabel: body tetap putih/gelap yang konsisten, tidak pudar */
+        body.nexus-ultra table tbody td,
+        body.nexus-ultra table tbody td .text-slate-900,
+        body.nexus-ultra table tbody td .text-slate-800 {
+            color: var(--nx-readable-dark) !important;
+        }
+        body.nexus-ultra table tbody td .text-slate-600,
+        body.nexus-ultra table tbody td .text-slate-500,
+        body.nexus-ultra table tbody td .text-slate-400 {
+            color: var(--nx-readable-muted) !important;
+        }
+        body.nexus-ultra tbody tr:hover td,
+        body.nexus-ultra tbody tr:hover td * {
+            text-shadow: none !important;
+        }
+
+        /* Tombol putih/outline di atas panel terang tetap terbaca */
+        body.nexus-ultra button.bg-white,
+        body.nexus-ultra .btn-press.bg-white,
+        body.nexus-ultra button.border.bg-white,
+        body.nexus-ultra .btn-press.border.bg-white {
+            color: var(--nx-readable-body) !important;
+            background: rgba(255, 255, 255, .98) !important;
+        }
+        body.nexus-ultra button.bg-white i,
+        body.nexus-ultra .btn-press.bg-white i {
+            color: inherit !important;
+        }
+        body.nexus-ultra button.bg-white:hover,
+        body.nexus-ultra .btn-press.bg-white:hover {
+            color: #0891b2 !important;
+            background: #ffffff !important;
+        }
+
+        /* Badge dan kartu warna muda: pastikan teks tetap kuat */
+        body.nexus-ultra .bg-brand-50 .text-brand-700,
+        body.nexus-ultra .bg-brand-50 .text-brand-900,
+        body.nexus-ultra .bg-brand-100 .text-brand-700,
+        body.nexus-ultra .bg-brand-100 .text-brand-900 { color: #0e7490 !important; }
+        body.nexus-ultra .bg-emerald-50 .text-emerald-700,
+        body.nexus-ultra .bg-emerald-50 .text-emerald-800,
+        body.nexus-ultra .bg-emerald-100 .text-emerald-700,
+        body.nexus-ultra .bg-emerald-100 .text-emerald-800 { color: #047857 !important; }
+        body.nexus-ultra .bg-amber-50 .text-amber-700,
+        body.nexus-ultra .bg-amber-50 .text-amber-800,
+        body.nexus-ultra .bg-orange-50 .text-orange-700,
+        body.nexus-ultra .bg-orange-50 .text-orange-800 { color: #b45309 !important; }
+        body.nexus-ultra .bg-red-50 .text-red-700,
+        body.nexus-ultra .bg-red-50 .text-red-800,
+        body.nexus-ultra .bg-rose-50 .text-rose-700,
+        body.nexus-ultra .bg-rose-50 .text-rose-800 { color: #be123c !important; }
+
+        /* Panel gelap/hero: teks abu-abu dibuat lebih terang agar tetap terbaca */
+        body.nexus-ultra #view-dashboard > .relative.overflow-hidden:first-child .text-brand-50\/70,
+        body.nexus-ultra #view-dashboard > .relative.overflow-hidden:first-child .text-white\/60,
+        body.nexus-ultra #view-dashboard > .relative.overflow-hidden:first-child .text-brand-100\/80 {
+            color: rgba(226, 232, 240, .86) !important;
+        }
+        body.nexus-ultra .metric-glass h3,
+        body.nexus-ultra .metric-glass .font-black {
+            color: #ffffff !important;
+        }
+        body.nexus-ultra .metric-glass p,
+        body.nexus-ultra .metric-glass .text-xs {
+            color: rgba(226, 232, 240, .82) !important;
+        }
+
+        /* Login tab yang aktif/tidak aktif tetap jelas */
+        body.nexus-ultra #login-mode-pasis,
+        body.nexus-ultra #login-mode-admin {
+            color: #334155 !important;
+        }
+        body.nexus-ultra #login-mode-pasis.bg-white,
+        body.nexus-ultra #login-mode-admin.bg-white {
+            color: #0e7490 !important;
+        }
+
+        /* Kode backend dalam halaman pengaturan tetap memakai warna terminal */
+        body.nexus-ultra pre,
+        body.nexus-ultra pre code,
+        body.nexus-ultra #app-script-code {
+            color: #cbd5e1 !important;
+        }
+
+
+        /* =========================================================
+           SALDO KAS AKTIF HIGH-CONTRAST PATCH
+           Card saldo dibuat solid agar tidak pudar di layar terang/gelap.
+           ========================================================= */
+        body.nexus-ultra #saldo-kas-card {
+            background:
+                radial-gradient(circle at 92% 2%, rgba(34, 211, 238, .18), transparent 12rem),
+                linear-gradient(135deg, #ffffff 0%, #f8fafc 48%, #ecfeff 100%) !important;
+            border: 1.5px solid rgba(14, 165, 233, .32) !important;
+            box-shadow:
+                0 28px 80px -48px rgba(2, 132, 199, .75),
+                0 12px 28px -20px rgba(15, 23, 42, .45),
+                inset 0 1px 0 rgba(255, 255, 255, .95) !important;
+            color: #0f172a !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        body.nexus-ultra #saldo-kas-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0) 42%),
+                linear-gradient(90deg, rgba(14,165,233,.10), transparent 35%, rgba(16,185,129,.08));
+            opacity: .9;
+        }
+        body.nexus-ultra #saldo-kas-card > .absolute {
+            opacity: .32 !important;
+            background: rgba(14, 165, 233, .26) !important;
+            filter: blur(34px) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .relative.z-10 { position: relative; z-index: 2; }
+        body.nexus-ultra #saldo-kas-card p,
+        body.nexus-ultra #saldo-kas-card span,
+        body.nexus-ultra #saldo-kas-card i {
+            text-shadow: none !important;
+        }
+        body.nexus-ultra #saldo-kas-card > .relative.z-10 > p:first-child {
+            color: #0f766e !important;
+            font-weight: 900 !important;
+            letter-spacing: .01em;
+        }
+        body.nexus-ultra #saldo-kas-card > .relative.z-10 > p:first-child i {
+            color: #0e7490 !important;
+        }
+        body.nexus-ultra #saldo-kas-card #dash-saldo {
+            background: none !important;
+            background-image: none !important;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            text-shadow: 0 2px 0 rgba(255,255,255,.95), 0 12px 30px rgba(15,23,42,.10) !important;
+        }
+        body.nexus-ultra #saldo-kas-card #dash-net-desc {
+            color: #475569 !important;
+            font-weight: 700 !important;
+        }
+        body.nexus-ultra #saldo-kas-card .bg-emerald-50,
+        body.nexus-ultra #saldo-kas-card .bg-red-50,
+        body.nexus-ultra #saldo-kas-card .bg-orange-50,
+        body.nexus-ultra #saldo-kas-card .bg-slate-50 {
+            background: #ffffff !important;
+            border: 1px solid rgba(148, 163, 184, .24) !important;
+            box-shadow: 0 10px 24px -18px rgba(15, 23, 42, .35) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .bg-emerald-50 { background: #ecfdf5 !important; border-color: rgba(5, 150, 105, .18) !important; }
+        body.nexus-ultra #saldo-kas-card .bg-red-50 { background: #fff1f2 !important; border-color: rgba(225, 29, 72, .18) !important; }
+        body.nexus-ultra #saldo-kas-card .bg-orange-50 { background: #fff7ed !important; border-color: rgba(234, 88, 12, .18) !important; }
+        body.nexus-ultra #saldo-kas-card .bg-slate-50 { background: #f8fafc !important; }
+        body.nexus-ultra #saldo-kas-card .bg-emerald-50 p { color: #047857 !important; }
+        body.nexus-ultra #saldo-kas-card .bg-red-50 p { color: #be123c !important; }
+        body.nexus-ultra #saldo-kas-card .bg-orange-50 p { color: #c2410c !important; }
+        body.nexus-ultra #saldo-kas-card .bg-slate-50 p { color: #0f172a !important; }
+        body.nexus-ultra #saldo-kas-card #dash-total-dana,
+        body.nexus-ultra #saldo-kas-card #dash-total-pengeluaran-manual,
+        body.nexus-ultra #saldo-kas-card #dash-total-refund-mini,
+        body.nexus-ultra #saldo-kas-card #dash-total-pengeluaran {
+            -webkit-text-fill-color: currentColor !important;
+            text-shadow: none !important;
+            font-weight: 950 !important;
+        }
+
+
+    
+
+        /* =========================================================
+           MINI SALDO CARD SUPER KONTRAS PATCH
+           Empat kotak kecil di dalam Saldo Kas Aktif dibuat solid,
+           tidak transparan, dan teksnya dipaksa putih/terang.
+           ========================================================= */
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card {
+            position: relative;
+            min-height: 6.6rem;
+            padding: 1rem !important;
+            overflow: hidden;
+            border-width: 1.5px !important;
+            border-style: solid !important;
+            box-shadow:
+                0 18px 36px -22px rgba(15, 23, 42, .65),
+                inset 0 1px 0 rgba(255,255,255,.28) !important;
+            isolation: isolate;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,0) 42%, rgba(0,0,0,.12));
+            pointer-events: none;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card::after {
+            content: "";
+            position: absolute;
+            width: 5.5rem;
+            height: 5.5rem;
+            right: -2rem;
+            top: -2.2rem;
+            border-radius: 9999px;
+            background: rgba(255,255,255,.16);
+            pointer-events: none;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-masuk {
+            background: linear-gradient(135deg, #047857 0%, #059669 50%, #065f46 100%) !important;
+            border-color: rgba(167, 243, 208, .62) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-kebutuhan {
+            background: linear-gradient(135deg, #be123c 0%, #e11d48 52%, #9f1239 100%) !important;
+            border-color: rgba(254, 205, 211, .62) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-refund {
+            background: linear-gradient(135deg, #c2410c 0%, #f97316 50%, #9a3412 100%) !important;
+            border-color: rgba(254, 215, 170, .68) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-keluar {
+            background: linear-gradient(135deg, #0f172a 0%, #334155 50%, #020617 100%) !important;
+            border-color: rgba(203, 213, 225, .55) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-label,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-value,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card p,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card span,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card i,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card #dash-total-dana,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card #dash-total-pengeluaran-manual,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card #dash-total-refund-mini,
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card #dash-total-pengeluaran {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, .42) !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-label {
+            position: relative;
+            z-index: 2;
+            opacity: 1 !important;
+            font-size: .72rem !important;
+            line-height: 1.05rem !important;
+            letter-spacing: .13em !important;
+            font-weight: 950 !important;
+            text-transform: uppercase;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-value {
+            position: relative;
+            z-index: 2;
+            margin-top: .45rem !important;
+            font-size: 1.05rem !important;
+            line-height: 1.35rem !important;
+            font-weight: 950 !important;
+            letter-spacing: -.035em !important;
+            opacity: 1 !important;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-icon {
+            position: absolute;
+            right: .75rem;
+            bottom: .65rem;
+            z-index: 1;
+            width: 2.1rem;
+            height: 2.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, .16);
+            border: 1px solid rgba(255,255,255,.18);
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-icon i {
+            font-size: 1.25rem !important;
+            opacity: .95 !important;
+        }
+        @media (max-width: 420px) {
+            body.nexus-ultra #saldo-kas-card .saldo-mini-card {
+                min-height: 6.1rem;
+                padding: .9rem !important;
+            }
+            body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-value {
+                font-size: .92rem !important;
+                line-height: 1.2rem !important;
+            }
+            body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-label {
+                font-size: .64rem !important;
+            }
+        }
+
+</style>
 </head>
-<body class="bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
+<body class="nexus-ultra bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
+    <div class="nexus-bg-orb one"></div>
+    <div class="nexus-bg-orb two"></div>
+    <div class="nexus-bg-orb three"></div>
 
     <!-- Overlay Sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
@@ -73,7 +878,7 @@
                 <div class="w-10 h-10 bg-brand-950 rounded-xl flex items-center justify-center shadow-md">
                     <i class="ph-fill ph-vault text-white text-xl"></i>
                 </div>
-                <span id="app-name-sidebar" class="text-xl font-bold tracking-tight text-slate-900">Nexus</span>
+                <span id="app-name-sidebar" class="text-xl font-bold tracking-tight text-slate-900">Nexus Ultra</span>
             </div>
             <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 transition-all-custom p-2 rounded-lg hover:bg-slate-50 btn-press">
                 <i class="ph ph-x text-xl"></i>
@@ -87,6 +892,9 @@
             </a>
             <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pasis">
                 <i class="ph ph-graduation-cap text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Data Pasis
+            </a>
+            <a href="#" class="nav-link auth-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="akun">
+                <i class="ph ph-user-circle-gear text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Akun Saya
             </a>
             <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pengeluaran">
                 <i class="ph ph-arrow-up-right text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pengeluaran
@@ -116,7 +924,7 @@
                 <button id="openSidebarBtn" class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all-custom btn-press">
                     <i class="ph ph-list text-2xl"></i>
                 </button>
-                <h1 id="page-title" class="text-xl font-semibold text-slate-800 transition-all-custom">Dashboard Utama</h1>
+                <h1 id="page-title" class="text-xl font-semibold text-slate-800 transition-all-custom">Dashboard Ultra</h1>
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
@@ -178,10 +986,10 @@
                             <div class="max-w-2xl">
                                 <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-brand-100 text-xs font-semibold mb-5">
                                     <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-300"></span></span>
-                                    Dashboard Keuangan Live
+                                    Nexus Ultra Live Finance
                                 </div>
-                                <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Transparansi Keuangan</h2>
-                                <p class="text-brand-50/70 mt-3 leading-relaxed">Pantau saldo kas, pemasukan, pengeluaran, refund, dan piutang dalam satu tampilan yang lebih jelas.</p>
+                                <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Command Center Keuangan</h2>
+                                <p class="text-brand-50/70 mt-3 leading-relaxed">Pantau saldo kas, pemasukan, pengeluaran kebutuhan pasis, refund, dan piutang dalam satu tampilan premium yang lebih cepat dibaca.</p>
                             </div>
                             <div id="dash-loading-status" class="self-start flex items-center gap-2 text-xs font-semibold text-brand-50 bg-white/10 px-4 py-2 rounded-full border border-white/10 shadow-sm animate-pulse-soft">
                                 <i class="ph ph-spinner-gap animate-spin text-brand-300 text-base"></i> Memuat...
@@ -189,21 +997,33 @@
                         </div>
 
                         <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-8">
-                            <div class="xl:col-span-5 rounded-3xl bg-white text-slate-950 p-6 shadow-xl relative overflow-hidden">
+                            <div id="saldo-kas-card" class="xl:col-span-5 rounded-3xl bg-white text-slate-950 p-6 shadow-xl relative overflow-hidden">
                                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-brand-100 rounded-full blur-2xl opacity-70"></div>
                                 <div class="relative z-10">
                                     <p class="text-sm font-semibold text-slate-500 flex items-center gap-2"><i class="ph-fill ph-vault text-brand-600"></i> Saldo Kas Aktif</p>
                                     <h3 id="dash-saldo" class="text-4xl sm:text-5xl font-black tracking-tight mt-3">Rp 0</h3>
-                                    <p id="dash-net-desc" class="text-xs text-slate-500 mt-4 leading-relaxed">Saldo = total pemasukan dikurangi pengeluaran dan refund yang sudah dicatat.</p>
+                                    <p id="dash-net-desc" class="text-xs text-slate-500 mt-4 leading-relaxed">Saldo = total pemasukan - pengeluaran kebutuhan pasis - refund berhasil.</p>
                                     <span id="dash-info-trx" class="hidden">0 Pengeluaran</span>
-                                    <div class="grid grid-cols-2 gap-3 mt-6">
-                                        <div class="rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
-                                            <p class="text-[11px] uppercase tracking-wider font-bold text-emerald-700">Masuk</p>
-                                            <p id="dash-total-dana" class="text-lg font-black text-emerald-700 mt-1">Rp 0</p>
+                                    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-6">
+                                        <div class="saldo-mini-card saldo-mini-masuk rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
+                                            <div class="saldo-mini-icon"><i class="ph-fill ph-arrow-circle-down"></i></div>
+                                            <p class="saldo-mini-label text-[10px] uppercase tracking-wider font-bold text-emerald-700">Masuk</p>
+                                            <p id="dash-total-dana" class="saldo-mini-value text-base font-black text-emerald-700 mt-1">Rp 0</p>
                                         </div>
-                                        <div class="rounded-2xl bg-red-50 p-4 border border-red-100">
-                                            <p class="text-[11px] uppercase tracking-wider font-bold text-red-700">Keluar</p>
-                                            <p id="dash-total-pengeluaran" class="text-lg font-black text-red-700 mt-1">Rp 0</p>
+                                        <div class="saldo-mini-card saldo-mini-kebutuhan rounded-2xl bg-red-50 p-4 border border-red-100">
+                                            <div class="saldo-mini-icon"><i class="ph-fill ph-arrow-circle-up-right"></i></div>
+                                            <p class="saldo-mini-label text-[10px] uppercase tracking-wider font-bold text-red-700">Kebutuhan Pasis</p>
+                                            <p id="dash-total-pengeluaran-manual" class="saldo-mini-value text-base font-black text-red-700 mt-1">Rp 0</p>
+                                        </div>
+                                        <div class="saldo-mini-card saldo-mini-refund rounded-2xl bg-orange-50 p-4 border border-orange-100">
+                                            <div class="saldo-mini-icon"><i class="ph-fill ph-arrow-u-up-left"></i></div>
+                                            <p class="saldo-mini-label text-[10px] uppercase tracking-wider font-bold text-orange-700">Refund</p>
+                                            <p id="dash-total-refund-mini" class="saldo-mini-value text-base font-black text-orange-700 mt-1">Rp 0</p>
+                                        </div>
+                                        <div class="saldo-mini-card saldo-mini-keluar rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                                            <div class="saldo-mini-icon"><i class="ph-fill ph-chart-line-down"></i></div>
+                                            <p class="saldo-mini-label text-[10px] uppercase tracking-wider font-bold text-slate-700">Total Keluar</p>
+                                            <p id="dash-total-pengeluaran" class="saldo-mini-value text-base font-black text-slate-900 mt-1">Rp 0</p>
                                         </div>
                                     </div>
                                 </div>
@@ -298,12 +1118,20 @@
 
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 dash-card">
                         <div class="mb-5">
-                            <h3 class="font-black text-lg text-slate-900">Target Global</h3>
-                            <p class="text-xs text-slate-500 mt-1">Target aktif dan cuti/refund terkunci dari pengaturan global.</p>
+                            <h3 class="font-black text-lg text-slate-900">Ringkasan Kas & Target</h3>
+                            <p class="text-xs text-slate-500 mt-1">Pengeluaran kebutuhan pasis dan refund dipisah, lalu dijumlahkan sebagai total dana keluar.</p>
                         </div>
                         <div class="space-y-3">
                             <div class="flex items-center justify-between bg-brand-50 border border-brand-100 p-4 rounded-2xl"><span class="text-xs font-bold text-brand-700 uppercase">Target Aktif / Pasis</span><span id="dash-target-tagihan" class="font-black text-brand-900">Rp 0</span></div>
                             <div class="flex items-center justify-between bg-orange-50 border border-orange-100 p-4 rounded-2xl"><span class="text-xs font-bold text-orange-700 uppercase">Target Cuti / Refund per Pasis</span><span id="dash-target-cuti-refund" class="font-black text-orange-900">Rp 0</span></div>
+                            <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-slate-700 uppercase">Pengeluaran Kebutuhan Pasis</span><span id="dash-total-pengeluaran-manual-card" class="font-black text-slate-900 text-right">Rp 0</span></div>
+                                <p id="dash-pengeluaran-manual-note" class="text-[11px] text-slate-600 mt-2 leading-relaxed">Biaya operasional/kebutuhan pasis, tidak termasuk refund.</p>
+                            </div>
+                            <div class="bg-red-50 border border-red-100 p-4 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-red-700 uppercase">Total Dana Keluar</span><span id="dash-total-keluar-card" class="font-black text-red-900 text-right">Rp 0</span></div>
+                                <p id="dash-total-keluar-note" class="text-[11px] text-red-700 mt-2 leading-relaxed">Gabungan pengeluaran kebutuhan pasis + refund berhasil.</p>
+                            </div>
                             <div class="bg-red-50 border border-red-100 p-4 rounded-2xl">
                                 <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-red-700 uppercase">Total Dana Harus Dikembalikan</span><span id="dash-total-refund-required-card" class="font-black text-red-900 text-right">Rp 0</span></div>
                                 <p id="dash-refund-required-note" class="text-[11px] text-red-700 mt-2 leading-relaxed">Gabungan kelebihan bayar semua pasis: total dibayar dikurangi target efektif.</p>
@@ -324,7 +1152,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 grid grid-cols-1 xl:grid-cols-2 gap-6">
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 dash-card">
-                            <div class="mb-6"><h3 class="font-black text-lg text-slate-900">Arus Kas</h3><p class="text-xs text-slate-500">Perbandingan dana masuk, pengeluaran, refund, dan saldo.</p></div>
+                            <div class="mb-6"><h3 class="font-black text-lg text-slate-900">Arus Kas</h3><p class="text-xs text-slate-500">Perbandingan dana masuk, pengeluaran kebutuhan pasis, refund, dan saldo.</p></div>
                             <div class="relative w-full min-h-[250px]"><canvas id="cashflowChart"></canvas></div>
                         </div>
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 dash-card">
@@ -334,7 +1162,7 @@
                     </div>
                     <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[420px] dash-card">
                         <div class="flex items-center justify-between mb-6">
-                            <div><h3 class="font-black text-lg text-slate-900">Aktivitas Terkini</h3><p class="text-xs text-slate-500 mt-1">Pengeluaran, serah-terima, dan refund.</p></div>
+                            <div><h3 class="font-black text-lg text-slate-900">Aktivitas Terkini</h3><p class="text-xs text-slate-500 mt-1">Pengeluaran kebutuhan, serah-terima, dan refund.</p></div>
                             <button onclick="document.querySelector('[data-target=\'pengeluaran\']').click()" class="text-brand-600 hover:underline text-sm font-bold">Kelola</button>
                         </div>
                         <div id="dash-recent-keluar" class="flex-1 overflow-y-auto pr-2 space-y-5 custom-scrollbar"></div>
@@ -352,6 +1180,7 @@
                     <div class="flex gap-2 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-2 sm:pb-0">
                         <!-- Fitur 2: Tombol Broadcast -->
                         <button onclick="bukaModalBroadcast()" class="admin-only hidden-role btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-medium text-sm shadow-sm"><i class="ph ph-broadcast text-lg"></i> Broadcast Tagihan</button>
+                        <button onclick="bukaModalSharePin()" class="admin-only hidden-role btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 font-medium text-sm shadow-sm"><i class="ph ph-key text-lg"></i> Share PIN Login</button>
                         <button onclick="fetchDataDariGoogleSheets()" class="btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-medium text-sm"><i class="ph ph-arrows-clockwise text-lg"></i> Refresh</button>
                         <button onclick="bukaModalTambah()" class="admin-only hidden-role btn-press flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-medium text-sm"><i class="ph ph-plus text-lg"></i> Tambah</button>
                     </div>
@@ -431,7 +1260,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-900">Data Pengeluaran</h2>
-                        <p class="text-slate-500 mt-1">Catat dan pantau seluruh arus kas keluar organisasi.</p>
+                        <p class="text-slate-500 mt-1">Catat dan pantau pengeluaran kebutuhan pasis. Refund dicatat terpisah melalui Data Pasis.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <button onclick="shareRekapPengeluaranWA()" class="btn-press flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-xl hover:bg-[#1DA851] font-medium text-sm w-full sm:w-auto shadow-sm"><i class="ph-fill ph-whatsapp-logo text-lg"></i> Share Rekap WA</button>
@@ -526,6 +1355,45 @@
                 </div>
             </div>
 
+
+            <!-- VIEW: AKUN SAYA -->
+            <div id="view-akun" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3"><i class="ph-fill ph-user-circle-gear text-brand-600"></i> Akun Saya</h2>
+                        <p class="text-slate-500 mt-1">Kelola akses login dan PIN pribadi pasis.</p>
+                    </div>
+                    <button onclick="window.prosesLogout()" class="btn-press flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-red-50 hover:text-red-600 font-medium text-sm"><i class="ph ph-sign-out text-lg"></i> Keluar</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                        <div class="w-16 h-16 rounded-3xl bg-brand-50 text-brand-600 flex items-center justify-center shadow-sm"><i class="ph-fill ph-identification-card text-3xl"></i></div>
+                        <div><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Pasis</p><h3 id="akun-nama" class="text-xl font-black text-slate-900 mt-1">-</h3></div>
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-100"><p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">No HP Login</p><p id="akun-nohp" class="font-bold text-slate-800 mt-1">-</p></div>
+                            <div class="rounded-2xl bg-emerald-50 p-4 border border-emerald-100"><p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Status Akun</p><p id="akun-status" class="font-bold text-emerald-800 mt-1">Aktif</p></div>
+                            <div class="rounded-2xl bg-brand-50 p-4 border border-brand-100"><p class="text-[11px] font-bold text-brand-700 uppercase tracking-wider">Status PIN</p><p id="akun-pin-status" class="font-bold text-brand-900 mt-1">-</p></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="mb-6">
+                            <h3 class="font-black text-lg text-slate-900 flex items-center gap-2"><i class="ph-fill ph-key text-brand-600"></i> Ganti PIN Login Pasis</h3>
+                            <p class="text-sm text-slate-500 mt-1">PIN awal pasis adalah 6 digit terakhir nomor HP. Setelah login, pasis bisa menggantinya sendiri di sini.</p>
+                        </div>
+                        <div id="akun-admin-note" class="hidden bg-amber-50 border border-amber-100 text-amber-800 rounded-2xl p-4 text-sm mb-5">Mode Admin aktif. Fitur ini khusus untuk akun pasis. PIN Admin tetap diatur melalui sheet <b>Pengaturan</b> dengan key <b>pin_admin</b>.</div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">PIN Lama</label><input type="password" id="akun-pin-lama" maxlength="12" inputmode="numeric" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="PIN lama"></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">PIN Baru</label><input type="password" id="akun-pin-baru" maxlength="12" inputmode="numeric" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="4-12 digit angka"></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ulangi PIN Baru</label><input type="password" id="akun-pin-konfirmasi" maxlength="12" inputmode="numeric" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="Ulangi PIN baru"></div>
+                        </div>
+                        <button type="button" id="submit-change-pasis-pin" class="mt-5 btn-press px-5 py-3 rounded-xl bg-brand-950 hover:bg-brand-900 text-white font-bold shadow-soft flex items-center gap-2"><i class="ph ph-lock-key-open text-lg"></i> Simpan PIN Baru</button>
+                        <div class="mt-6 rounded-2xl bg-slate-50 border border-slate-100 p-4 text-sm text-slate-600 leading-relaxed"><b>Catatan keamanan:</b> Pasis berstatus <b>Cuti</b> tetap bisa login, tetapi aksesnya dibatasi hanya ke halaman <b>Data Pasis</b> miliknya sendiri dan <b>Akun Saya</b>.</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- VIEW: PENGATURAN -->
             <div id="view-pengaturan" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="mb-4">
@@ -560,14 +1428,16 @@
                             <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
  * API BACKEND NEXUS
  * PASIS + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC
- * Update: target cuti/refund global + indikator refund sukses + dashboard premium + share pengeluaran WhatsApp.
+ * Update: Pasis Cuti bisa login dengan akses terbatas; Share PIN dilengkapi Generate PIN baru untuk Pasis Aktif dan Cuti.
  */
 
 var DATA_PASIS_HEADERS = [
   &#x27;nama&#x27;, &#x27;nohp&#x27;, &#x27;jk&#x27;, &#x27;bank&#x27;, &#x27;norek&#x27;,
   &#x27;dibayar&#x27;, &#x27;tgl_bayar&#x27;, &#x27;riwayat&#x27;, &#x27;status_aktif&#x27;,
   &#x27;target_khusus&#x27;, &#x27;refund&#x27;, &#x27;tgl_refund&#x27;, &#x27;catatan_refund&#x27;,
-  &#x27;status_refund&#x27;, &#x27;waktu_refund&#x27;
+  &#x27;status_refund&#x27;, &#x27;waktu_refund&#x27;,
+  &#x27;pin_login&#x27;, &#x27;pin_diubah&#x27;, &#x27;last_login&#x27;, &#x27;last_pin_change&#x27;,
+  &#x27;pin_wa_terkirim&#x27;, &#x27;last_pin_share&#x27;
 ];
 
 var PENGELUARAN_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
@@ -576,8 +1446,72 @@ var PENGATURAN_HEADERS = [&#x27;key&#x27;, &#x27;value&#x27;];
 
 var DEFAULT_SETTINGS = {
   target_tagihan: 15000000,
-  target_cuti_refund: 0
+  target_cuti_refund: 0,
+  pin_admin: &#x27;123456&#x27;
 };
+
+var AUTH_SESSION_TTL_SECONDS = 6 * 60 * 60;
+var ADMIN_MAX_FAILED_ATTEMPTS = 3;
+var ADMIN_LOCK_SECONDS = 10 * 60;
+
+function normalizeClientId(value) {
+  var id = String(value || &#x27;global&#x27;).replace(/[^a-zA-Z0-9_\-]/g, &#x27;&#x27;).substring(0, 80);
+  return id || &#x27;global&#x27;;
+}
+
+function getAdminLoginCacheKeys(clientId) {
+  var id = normalizeClientId(clientId);
+  return { attempts: &#x27;nexus_admin_attempts_&#x27; + id, locked: &#x27;nexus_admin_locked_&#x27; + id };
+}
+
+function getAdminLockState(clientId) {
+  var cache = CacheService.getScriptCache();
+  var keys = getAdminLoginCacheKeys(clientId);
+  var lockedUntil = parseInt(cache.get(keys.locked) || &#x27;0&#x27;, 10);
+  var now = new Date().getTime();
+  if (lockedUntil &amp;&amp; now &lt; lockedUntil) {
+    return { locked: true, remaining_seconds: Math.ceil((lockedUntil - now) / 1000) };
+  }
+  if (lockedUntil &amp;&amp; now &gt;= lockedUntil) {
+    cache.remove(keys.locked);
+    cache.remove(keys.attempts);
+  }
+  return { locked: false, remaining_seconds: 0 };
+}
+
+function registerAdminFailedAttempt(clientId) {
+  var cache = CacheService.getScriptCache();
+  var keys = getAdminLoginCacheKeys(clientId);
+  var attempts = parseInt(cache.get(keys.attempts) || &#x27;0&#x27;, 10) + 1;
+
+  if (attempts &gt;= ADMIN_MAX_FAILED_ATTEMPTS) {
+    var lockedUntil = new Date().getTime() + (ADMIN_LOCK_SECONDS * 1000);
+    cache.put(keys.locked, String(lockedUntil), ADMIN_LOCK_SECONDS);
+    cache.put(keys.attempts, String(attempts), ADMIN_LOCK_SECONDS);
+    return {
+      status: &#x27;locked&#x27;,
+      code: &#x27;ADMIN_LOCKED&#x27;,
+      remaining_seconds: ADMIN_LOCK_SECONDS,
+      remaining_attempts: 0,
+      message: &#x27;Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam 10 menit.&#x27;
+    };
+  }
+
+  cache.put(keys.attempts, String(attempts), ADMIN_LOCK_SECONDS);
+  return {
+    status: &#x27;error&#x27;,
+    code: &#x27;ADMIN_PIN_WRONG&#x27;,
+    remaining_attempts: ADMIN_MAX_FAILED_ATTEMPTS - attempts,
+    message: &#x27;PIN Admin salah.&#x27;
+  };
+}
+
+function clearAdminFailedAttempts(clientId) {
+  var cache = CacheService.getScriptCache();
+  var keys = getAdminLoginCacheKeys(clientId);
+  cache.remove(keys.attempts);
+  cache.remove(keys.locked);
+}
 
 function getSpreadsheetSafe() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -587,6 +1521,54 @@ function getSpreadsheetSafe() {
 
 function normalizeHeader(value) {
   return String(value || &#x27;&#x27;).toLowerCase().trim();
+}
+
+
+function normalizePinValue(value) {
+  var text = String(value === null || value === undefined ? &#x27;&#x27; : value).trim();
+  // Hapus apostrof Google Sheet, spasi tersembunyi, pemisah ribuan, dan desimal .0/,0.
+  text = text.replace(/^&#x27;/, &#x27;&#x27;).replace(/[\u200B-\u200D\uFEFF]/g, &#x27;&#x27;).replace(/\s+/g, &#x27;&#x27;);
+  text = text.replace(/[.,]0+$/, &#x27;&#x27;);
+  // PIN Nexus memakai angka. Bila Google Sheet menampilkan 123.456 atau 123,456, jadikan 123456.
+  return text.replace(/[^0-9]/g, &#x27;&#x27;);
+}
+
+function getAdminPinValue() {
+  var saved = getSettingValue(&#x27;pin_admin&#x27;, &#x27;123456&#x27;);
+  var normalized = normalizePinValue(saved);
+  return normalized || &#x27;123456&#x27;;
+}
+
+
+function normalizePhoneForLogin(value) {
+  var digits = String(value || &#x27;&#x27;).replace(/[^0-9]/g, &#x27;&#x27;);
+  if (digits.charAt(0) === &#x27;0&#x27;) digits = &#x27;62&#x27; + digits.substring(1);
+  return digits;
+}
+
+function getDefaultPasisPin(nohp) {
+  var digits = normalizePhoneForLogin(nohp);
+  return digits.length &gt;= 6 ? digits.slice(-6) : digits;
+}
+
+function isPasisCuti(row) {
+  return normalizeHeader(row &amp;&amp; row.status_aktif) === &#x27;cuti&#x27;;
+}
+
+function getEffectivePasisPin(row) {
+  var customPin = String((row &amp;&amp; row.pin_login) || &#x27;&#x27;).trim();
+  return customPin || getDefaultPasisPin(row &amp;&amp; row.nohp);
+}
+
+function sanitizePasisForClient(row) {
+  var clean = {};
+  for (var key in row) clean[key] = row[key];
+  delete clean.pin_login;
+  return clean;
+}
+
+function nowString() {
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM-dd HH:mm:ss&#x27;);
 }
 
 function ensureHeaders(sheet, requiredHeaders) {
@@ -685,6 +1667,152 @@ function sheetToJSON(sheet) {
   });
 }
 
+
+function getPinShareDataForAdmin() {
+  return sheetToJSON(getDataPasisSheet()).filter(function(row) {
+    // Pasis Aktif dan Cuti sama-sama bisa login, jadi keduanya masuk daftar share PIN.
+    return row &amp;&amp; row.nohp;
+  }).map(function(row) {
+    return {
+      nama: row.nama || &#x27;&#x27;,
+      nohp: row.nohp || &#x27;&#x27;,
+      jk: row.jk || &#x27;&#x27;,
+      status_aktif: row.status_aktif || &#x27;Aktif&#x27;,
+      pin: getEffectivePasisPin(row),
+      pin_diubah: row.pin_diubah || &#x27;Belum&#x27;,
+      pin_wa_terkirim: row.pin_wa_terkirim || &#x27;Belum&#x27;,
+      last_pin_share: row.last_pin_share || &#x27;&#x27;,
+      last_login: row.last_login || &#x27;&#x27;
+    };
+  });
+}
+
+
+function generateRandomPasisPin() {
+  var pin = &#x27;&#x27;;
+  for (var i = 0; i &lt; 6; i++) {
+    pin += Math.floor(Math.random() * 10).toString();
+  }
+  return pin;
+}
+
+function resetPinsForActivePasis() {
+  var sheet = getDataPasisSheet();
+  var data = sheet.getDataRange().getDisplayValues();
+  if (data.length &lt; 2) return [];
+
+  var headers = data[0].map(normalizeHeader);
+  var nohpIndex = headers.indexOf(&#x27;nohp&#x27;);
+  if (nohpIndex === -1) throw new Error(&quot;Kolom &#x27;nohp&#x27; tidak ditemukan.&quot;);
+
+  var updatedRows = [];
+  for (var r = 1; r &lt; data.length; r++) {
+    var rowObj = {};
+    headers.forEach(function(header, index) {
+      if (header) rowObj[header] = data[r][index];
+    });
+
+    // Pasis Aktif dan Cuti sama-sama bisa login, jadi PIN keduanya boleh di-reset admin.
+    if (!rowObj.nohp) continue;
+
+    var newPin = generateRandomPasisPin();
+    writeByHeaders(sheet, r + 1, {
+      pin_login: newPin,
+      pin_diubah: &#x27;Reset Admin&#x27;,
+      last_pin_change: nowString(),
+      pin_wa_terkirim: &#x27;Belum&#x27;,
+      last_pin_share: &#x27;&#x27;
+    });
+
+    rowObj.pin_login = newPin;
+    rowObj.pin_diubah = &#x27;Reset Admin&#x27;;
+    rowObj.last_pin_change = nowString();
+    rowObj.pin_wa_terkirim = &#x27;Belum&#x27;;
+    rowObj.last_pin_share = &#x27;&#x27;;
+    updatedRows.push({
+      nama: rowObj.nama || &#x27;&#x27;,
+      nohp: rowObj.nohp || &#x27;&#x27;,
+      jk: rowObj.jk || &#x27;&#x27;,
+      status_aktif: rowObj.status_aktif || &#x27;Aktif&#x27;,
+      pin: newPin,
+      pin_diubah: rowObj.pin_diubah,
+      pin_wa_terkirim: rowObj.pin_wa_terkirim,
+      last_pin_share: rowObj.last_pin_share,
+      last_login: rowObj.last_login || &#x27;&#x27;
+    });
+  }
+
+  return updatedRows;
+}
+
+function generatePinsForSharePinPasis() {
+  // Alias khusus fitur Share PIN agar nama action frontend lebih jelas.
+  // Fungsi ini membuat PIN baru untuk semua pasis yang memiliki No HP, termasuk status Aktif dan Cuti.
+  return resetPinsForActivePasis();
+}
+
+function markPinSharedByPhone(sheet, nohp) {
+  var found = findPasisRowByPhone(sheet, nohp);
+  if (found.rowIndex === -1 || !found.row) return false;
+  writeByHeaders(sheet, found.rowIndex, {
+    pin_wa_terkirim: &#x27;Ya&#x27;,
+    last_pin_share: nowString()
+  });
+  return true;
+}
+
+
+function getSettingsObject() {
+  var rows = sheetToJSON(getPengaturanSheet());
+  var obj = {};
+  rows.forEach(function(row) {
+    var key = normalizeHeader(row.key);
+    if (key) obj[key] = row.value;
+  });
+  return obj;
+}
+
+function getSettingValue(key, fallback) {
+  var settings = getSettingsObject();
+  var val = settings[normalizeHeader(key)];
+  return val !== undefined &amp;&amp; val !== &#x27;&#x27; ? String(val).trim() : fallback;
+}
+
+function getHeaderInfo(sheet) {
+  var lastColumn = Math.max(sheet.getLastColumn(), 1);
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0].map(normalizeHeader);
+  var map = {};
+  headers.forEach(function(header, index) {
+    if (header) map[header] = index;
+  });
+  return { headers: headers, map: map, lastColumn: lastColumn };
+}
+
+function rowToObjectFromValues(headers, values) {
+  var obj = {};
+  headers.forEach(function(header, index) {
+    if (header) obj[header] = values[index];
+  });
+  return obj;
+}
+
+function buildPhoneCandidates(value) {
+  var raw = String(value || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
+  var digits = raw.replace(/[^0-9]/g, &#x27;&#x27;);
+  var normalized = normalizePhoneForLogin(raw);
+  var candidates = {};
+  [raw, digits, normalized].forEach(function(item) {
+    if (item) candidates[item] = true;
+  });
+  if (normalized.indexOf(&#x27;62&#x27;) === 0) candidates[&#x27;0&#x27; + normalized.substring(2)] = true;
+  if (digits.charAt(0) === &#x27;0&#x27;) candidates[&#x27;62&#x27; + digits.substring(1)] = true;
+  return Object.keys(candidates);
+}
+
+function getPublicPasisData() {
+  return sheetToJSON(getDataPasisSheet()).map(sanitizePasisForClient);
+}
+
 function makeOutput(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
@@ -708,6 +1836,47 @@ function findRowByHeaderValue(sheet, headerName, targetValue) {
   return -1;
 }
 
+
+
+function findPasisRowByPhone(sheet, nohp) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow &lt; 2) return { rowIndex: -1, row: null };
+
+  var info = getHeaderInfo(sheet);
+  var headers = info.headers;
+  var nohpIndex = info.map.nohp;
+  if (nohpIndex === undefined) throw new Error(&quot;Kolom &#x27;nohp&#x27; tidak ditemukan.&quot;);
+
+  var target = normalizePhoneForLogin(nohp);
+  var phoneRange = sheet.getRange(2, nohpIndex + 1, lastRow - 1, 1);
+  var candidates = buildPhoneCandidates(nohp);
+
+  // Jalur cepat: cari exact match di kolom No HP, lalu validasi normalisasi.
+  for (var i = 0; i &lt; candidates.length; i++) {
+    var finder = phoneRange.createTextFinder(candidates[i]).matchEntireCell(true);
+    var foundCell = finder.findNext();
+    if (foundCell) {
+      var rowIndex = foundCell.getRow();
+      var rowValues = sheet.getRange(rowIndex, 1, 1, info.lastColumn).getDisplayValues()[0];
+      if (normalizePhoneForLogin(rowValues[nohpIndex]) === target) {
+        return { rowIndex: rowIndex, row: rowToObjectFromValues(headers, rowValues) };
+      }
+    }
+  }
+
+  // Fallback tetap aman untuk format nomor yang berisi spasi/tanda hubung.
+  var phoneValues = phoneRange.getDisplayValues();
+  for (var r = 0; r &lt; phoneValues.length; r++) {
+    if (normalizePhoneForLogin(phoneValues[r][0]) === target) {
+      var fallbackRowIndex = r + 2;
+      var fallbackValues = sheet.getRange(fallbackRowIndex, 1, 1, info.lastColumn).getDisplayValues()[0];
+      return { rowIndex: fallbackRowIndex, row: rowToObjectFromValues(headers, fallbackValues) };
+    }
+  }
+
+  return { rowIndex: -1, row: null };
+}
+
 function writeByHeaders(sheet, rowIndex, payloadData) {
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
 
@@ -729,6 +1898,8 @@ function appendByHeaders(sheet, payloadData) {
     var key = normalizeHeader(header);
     var val = payloadData[key] !== undefined ? payloadData[key] : &quot;&quot;;
     if (key === &#x27;id&#x27; &amp;&amp; val === &quot;&quot;) val = new Date().getTime().toString();
+    if (key === &#x27;pin_diubah&#x27; &amp;&amp; val === &quot;&quot;) val = &quot;Belum&quot;;
+    if (key === &#x27;pin_wa_terkirim&#x27; &amp;&amp; val === &quot;&quot;) val = &quot;Belum&quot;;
     if (val !== &quot;&quot; &amp;&amp; (key === &#x27;nohp&#x27; || key === &#x27;norek&#x27;)) val = &quot;&#x27;&quot; + val;
     newRow.push(val);
   });
@@ -742,25 +1913,247 @@ function sortDataRowsByFirstColumn(sheet) {
   }
 }
 
-function doGet(e) {
+
+function createAuthSession(role, nohp, nama) {
+  var token = Utilities.getUuid() + &#x27;_&#x27; + new Date().getTime();
+  var sessionData = {
+    role: role,
+    nohp: nohp || &#x27;&#x27;,
+    nama: nama || &#x27;&#x27;,
+    created_at: nowString()
+  };
+  CacheService.getScriptCache().put(&#x27;nexus_auth_&#x27; + token, JSON.stringify(sessionData), AUTH_SESSION_TTL_SECONDS);
+  return token;
+}
+
+function getAuthSession(token) {
+  token = String(token || &#x27;&#x27;).trim();
+  if (!token) return null;
+  var raw = CacheService.getScriptCache().get(&#x27;nexus_auth_&#x27; + token);
+  if (!raw) return null;
   try {
-    var result = { status: &#x27;success&#x27; };
-
-    try { result.pasis = sheetToJSON(getDataPasisSheet()); } catch (errPasis) { result.pasis = []; }
-    try { result.pengeluaran = sheetToJSON(getPengeluaranSheet()); } catch (errPengeluaran) { result.pengeluaran = []; }
-    try { result.pindah_dana = sheetToJSON(getPindahDanaSheet()); } catch (errPindah) { result.pindah_dana = []; }
-    try { result.pengaturan = sheetToJSON(getPengaturanSheet()); } catch (errPengaturan) { result.pengaturan = []; }
-
-    return makeOutput(result);
-  } catch (error) {
-    return makeOutput({ status: &#x27;error&#x27;, message: error.toString() });
+    return JSON.parse(raw);
+  } catch (err) {
+    return null;
   }
+}
+
+function requireAuthSession(payload) {
+  var token = (payload &amp;&amp; (payload.token || (payload.auth &amp;&amp; payload.auth.token))) || &#x27;&#x27;;
+  var session = getAuthSession(token);
+  if (!session || !session.role) throw new Error(&#x27;Sesi login tidak valid atau sudah berakhir. Silakan login ulang.&#x27;);
+  return session;
+}
+
+function requireAdminSession(payload) {
+  var session = requireAuthSession(payload);
+  if (session.role !== &#x27;admin&#x27;) throw new Error(&#x27;Akses ditolak. Fitur ini hanya untuk Admin.&#x27;);
+  return session;
+}
+
+function getSecureDataForSession(session) {
+  var result = { status: &#x27;success&#x27;, role: session.role };
+  var allPasis = getPublicPasisData();
+
+  result.pasis = allPasis;
+  result.pengeluaran = sheetToJSON(getPengeluaranSheet());
+  result.pindah_dana = sheetToJSON(getPindahDanaSheet());
+  result.pengaturan = sheetToJSON(getPengaturanSheet());
+  result.access_views = session.role === &#x27;admin&#x27;
+    ? [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;pindah-dana&#x27;, &#x27;pengaturan&#x27;]
+    : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;];
+
+  if (session.role === &#x27;pasis&#x27;) {
+    var targetPhone = normalizePhoneForLogin(session.nohp);
+    var rowPasis = allPasis.filter(function(row) {
+      return normalizePhoneForLogin(row.nohp) === targetPhone;
+    })[0];
+    if (!rowPasis) throw new Error(&#x27;Sesi pasis tidak ditemukan. Silakan login ulang.&#x27;);
+
+    var pasisCuti = isPasisCuti(rowPasis);
+    result.user = rowPasis;
+    result.pasis_status = pasisCuti ? &#x27;cuti&#x27; : &#x27;aktif&#x27;;
+    result.access_scope = pasisCuti ? &#x27;self&#x27; : &#x27;all&#x27;;
+
+    // Aturan akses:
+    // - Pasis Aktif: boleh melihat seluruh Data Pasis dan menu umum.
+    // - Pasis Cuti: boleh login, tetapi hanya menerima data dirinya sendiri dan menu Akun Saya.
+    if (pasisCuti) {
+      result.pasis = [rowPasis];
+      result.pengeluaran = [];
+      result.pindah_dana = [];
+      result.access_views = [&#x27;pasis&#x27;, &#x27;akun&#x27;];
+    } else {
+      result.access_views = [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;];
+    }
+  }
+
+  return result;
+}
+
+function doGet(e) {
+  return makeOutput({
+    status: &#x27;locked&#x27;,
+    message: &#x27;Data dilindungi. Silakan login melalui aplikasi Nexus.&#x27;
+  });
 }
 
 function doPost(e) {
   try {
     var payload = JSON.parse(e.postData.contents || &#x27;{}&#x27;);
     if (!payload.action) throw new Error(&quot;Action kosong.&quot;);
+
+    // --- AMBIL DATA SETELAH LOGIN ---
+    if (payload.action === &#x27;get_secure_data&#x27;) {
+      var authSession = requireAuthSession(payload);
+      var secureResult = getSecureDataForSession(authSession);
+      return makeOutput(secureResult);
+    }
+
+    // --- LOGIN ADMIN CEPAT + PROTEKSI 3x SALAH PER PERANGKAT/BROWSER ---
+    if (payload.action === &#x27;login_admin&#x27;) {
+      var adminData = payload.data || {};
+      var pinAdmin = normalizePinValue(adminData.pin);
+      var clientId = adminData.client_id || adminData.device_id || &#x27;global&#x27;;
+      if (!pinAdmin) throw new Error(&quot;PIN Admin wajib diisi.&quot;);
+
+      var savedAdminPin = getAdminPinValue();
+
+      // PIN benar harus tetap bisa masuk walaupun perangkat sempat terkunci karena salah input.
+      // Ini mencegah kasus admin asli tidak bisa login karena lock lama/cache browser.
+      if (pinAdmin === savedAdminPin) {
+        clearAdminFailedAttempts(clientId);
+        var settingsLogin = getSettingsObject();
+        return makeOutput({
+          status: &#x27;success&#x27;,
+          role: &#x27;admin&#x27;,
+          token: createAuthSession(&#x27;admin&#x27;, &#x27;&#x27;, &#x27;Admin&#x27;),
+          pengaturan: Object.keys(settingsLogin).map(function(key) {
+            return { key: key, value: settingsLogin[key] };
+          }),
+          message: &#x27;Login Admin berhasil.&#x27;
+        });
+      }
+
+      var lockState = getAdminLockState(clientId);
+      if (lockState.locked) {
+        return makeOutput({
+          status: &#x27;locked&#x27;,
+          code: &#x27;ADMIN_LOCKED&#x27;,
+          remaining_seconds: lockState.remaining_seconds,
+          remaining_attempts: 0,
+          message: &#x27;Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam &#x27; + Math.ceil(lockState.remaining_seconds / 60) + &#x27; menit.&#x27;
+        });
+      }
+
+      return makeOutput(registerAdminFailedAttempt(clientId));
+    }
+
+    // --- LOGIN PASIS ---
+    if (payload.action === &#x27;login_pasis&#x27;) {
+      var loginData = payload.data || {};
+      var nohpLogin = loginData.nohp;
+      var pinLogin = String(loginData.pin || &#x27;&#x27;).trim();
+      if (!nohpLogin || !pinLogin) throw new Error(&quot;No HP dan PIN wajib diisi.&quot;);
+
+      var sheetLogin = getDataPasisSheet();
+      var foundLogin = findPasisRowByPhone(sheetLogin, nohpLogin);
+      if (foundLogin.rowIndex === -1 || !foundLogin.row) throw new Error(&quot;Akun pasis tidak ditemukan.&quot;);
+
+      var effectivePin = getEffectivePasisPin(foundLogin.row);
+      if (pinLogin !== effectivePin) throw new Error(&quot;PIN salah.&quot;);
+
+      var loginTime = nowString();
+      writeByHeaders(sheetLogin, foundLogin.rowIndex, { last_login: loginTime });
+      foundLogin.row.last_login = loginTime;
+
+      var loginIsCuti = isPasisCuti(foundLogin.row);
+      return makeOutput({
+        status: &#x27;success&#x27;,
+        role: &#x27;pasis&#x27;,
+        token: createAuthSession(&#x27;pasis&#x27;, normalizePhoneForLogin(foundLogin.row.nohp), foundLogin.row.nama || &#x27;Pasis&#x27;),
+        user: sanitizePasisForClient(foundLogin.row),
+        pasis_status: loginIsCuti ? &#x27;cuti&#x27; : &#x27;aktif&#x27;,
+        access_scope: loginIsCuti ? &#x27;self&#x27; : &#x27;all&#x27;,
+        access_views: loginIsCuti ? [&#x27;pasis&#x27;, &#x27;akun&#x27;] : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;],
+        default_pin_hint: !foundLogin.row.pin_login ? &#x27;PIN awal adalah 6 digit terakhir No HP.&#x27; : &#x27;&#x27;,
+        message: loginIsCuti ? &#x27;Login berhasil. Status Cuti: akses hanya Data Pasis milik Anda dan Akun Saya.&#x27; : &#x27;Login berhasil.&#x27;
+      });
+    }
+
+    // --- GANTI PIN PASIS ---
+    if (payload.action === &#x27;update_pin_pasis&#x27;) {
+      var pinData = payload.data || {};
+      var nohpPin = pinData.nohp;
+      var oldPin = String(pinData.old_pin || &#x27;&#x27;).trim();
+      var newPin = String(pinData.new_pin || &#x27;&#x27;).trim();
+
+      if (!nohpPin || !oldPin || !newPin) throw new Error(&quot;No HP, PIN lama, dan PIN baru wajib diisi.&quot;);
+      if (!/^\d{4,12}$/.test(newPin)) throw new Error(&quot;PIN baru harus angka 4 sampai 12 digit.&quot;);
+
+      var sheetPin = getDataPasisSheet();
+      var foundPin = findPasisRowByPhone(sheetPin, nohpPin);
+      if (foundPin.rowIndex === -1 || !foundPin.row) throw new Error(&quot;Akun pasis tidak ditemukan.&quot;);
+
+      var currentPin = getEffectivePasisPin(foundPin.row);
+      if (oldPin !== currentPin) throw new Error(&quot;PIN lama salah.&quot;);
+      if (newPin === currentPin) throw new Error(&quot;PIN baru tidak boleh sama dengan PIN lama.&quot;);
+
+      writeByHeaders(sheetPin, foundPin.rowIndex, {
+        pin_login: newPin,
+        pin_diubah: &#x27;Ya&#x27;,
+        last_pin_change: nowString()
+      });
+
+      foundPin.row.pin_diubah = &#x27;Ya&#x27;;
+      foundPin.row.last_pin_change = nowString();
+      return makeOutput({
+        status: &#x27;success&#x27;,
+        message: &#x27;PIN berhasil diperbarui.&#x27;,
+        user: sanitizePasisForClient(foundPin.row)
+      });
+    }
+
+    // --- SHARE PIN PASIS VIA WHATSAPP (ADMIN) ---
+    if (payload.action === &#x27;get_pin_share_list&#x27;) {
+      requireAdminSession(payload);
+      return makeOutput({
+        status: &#x27;success&#x27;,
+        data: getPinShareDataForAdmin()
+      });
+    }
+
+    if (payload.action === &#x27;generate_share_pin&#x27; || payload.action === &#x27;reset_active_pasis_pins&#x27;) {
+      requireAdminSession(payload);
+      var resetList = generatePinsForSharePinPasis();
+      return makeOutput({
+        status: &#x27;success&#x27;,
+        updated: resetList.length,
+        data: resetList,
+        message: resetList.length + &#x27; PIN pasis Aktif/Cuti berhasil dibuat ulang.&#x27;
+      });
+    }
+
+    if (payload.action === &#x27;mark_pin_shared&#x27;) {
+      requireAdminSession(payload);
+      var shareData = payload.data || {};
+      var listPhone = shareData.nohp_list || [];
+      if (!Array.isArray(listPhone)) listPhone = [];
+      if (shareData.nohp) listPhone.push(shareData.nohp);
+      if (listPhone.length === 0) throw new Error(&quot;Daftar No HP kosong.&quot;);
+
+      var sheetShare = getDataPasisSheet();
+      var updatedCount = 0;
+      listPhone.forEach(function(phone) {
+        if (markPinSharedByPhone(sheetShare, phone)) updatedCount++;
+      });
+
+      return makeOutput({
+        status: &#x27;success&#x27;,
+        updated: updatedCount,
+        message: updatedCount + &#x27; status share PIN diperbarui.&#x27;
+      });
+    }
 
     // --- AKSI PING (KUNJUNGAN &amp; USER AKTIF) ---
     if (payload.action === &#x27;ping&#x27;) {
@@ -802,10 +2195,13 @@ function doPost(e) {
 
     // --- AKSI DATA PASIS ---
     if (payload.action === &#x27;create&#x27; || payload.action === &#x27;update&#x27;) {
+      requireAdminSession(payload);
       var sheetPasis = getDataPasisSheet();
 
       if (payload.action === &#x27;create&#x27;) {
-        appendByHeaders(sheetPasis, payload.data || {});
+        var createData = payload.data || {};
+        if (!createData.pin_diubah) createData.pin_diubah = &#x27;Belum&#x27;;
+        appendByHeaders(sheetPasis, createData);
         sortDataRowsByFirstColumn(sheetPasis);
         return makeOutput({ status: &#x27;success&#x27; });
       }
@@ -824,6 +2220,7 @@ function doPost(e) {
     }
 
     if (payload.action === &#x27;delete_pasis&#x27;) {
+      requireAdminSession(payload);
       var sheetDeletePasis = getDataPasisSheet();
       var rowDelete = findRowByHeaderValue(sheetDeletePasis, &#x27;nohp&#x27;, payload.data &amp;&amp; payload.data.nohp);
       if (rowDelete === -1) throw new Error(&quot;Pasis tidak ditemukan.&quot;);
@@ -834,11 +2231,13 @@ function doPost(e) {
 
     // --- AKSI PENGELUARAN ---
     if (payload.action === &#x27;create_pengeluaran&#x27;) {
+      requireAdminSession(payload);
       appendByHeaders(getPengeluaranSheet(), payload.data || {});
       return makeOutput({ status: &#x27;success&#x27; });
     }
 
     if (payload.action === &#x27;delete_pengeluaran&#x27;) {
+      requireAdminSession(payload);
       var sheetPengeluaran = getPengeluaranSheet();
       var rowPengeluaran = findRowByHeaderValue(sheetPengeluaran, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
       if (rowPengeluaran === -1) throw new Error(&quot;Pengeluaran tidak ditemukan.&quot;);
@@ -849,11 +2248,13 @@ function doPost(e) {
 
     // --- AKSI PINDAH DANA / SERAH TERIMA KE KETUA KELAS ---
     if (payload.action === &#x27;create_pindah_dana&#x27;) {
+      requireAdminSession(payload);
       appendByHeaders(getPindahDanaSheet(), payload.data || {});
       return makeOutput({ status: &#x27;success&#x27; });
     }
 
     if (payload.action === &#x27;delete_pindah_dana&#x27;) {
+      requireAdminSession(payload);
       var sheetPindah = getPindahDanaSheet();
       var rowPindah = findRowByHeaderValue(sheetPindah, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
       if (rowPindah === -1) throw new Error(&quot;Data serah terima kas tidak ditemukan.&quot;);
@@ -864,6 +2265,7 @@ function doPost(e) {
 
     // --- AKSI UPDATE PENGATURAN ---
     if (payload.action === &#x27;update_pengaturan&#x27;) {
+      requireAdminSession(payload);
       var sheetSetting = getPengaturanSheet();
       var settingData = sheetSetting.getDataRange().getDisplayValues();
       var keysToUpdate = payload.data || {};
@@ -916,7 +2318,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">1</div>
                                 <p class="font-semibold text-slate-900">Sheet: Data Pasis</p>
-                                <p>Kolom utama: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat, status_aktif, refund, tgl_refund, catatan_refund</code></p>
+                                <p>Kolom utama: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">nama, nohp, jk, bank, norek, dibayar, tgl_bayar, riwayat, status_aktif, refund, tgl_refund, catatan_refund, pin_login, pin_diubah, last_login</code></p>
                             </div>
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">2</div>
@@ -948,23 +2350,26 @@ function doPost(e) {
         <span id="toast-message" class="text-sm font-medium pr-2">Pesan Toast</span>
     </div>
 
-    <!-- MODAL LOGIN ADMIN -->
+    <!-- MODAL LOGIN AKUN -->
     <div id="modal-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
         <div id="modal-login-content" class="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100 flex flex-col">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600"><i class="ph-fill ph-lock-key text-xl"></i></div>
-                    <div><h3 class="font-bold text-slate-900">Akses Admin</h3><p class="text-xs text-slate-500">Autentikasi keamanan.</p></div>
+                    <div><h3 id="login-title" class="font-bold text-slate-900">Login Pasis</h3><p id="login-subtitle" class="text-xs text-slate-500">Masuk menggunakan No HP dan PIN.</p></div>
                 </div>
-                <button onclick="closeModalLogin()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+                <button id="login-close-btn" onclick="closeModalLogin()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
             </div>
-            <div class="p-6">
-                <input type="password" id="login-pin" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-[0.5em] text-2xl font-bold text-slate-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="••••••" maxlength="8">
-                <p id="login-info-text" class="text-center text-xs text-slate-400 mt-4 transition-all-custom">Sistem mengambil PIN dari database Anda secara otomatis.</p>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-100">
+                    <button type="button" id="login-mode-pasis" onclick="setLoginMode('pasis')" class="py-2 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm btn-press">Pasis</button>
+                    <button type="button" id="login-mode-admin" onclick="setLoginMode('admin')" class="py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-white/70 btn-press">Admin</button>
+                </div>
+                <div id="login-nohp-container"><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">No HP Pasis</label><input type="text" id="login-nohp" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="Contoh: 081234567890" inputmode="tel"></div>
+                <div><label id="login-pin-label" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">PIN Pasis</label><input type="password" id="login-pin" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-[0.35em] text-2xl font-bold text-slate-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="••••••" maxlength="12" inputmode="numeric"></div>
+                <p id="login-info-text" class="text-center text-xs text-slate-400 transition-all-custom">Masukkan No HP dan PIN pribadi. Pasis Cuti tetap bisa login, tetapi aksesnya hanya Data Pasis miliknya sendiri dan Akun Saya.</p>
             </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50/50">
-                <button type="button" id="btn-submit-login" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2 transition-all-custom"><i class="ph ph-sign-in text-lg"></i> Validasi PIN</button>
-            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50"><button type="button" id="btn-submit-login" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2 transition-all-custom"><i class="ph ph-sign-in text-lg"></i> Masuk</button></div>
         </div>
     </div>
 
@@ -1282,6 +2687,35 @@ function doPost(e) {
         </div>
     </div>
 
+
+
+    <!-- MODAL SHARE PIN LOGIN PASIS -->
+    <div id="modal-share-pin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[76] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-share-pin-content" class="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-brand-50/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center text-brand-700"><i class="ph-fill ph-key text-xl"></i></div>
+                    <div><h3 class="font-bold text-slate-900">Share PIN Login Pasis</h3><p class="text-xs text-slate-500">Pasis Aktif dan Cuti bisa dikirim PIN login.</p></div>
+                </div>
+                <button id="close-share-pin-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <p id="share-pin-total" class="text-sm font-bold text-slate-800">0 pasis siap dikirim</p>
+                    <p class="text-xs text-slate-500 mt-1">Gunakan Generate PIN untuk membuat PIN baru, lalu kirim via WhatsApp. Jika browser memblokir pop-up, gunakan tombol Kirim WA per nama.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btn-generate-share-pin" onclick="generatePinSharePasis()" class="btn-press px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5"><i class="ph ph-keyhole"></i> Generate PIN</button>
+                    <button onclick="muatDaftarSharePin()" class="btn-press px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5"><i class="ph ph-arrows-clockwise"></i> Refresh</button>
+                    <button id="btn-share-pin-all" onclick="kirimSemuaPinWA()" class="btn-press px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#1DA851] text-white text-xs font-bold flex items-center gap-1.5"><i class="ph-fill ph-whatsapp-logo"></i> Kirim Semua</button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar" id="share-pin-list">
+                <!-- Daftar PIN pasis akan dirender via JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT UTAMA KESELURUHAN -->
     <script>
         const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec'; 
@@ -1292,6 +2726,7 @@ function doPost(e) {
         window.pengeluaranDataGlobal = [];
         window.pindahDanaDataGlobal = [];
         window.pengaturanGlobal = [];
+        window.pinShareDataGlobal = [];
         let lockoutTimerInterval = null;
         let adminSessionInterval = null;
         let lastAdminActivityWrite = 0;
@@ -1301,6 +2736,70 @@ function doPost(e) {
         const ADMIN_IDLE_TIMEOUT_MS = 15 * 60 * 1000;      // logout setelah 15 menit tidak ada aktivitas
         const ADMIN_ABSENCE_TIMEOUT_MS = 30 * 60 * 1000;   // logout jika web ditinggal/ditutup lebih dari 30 menit
         const ADMIN_SESSION_KEY = 'nexus_admin_session_v2';
+        const PASIS_SESSION_KEY = 'nexus_pasis_session_v1';
+        const ADMIN_LOGIN_CLIENT_KEY = 'nexus_admin_login_client_v1';
+
+        let currentAuthToken = null;
+
+        function getAdminLoginClientId() {
+            let id = localStorage.getItem(ADMIN_LOGIN_CLIENT_KEY);
+            if (!id) {
+                id = 'client_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 12);
+                localStorage.setItem(ADMIN_LOGIN_CLIENT_KEY, id);
+            }
+            return id;
+        }
+
+        function getCurrentAuthToken() {
+            if (currentAuthToken) return currentAuthToken;
+            const adminSession = getAdminSession();
+            if (adminSession && adminSession.role === 'admin' && adminSession.token) {
+                currentAuthToken = adminSession.token;
+                return currentAuthToken;
+            }
+            const pasisSession = getPasisSession();
+            if (pasisSession && pasisSession.role === 'pasis' && pasisSession.token) {
+                currentAuthToken = pasisSession.token;
+                return currentAuthToken;
+            }
+            return null;
+        }
+
+        function withAuth(payload = {}) {
+            const token = getCurrentAuthToken();
+            return token ? { ...payload, token } : payload;
+        }
+
+        async function fetchSecureDataFromBackend() {
+            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) throw new Error('URL_BELUM_DIISI');
+            const token = getCurrentAuthToken();
+            if (!token) throw new Error('SESSION_EXPIRED');
+
+            const response = await fetch(GOOGLE_SHEET_API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'get_secure_data', token })
+            });
+
+            const rawText = await response.text();
+            let jsonRes;
+            try { jsonRes = JSON.parse(rawText); } catch(e) { throw new Error('SERVER_AKSES_DITOLAK'); }
+
+            if (jsonRes.status === 'blocked' || jsonRes.code === 'CUTI') {
+                const err = new Error(jsonRes.message || 'Akses ditolak karena status Cuti.');
+                err.code = 'CUTI';
+                throw err;
+            }
+
+            if (jsonRes.status !== 'success') {
+                const err = new Error(jsonRes.message || 'Sesi login tidak valid atau data gagal dimuat.');
+                err.code = jsonRes.code || 'SECURE_DATA_ERROR';
+                throw err;
+            }
+
+            return jsonRes;
+        }
 
         let globalAppName = 'Nexus';
         let globalAdminName = 'Bendahara Utama';
@@ -1319,12 +2818,16 @@ function doPost(e) {
         function clearAdminSession() {
             localStorage.removeItem(ADMIN_SESSION_KEY);
             localStorage.removeItem('nexusRole');
+            currentAuthToken = null;
         }
 
-        function saveAdminSession() {
+        function saveAdminSession(token = '') {
             const now = Date.now();
+            const authToken = token || currentAuthToken || '';
+            currentAuthToken = authToken;
             localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
                 role: 'admin',
+                token: authToken,
                 loginAt: now,
                 lastActive: now,
                 lastSeen: now
@@ -1336,7 +2839,7 @@ function doPost(e) {
             const session = getAdminSession();
             if (!session || session.role !== 'admin') {
                 clearAdminSession();
-                return 'viewer';
+                return 'guest';
             }
 
             const now = Date.now();
@@ -1345,13 +2848,50 @@ function doPost(e) {
 
             if (idleExpired || absenceExpired) {
                 clearAdminSession();
-                return 'viewer';
+                return 'guest';
             }
 
             return 'admin';
         }
 
-        let userRole = getAdminSessionRole();
+        function getPasisSession() { try { return JSON.parse(localStorage.getItem(PASIS_SESSION_KEY) || 'null'); } catch (e) { return null; } }
+        function clearPasisSession() { localStorage.removeItem(PASIS_SESSION_KEY); currentAuthToken = null; }
+        function savePasisSession(user, token = '') {
+            const authToken = token || user?.token || currentAuthToken || '';
+            currentAuthToken = authToken;
+            const rawStatus = String(user?.status_aktif || user?.statusAktif || '').toLowerCase();
+            const isCuti = rawStatus === 'cuti' || user?.pasis_status === 'cuti' || user?.access_scope === 'self' || user?.accessScope === 'self';
+            const session = {
+                role: 'pasis',
+                token: authToken,
+                nohp: normalizePhone(user?.nohp || ''),
+                nama: user?.nama || 'Pasis',
+                loginAt: Date.now(),
+                pinDiubah: user?.pin_diubah || user?.pinDiubah || 'Belum',
+                statusAktif: isCuti ? 'Cuti' : (user?.status_aktif || user?.statusAktif || 'Aktif'),
+                accessScope: isCuti ? 'self' : (user?.access_scope || user?.accessScope || 'all'),
+                accessViews: user?.access_views || user?.accessViews || (isCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran'])
+            };
+            localStorage.setItem(PASIS_SESSION_KEY, JSON.stringify(session)); currentPasisUser = session;
+        }
+        function getInitialUserRole() {
+            const adminRole = getAdminSessionRole();
+            if (adminRole === 'admin') {
+                const adminSession = getAdminSession();
+                currentAuthToken = adminSession?.token || null;
+                return 'admin';
+            }
+            const pasisSession = getPasisSession();
+            if (pasisSession && pasisSession.role === 'pasis' && pasisSession.nohp) {
+                currentAuthToken = pasisSession.token || null;
+                currentPasisUser = pasisSession;
+                return 'pasis';
+            }
+            return 'guest';
+        }
+        let currentPasisUser = null;
+        let loginMode = 'pasis';
+        let userRole = getInitialUserRole();
 
         // STATE PAGINATION
         let currentPasisPage = 1;
@@ -1391,6 +2931,9 @@ function doPost(e) {
             if (formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
             return formatted;
         };
+        const normalizePhone = (nohp) => formatNoHP(nohp);
+        const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        const getDefaultPasisPinClient = (nohp) => { const digits = formatNoHP(nohp); return digits.length >= 6 ? digits.slice(-6) : digits; };
 
         const hasCustomTarget = (row) => {
             return row && row.target_khusus !== undefined && row.target_khusus !== null && String(row.target_khusus).trim() !== '';
@@ -1449,7 +2992,7 @@ function doPost(e) {
             try {
                 if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
                 const payload = { action: 'ping', sessionId: visitorSessionId, isNewVisit: isVisitorNew };
-                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth(payload)) });
                 const json = await res.json();
                 if (json.status === 'success') {
                     const cTotal = document.getElementById('counter-total');
@@ -1473,14 +3016,14 @@ function doPost(e) {
                               !document.getElementById('modal-pengeluaran').classList.contains('hidden') ||
                               !document.getElementById('modal-pindah-dana').classList.contains('hidden') ||
                               !document.getElementById('modal-cuti-refund').classList.contains('hidden') ||
-                              !document.getElementById('modal-broadcast').classList.contains('hidden');
+                              !document.getElementById('modal-broadcast').classList.contains('hidden') ||
+                              !document.getElementById('modal-share-pin').classList.contains('hidden');
             if (modalOpen) return;
+            if (userRole === 'guest') return;
 
             try {
                 if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
-                const response = await fetch(GOOGLE_SHEET_API_URL, { redirect: 'follow' });
-                const rawText = await response.text();
-                const jsonRes = JSON.parse(rawText);
+                const jsonRes = await fetchSecureDataFromBackend();
                 
                 if(jsonRes.status === 'success') {
                     // Mengurutkan data pasis berdasarkan abjad nama (A-Z)
@@ -1599,136 +3142,235 @@ function doPost(e) {
         function updateRoleUI() {
             validateAdminSession(false);
             const isAdmin = userRole === 'admin';
+            const isPasis = userRole === 'pasis';
+            const isPasisCutiMode = isPasis && isCurrentPasisCuti();
+            const isLoggedIn = isAdmin || isPasis;
+            const allowedViews = getAllowedViewsForCurrentRole();
+
+            document.body.classList.toggle('auth-locked', !isLoggedIn);
+
             document.querySelectorAll('.admin-only').forEach(el => {
-                if(isAdmin) el.classList.remove('hidden-role'); else el.classList.add('hidden-role');
+                if (isAdmin) el.classList.remove('hidden-role');
+                else el.classList.add('hidden-role');
             });
+
+            document.querySelectorAll('.auth-only').forEach(el => {
+                if (isLoggedIn) el.classList.remove('hidden-role');
+                else el.classList.add('hidden-role');
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const target = link.getAttribute('data-target');
+                const allowed = isLoggedIn && allowedViews.includes(target);
+                link.classList.toggle('hidden-role', !allowed);
+            });
+
+            const searchPasis = document.getElementById('search-pasis');
+            const filterPasis = document.getElementById('filter-status-pasis');
+            if (searchPasis) searchPasis.closest('.relative')?.classList.toggle('hidden', isPasisCutiMode);
+            if (filterPasis) filterPasis.closest('.flex')?.classList.toggle('hidden', isPasisCutiMode);
 
             const profileContainer = document.getElementById('auth-profile-container');
             if(profileContainer) {
                 if(isAdmin) {
                     const sisaMenit = getAdminRemainingMinutes();
-                    profileContainer.innerHTML = `
-                        <div onclick="window.prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group">
-                            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">${globalAdminName}</p>
-                                <p class="text-xs text-slate-500 group-hover:text-red-500 truncate">Admin aktif • sesi ±${sisaMenit} menit</p>
-                            </div>
-                            <i class="ph ph-sign-out text-slate-400 group-hover:text-red-600"></i>
-                        </div>`;
+                    profileContainer.innerHTML = `<div onclick="window.prosesLogout()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 cursor-pointer transition-all-custom btn-press group"><img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm"><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-900 group-hover:text-red-700 truncate">${globalAdminName}</p><p class="text-xs text-slate-500 group-hover:text-red-500 truncate">Admin aktif • sesi ±${sisaMenit} menit</p></div><i class="ph ph-sign-out text-slate-400 group-hover:text-red-600"></i></div>`;
+                } else if (isPasis) {
+                    const row = getCurrentPasisRow();
+                    const nama = row?.nama || currentPasisUser?.nama || 'Pasis';
+                    const label = isPasisCutiMode ? 'Pasis cuti • akses terbatas' : 'Pasis aktif • Akun Saya';
+                    profileContainer.innerHTML = `<div class="space-y-2"><div onclick="document.querySelector('[data-target=\'akun\']')?.click()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 cursor-pointer transition-all-custom btn-press group"><div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 shadow-sm"><i class="ph-fill ph-user-circle text-xl"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-900 group-hover:text-brand-700 truncate">${nama}</p><p class="text-xs text-slate-500 group-hover:text-brand-500 truncate">${label}</p></div><i class="ph ph-user-circle-gear text-slate-400 group-hover:text-brand-600"></i></div><button onclick="window.prosesLogout()" class="w-full px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 btn-press flex items-center justify-center gap-2"><i class="ph ph-sign-out"></i> Keluar</button></div>`;
                 } else {
-                    profileContainer.innerHTML = `
-                        <div onclick="window.bukaModalLogin()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 cursor-pointer transition-all-custom btn-press group">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shadow-sm"><i class="ph-fill ph-user text-xl"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 group-hover:text-brand-700 truncate">Mode Penonton</p>
-                                <p class="text-xs text-slate-500 group-hover:text-brand-500 truncate">Login ulang untuk akses admin</p>
-                            </div>
-                            <i class="ph ph-lock-key text-slate-400 group-hover:text-brand-600"></i>
-                        </div>`;
+                    profileContainer.innerHTML = `<div onclick="window.bukaModalLogin('pasis', true)" class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 cursor-pointer transition-all-custom btn-press group"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shadow-sm"><i class="ph-fill ph-user text-xl"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-900 group-hover:text-brand-700 truncate">Login Diperlukan</p><p class="text-xs text-slate-500 group-hover:text-brand-500 truncate">Masuk sebagai Pasis/Admin</p></div><i class="ph ph-lock-key text-slate-400 group-hover:text-brand-600"></i></div>`;
                 }
             }
 
-            if(!isAdmin) {
-                const settingSection = document.getElementById('view-pengaturan');
-                const pindahSection = document.getElementById('view-pindah-dana');
-                if(settingSection && !settingSection.classList.contains('hidden')) document.querySelector('[data-target="dashboard"]').click();
-                if(pindahSection && !pindahSection.classList.contains('hidden')) document.querySelector('[data-target="dashboard"]').click();
+            const activeSection = document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
+            const activeTarget = activeSection?.id ? activeSection.id.replace('view-', '') : '';
+            if (isLoggedIn && activeTarget && !allowedViews.includes(activeTarget)) {
+                const fallbackTarget = isPasisCutiMode ? 'pasis' : 'dashboard';
+                const fallbackLink = document.querySelector(`[data-target="${fallbackTarget}"]`);
+                if (fallbackLink) setTimeout(() => fallbackLink.click(), 50);
             }
+            if (!isLoggedIn) {
+                const akunSection = document.getElementById('view-akun');
+                if(akunSection && !akunSection.classList.contains('hidden')) document.querySelector('[data-target="dashboard"]')?.click();
+            }
+
+            renderAkunSaya();
             if(window.pasisDataGlobal.length > 0) renderTabelPasis(window.pasisDataGlobal);
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
             if(window.pindahDanaDataGlobal.length > 0) renderTabelPindahDana(window.pindahDanaDataGlobal);
         }
 
         function checkLockoutState() {
-            const pinInput = document.getElementById('login-pin');
-            const infoText = document.getElementById('login-info-text');
-            const btnSubmit = document.getElementById('btn-submit-login');
-
+            const pinInput = document.getElementById('login-pin'); const infoText = document.getElementById('login-info-text'); const btnSubmit = document.getElementById('btn-submit-login');
+            if (!pinInput || !infoText || !btnSubmit) return false;
             let lockoutUntil = localStorage.getItem('nexus_lockout');
-
-            if (lockoutUntil && Date.now() < parseInt(lockoutUntil)) {
-                pinInput.disabled = true; btnSubmit.disabled = true;
-                pinInput.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
-                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-
+            pinInput.disabled = false; btnSubmit.disabled = false;
+            pinInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-200'); btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            if (loginMode === 'admin' && lockoutUntil && Date.now() < parseInt(lockoutUntil)) {
                 let sisaDetik = Math.ceil((parseInt(lockoutUntil) - Date.now()) / 1000);
-                infoText.innerHTML = `<span class="text-red-500 font-semibold"><i class="ph-fill ph-warning-circle align-middle"></i> Sistem login terkunci. Coba lagi dalam <b class="text-red-600">${sisaDetik}</b> detik.</span>`;
-                return true;
+                infoText.innerHTML = `<span class="text-amber-600 font-semibold"><i class="ph-fill ph-warning-circle align-middle"></i> Perangkat ini sempat terkunci. PIN salah tetap ditolak backend selama <b class="text-amber-700">${sisaDetik}</b> detik, tetapi PIN Admin yang benar tetap bisa membuka akses.</span>`;
+                return false;
             } else {
-                localStorage.removeItem('nexus_lockout');
-                pinInput.disabled = false; btnSubmit.disabled = false;
-                pinInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-200');
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
-                infoText.innerHTML = `Sesi admin otomatis keluar setelah 15 menit tidak aktif atau 30 menit tidak membuka web.`;
+                if (loginMode !== 'admin') localStorage.removeItem('nexus_lockout');
                 return false;
             }
         }
-
-        window.bukaModalLogin = function() {
-            document.getElementById('login-pin').value = '';
-            clearInterval(lockoutTimerInterval);
-            if (checkLockoutState()) { lockoutTimerInterval = setInterval(checkLockoutState, 1000); }
-
-            const m = document.getElementById('modal-login'); 
-            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); 
-            document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
-
-            if (!document.getElementById('login-pin').disabled) { setTimeout(() => document.getElementById('login-pin').focus(), 300); }
+        window.setLoginMode = function(mode = 'pasis') {
+            loginMode = mode === 'admin' ? 'admin' : 'pasis'; const isAdminMode = loginMode === 'admin';
+            document.getElementById('login-title').textContent = isAdminMode ? 'Akses Admin' : 'Login Pasis';
+            document.getElementById('login-subtitle').textContent = isAdminMode ? 'Autentikasi keamanan bendahara.' : 'Masuk menggunakan No HP dan PIN.';
+            document.getElementById('login-nohp-container').classList.toggle('hidden', isAdminMode);
+            document.getElementById('login-pin-label').textContent = isAdminMode ? 'PIN Admin' : 'PIN Pasis';
+            document.getElementById('login-info-text').innerHTML = isAdminMode ? 'Sesi admin otomatis keluar setelah 15 menit tidak aktif atau 30 menit tidak membuka web.' : 'Masukkan No HP dan PIN pribadi. Pasis Cuti tetap bisa login, tetapi aksesnya hanya Data Pasis miliknya sendiri dan Akun Saya.';
+            document.getElementById('login-mode-pasis').className = isAdminMode ? 'py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-white/70 btn-press' : 'py-2 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm btn-press';
+            document.getElementById('login-mode-admin').className = isAdminMode ? 'py-2 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm btn-press' : 'py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-white/70 btn-press';
+            document.getElementById('login-pin').value = ''; checkLockoutState();
         };
-
-        window.closeModalLogin = function() {
-            clearInterval(lockoutTimerInterval);
-            const m = document.getElementById('modal-login'); const mc = document.getElementById('modal-login-content');
-            m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+        window.bukaModalLogin = function(mode = 'pasis', required = false) {
+            window.setLoginMode(mode); document.getElementById('login-pin').value = ''; const nohpInput = document.getElementById('login-nohp'); if (nohpInput) nohpInput.value = '';
+            clearInterval(lockoutTimerInterval); if (checkLockoutState()) { lockoutTimerInterval = setInterval(checkLockoutState, 1000); }
+            const closeBtn = document.getElementById('login-close-btn'); if (closeBtn) closeBtn.classList.toggle('hidden', required || userRole === 'guest');
+            const m = document.getElementById('modal-login'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-login-content').classList.remove('scale-95', 'opacity-0');
+            const focusTarget = loginMode === 'admin' ? document.getElementById('login-pin') : document.getElementById('login-nohp'); if (focusTarget && !focusTarget.disabled) setTimeout(() => focusTarget.focus(), 300);
         };
+        window.closeModalLogin = function() { if (userRole === 'guest') { showToast('Silakan login terlebih dahulu untuk membuka web.'); return; } closeModalLoginForce(); };
+        function closeModalLoginForce() { clearInterval(lockoutTimerInterval); const m = document.getElementById('modal-login'); const mc = document.getElementById('modal-login-content'); if (!m || !mc) return; m.classList.add('opacity-0'); mc.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); }
+        function getCurrentPasisRow() { const nohp = currentPasisUser?.nohp; if (!nohp) return null; return (window.pasisDataGlobal || []).find(row => normalizePhone(row.nohp) === normalizePhone(nohp)) || null; }
+        function isCurrentPasisCuti() {
+            if (userRole !== 'pasis') return false;
+            const row = getCurrentPasisRow();
+            const rowStatus = String(row?.status_aktif || '').toLowerCase();
+            const sessionStatus = String(currentPasisUser?.statusAktif || currentPasisUser?.status_aktif || '').toLowerCase();
+            return rowStatus === 'cuti' || sessionStatus === 'cuti' || currentPasisUser?.accessScope === 'self' || currentPasisUser?.access_scope === 'self';
+        }
+        function getAllowedViewsForCurrentRole() {
+            if (userRole === 'admin') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'pindah-dana', 'pengaturan'];
+            if (userRole === 'pasis' && isCurrentPasisCuti()) return ['pasis', 'akun'];
+            if (userRole === 'pasis') return ['dashboard', 'pasis', 'akun', 'pengeluaran'];
+            return [];
+        }
+        function isViewAllowedForCurrentRole(targetId) {
+            return getAllowedViewsForCurrentRole().includes(targetId);
+        }
+        function validatePasisSessionAgainstData(showMessage = true) {
+            if (userRole !== 'pasis') return true;
+            const row = getCurrentPasisRow();
+            if (!row) return true;
 
-        window.prosesLogin = function() {
+            const isCuti = String(row.status_aktif || '').toLowerCase() === 'cuti';
+            currentPasisUser = {
+                ...(currentPasisUser || {}),
+                role: 'pasis',
+                nohp: normalizePhone(row.nohp),
+                nama: row.nama || currentPasisUser?.nama || 'Pasis',
+                pinDiubah: row.pin_diubah || currentPasisUser?.pinDiubah || 'Belum',
+                statusAktif: isCuti ? 'Cuti' : 'Aktif',
+                accessScope: isCuti ? 'self' : 'all',
+                accessViews: isCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran']
+            };
+            localStorage.setItem(PASIS_SESSION_KEY, JSON.stringify(currentPasisUser));
+            return true;
+        }
+        window.prosesLogin = async function() {
             if (checkLockoutState()) return;
+            const pinInputEl = document.getElementById('login-pin');
+            const rawPinInput = (pinInputEl?.value || '').trim();
+            const pinInput = loginMode === 'admin' ? rawPinInput.replace(/[^0-9]/g, '') : rawPinInput;
+            if (!pinInput) { showToast('Harap masukkan PIN!'); return; }
+            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database terlebih dahulu.'); return; }
 
-            const pinInput = document.getElementById('login-pin').value;
-            if (!pinInput) { showToast('Harap masukkan PIN Admin!'); return; }
+            const btn = document.getElementById('btn-submit-login');
+            const oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Memeriksa...';
 
-            let dbPin = '123456'; 
-            if (window.pengaturanGlobal && window.pengaturanGlobal.length > 0) {
-                let p = window.pengaturanGlobal.find(x => x.key && x.key.toString().toLowerCase() === 'pin_admin');
-                if(p && p.value) dbPin = p.value.toString().trim();
-            }
-
-            if(pinInput === dbPin) {
-                localStorage.removeItem('nexus_attempts');
-                localStorage.removeItem('nexus_lockout');
-                saveAdminSession();
-                userRole = 'admin';
-                refreshAdminSessionActivity(true);
-                closeModalLogin();
-                updateRoleUI();
-                showToast('Autentikasi berhasil. Mode Admin aktif.');
-            } else {
-                let attempts = parseInt(localStorage.getItem('nexus_attempts') || '0') + 1;
-                localStorage.setItem('nexus_attempts', attempts);
-
-                if (attempts >= 3) {
-                    let lockTime = Date.now() + (3 * 60 * 1000);
-                    localStorage.setItem('nexus_lockout', lockTime);
-                    showToast('Terlalu banyak percobaan salah. Login dikunci sementara.');
-                    document.getElementById('login-pin').value = '';
-                    checkLockoutState();
-                    lockoutTimerInterval = setInterval(checkLockoutState, 1000);
-                } else {
-                    document.getElementById('login-pin').value = '';
-                    document.getElementById('login-pin').focus();
-                    showToast(`PIN salah. Sisa percobaan: ${3 - attempts}.`);
+            try {
+                if (loginMode === 'admin') {
+                    const res = await fetch(GOOGLE_SHEET_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'login_admin', data: { pin: pinInput, client_id: getAdminLoginClientId() } })
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        localStorage.removeItem('nexus_attempts');
+                        localStorage.removeItem('nexus_lockout');
+                        clearPasisSession();
+                        currentPasisUser = null;
+                        currentAuthToken = json.token || null;
+                        window.pengaturanGlobal = json.pengaturan || window.pengaturanGlobal || [];
+                        saveAdminSession(currentAuthToken);
+                        userRole = 'admin';
+                        refreshAdminSessionActivity(true);
+                        closeModalLoginForce();
+                        updateRoleUI();
+                        showToast('Autentikasi berhasil. Mode Admin aktif.');
+                        await fetchDataDariGoogleSheets();
+                        document.querySelector('[data-target="dashboard"]')?.click();
+                    } else if (json.status === 'locked' || json.code === 'ADMIN_LOCKED') {
+                        const seconds = Number(json.remaining_seconds || 600);
+                        localStorage.setItem('nexus_lockout', Date.now() + (seconds * 1000));
+                        if (pinInputEl) pinInputEl.value = '';
+                        showToast(json.message || 'Login Admin terkunci sementara karena PIN salah 3 kali.');
+                        checkLockoutState();
+                        lockoutTimerInterval = setInterval(checkLockoutState, 1000);
+                    } else {
+                        const remaining = json.remaining_attempts !== undefined ? ` Sisa percobaan: ${json.remaining_attempts}.` : '';
+                        if (pinInputEl) { pinInputEl.value = ''; pinInputEl.focus(); }
+                        showToast((json.message || 'PIN Admin salah.') + remaining);
+                    }
+                    return;
                 }
+
+                const nohp = (document.getElementById('login-nohp')?.value || '').trim();
+                if (!nohp) { showToast('Harap masukkan No HP pasis.'); return; }
+
+                const payload = { action: 'login_pasis', data: { nohp: nohp, pin: pinInput } };
+                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(withAuth(payload))
+                });
+                const json = await res.json();
+
+                if (json.status === 'success') {
+                    clearAdminSession();
+                    currentAuthToken = json.token || null;
+                    savePasisSession({ ...(json.user || { nohp, nama: 'Pasis' }), pasis_status: json.pasis_status, access_scope: json.access_scope, access_views: json.access_views }, currentAuthToken);
+                    userRole = 'pasis';
+                    closeModalLoginForce();
+                    updateRoleUI();
+                    showToast(json.message || `Selamat datang, ${currentPasisUser?.nama || 'Pasis'}!`);
+                    await fetchDataDariGoogleSheets();
+                    validatePasisSessionAgainstData(false);
+                    document.querySelector(isCurrentPasisCuti() ? '[data-target="pasis"]' : '[data-target="dashboard"]')?.click();
+                } else if (json.status === 'blocked' || json.code === 'CUTI') {
+                    showToast(json.message || 'Backend lama masih memblokir Pasis Cuti. Paste dan deploy backend terbaru.');
+                    if (pinInputEl) pinInputEl.value = '';
+                } else {
+                    showToast('Login gagal: ' + (json.message || 'No HP atau PIN salah.'));
+                    if (pinInputEl) pinInputEl.value = '';
+                }
+            } catch (e) {
+                if (loginMode === 'admin') {
+                    if (pinInputEl) { pinInputEl.value = ''; pinInputEl.focus(); }
+                    showToast('Gagal koneksi saat login Admin. Pastikan backend baru sudah dideploy.');
+                } else {
+                    showToast('Gagal login pasis: ' + (e.message || 'Pastikan backend sudah di-update.'));
+                    if (pinInputEl) pinInputEl.value = '';
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldHtml;
             }
         };
 
-        window.prosesLogout = function() {
-            userRole = 'viewer';
-            clearAdminSession();
-            updateRoleUI();
-            showToast('Anda keluar dari Mode Admin.');
-        };
+        window.prosesLogout = function() { const wasAdmin = userRole === 'admin'; userRole = 'guest'; currentPasisUser = null; clearAdminSession(); clearPasisSession(); updateRoleUI(); showToast(wasAdmin ? 'Anda keluar dari Mode Admin.' : 'Anda berhasil keluar.'); setTimeout(() => window.bukaModalLogin('pasis', true), 250); };
 
         function toggleSidebar(buka) {
             const overlay = document.getElementById('sidebarOverlay'); const sidebar = document.getElementById('sidebar');
@@ -1741,7 +3383,16 @@ function doPost(e) {
 
         function switchView(targetId, targetLink) {
             validateAdminSession(true);
+            if(userRole === 'guest') { window.bukaModalLogin('pasis', true); return; }
             if(userRole !== 'admin' && targetLink.classList.contains('admin-only')) { showToast('Akses ditolak. Silakan login Admin.'); return; }
+            if((userRole !== 'admin' && userRole !== 'pasis') && targetLink.classList.contains('auth-only')) { showToast('Silakan login terlebih dahulu.'); return; }
+            if(!isViewAllowedForCurrentRole(targetId)) {
+                showToast(isCurrentPasisCuti() ? 'Akses Pasis Cuti hanya Data Pasis dan Akun Saya.' : 'Akses halaman ini tidak tersedia.');
+                const fallback = isCurrentPasisCuti() ? 'pasis' : 'dashboard';
+                const fallbackLink = document.querySelector(`[data-target="${fallback}"]`);
+                if (fallbackLink && fallback !== targetId) fallbackLink.click();
+                return;
+            }
             
             const targetSection = document.getElementById(`view-${targetId}`);
             const currentSection = document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
@@ -1763,6 +3414,7 @@ function doPost(e) {
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
                     if (targetId === 'pindah-dana') titleText = 'Serah Terima Kas';
                     if (targetId === 'pengaturan') titleText = 'Pengaturan Sistem';
+                    if (targetId === 'akun') titleText = 'Akun Saya';
                     pageTitle.textContent = titleText; pageTitle.style.opacity = 1; pageTitle.style.transform = 'translateY(0)';
                 }, 200);
             }
@@ -1779,13 +3431,77 @@ function doPost(e) {
             if (window.innerWidth < 1024) toggleSidebar(false);
         }
 
+
+        window.prosesGantiPinPasis = async function(e) {
+            if (e) e.preventDefault();
+            if (userRole !== 'pasis') { showToast('Fitur ganti PIN hanya untuk akun pasis.'); return; }
+
+            const oldPin = (document.getElementById('akun-pin-lama')?.value || '').trim();
+            const newPin = (document.getElementById('akun-pin-baru')?.value || '').trim();
+            const confirmPin = (document.getElementById('akun-pin-konfirmasi')?.value || '').trim();
+
+            if (!oldPin || !newPin || !confirmPin) { showToast('Lengkapi PIN lama, PIN baru, dan konfirmasi.'); return; }
+            if (!/^\d{4,12}$/.test(newPin)) { showToast('PIN baru harus angka 4 sampai 12 digit.'); return; }
+            if (newPin !== confirmPin) { showToast('Konfirmasi PIN baru tidak sama.'); return; }
+            if (!currentPasisUser?.nohp) { showToast('Sesi pasis tidak terbaca. Silakan login ulang.'); window.prosesLogout(); return; }
+            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database terlebih dahulu.'); return; }
+
+            const btn = document.getElementById('submit-change-pasis-pin');
+            const oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...';
+
+            try {
+                const payload = { action: 'update_pin_pasis', data: { nohp: currentPasisUser.nohp, old_pin: oldPin, new_pin: newPin } };
+                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(withAuth(payload))
+                });
+                const json = await res.json();
+
+                if (json.status === 'success') {
+                    ['akun-pin-lama', 'akun-pin-baru', 'akun-pin-konfirmasi'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+
+                    currentPasisUser = {
+                        ...(currentPasisUser || {}),
+                        pinDiubah: 'Ya'
+                    };
+                    localStorage.setItem(PASIS_SESSION_KEY, JSON.stringify(currentPasisUser));
+
+                    const row = getCurrentPasisRow();
+                    if (row) {
+                        row.pin_diubah = 'Ya';
+                        row.last_pin_change = new Date().toLocaleString('id-ID');
+                    }
+
+                    renderAkunSaya();
+                    showToast('PIN berhasil diperbarui. Sesi tetap aktif, tidak perlu login ulang sekarang.');
+                } else if (json.status === 'blocked' || json.code === 'CUTI') {
+                    showToast(json.message || 'Akses ditolak karena status Cuti.');
+                    window.prosesLogout();
+                } else {
+                    showToast('Gagal ganti PIN: ' + (json.message || 'Tidak diketahui'));
+                }
+            } catch (e) {
+                showToast('Gagal koneksi saat mengganti PIN. Pastikan backend baru sudah dideploy.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldHtml;
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             initAdminSessionWatcher();
             validateAdminSession(false);
             updateRoleUI();
             
             pingServer(); setInterval(pingServer, 60000); 
-            setInterval(fetchDataBackground, 8000);
+            setInterval(() => { if (userRole !== 'guest') fetchDataBackground(); }, 8000);
             
             document.getElementById('openSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebarBtn')?.addEventListener('click', () => toggleSidebar(false));
@@ -1793,6 +3509,8 @@ function doPost(e) {
 
             document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); switchView(this.getAttribute('data-target'), this); }); });
             document.getElementById('login-pin')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); window.prosesLogin(); }});
+            document.getElementById('login-nohp')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('login-pin')?.focus(); }});
+            document.getElementById('submit-change-pasis-pin')?.addEventListener('click', window.prosesGantiPinPasis);
             
             // PENCARIAN & FILTER
             document.getElementById('search-pasis')?.addEventListener('input', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
@@ -1859,7 +3577,7 @@ function doPost(e) {
                         showToast(`Menyimpan ${getLabel()} ke Database...`);
                         try {
                             const payload = { action: 'update_pengaturan', data: { [settingKey]: val } };
-                            const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                            const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth(payload)) });
                             const json = await res.json();
                             if (json.status === 'success') showToast(`${getLabel()} tersimpan secara global!`);
                             else showToast(`Gagal menyimpan ${getLabel()}.`);
@@ -1951,7 +3669,7 @@ function doPost(e) {
                 const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, status_aktif: statusAktif, target_khusus: '', dibayar: formMode === 'add' ? 0 : undefined }};
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) }); const json = await res.json();
                     if (json.status === 'success') { showToast(`Tersimpan!`); closeModal(); fetchDataDariGoogleSheets(); } else showToast('Gagal: ' + json.message);
                 } catch(e) { showToast('Gagal memproses data.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
@@ -1981,7 +3699,7 @@ function doPost(e) {
 
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Memproses...'; this.disabled = true;
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) }); const json = await res.json();
                     if (json.status === 'success') { 
                         showToast(`Setoran Rp ${nominalStr} dicatat!`); 
                         closeModalBayar(); fetchDataDariGoogleSheets(); 
@@ -2004,6 +3722,15 @@ function doPost(e) {
                 const index = document.getElementById('cuti-refund-index').value;
                 const row = window.pasisDataGlobal[index];
                 if(!row) { showToast('Data pasis tidak ditemukan.'); return; }
+                if ((row.status_aktif || '').toLowerCase() !== 'cuti') {
+                    showToast('Refund hanya bisa diproses untuk pasis yang statusnya Cuti.');
+                    return;
+                }
+                const refundSudahBerhasil = getRefundNominal(row) > 0 && ((row.status_refund || '').toLowerCase().includes('berhasil') || !row.status_refund);
+                if (refundSudahBerhasil) {
+                    showToast('Refund pasis ini sudah berhasil dicatat. Tombol refund dikunci.');
+                    return;
+                }
 
                 const statusAktif = document.getElementById('cuti-refund-status').value;
                 const targetGlobalRefund = getCutiRefundTarget();
@@ -2013,6 +3740,10 @@ function doPost(e) {
                 const tanggalRefund = document.getElementById('cuti-refund-tanggal').value;
                 const catatanRefund = document.getElementById('cuti-refund-catatan').value.trim();
 
+                if (statusAktif !== 'Cuti') {
+                    showToast('Status harus Cuti untuk memproses refund.');
+                    return;
+                }
                 if (statusAktif === 'Cuti' && dibayar < targetGlobalRefund && refundNominal > 0) {
                     showToast(`Belum bisa refund. Dana masuk baru ${formatRp(dibayar)}, target cuti/refund global ${formatRp(targetGlobalRefund)}.`);
                     return;
@@ -2040,7 +3771,7 @@ function doPost(e) {
                 this.disabled = true;
 
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) });
                     const json = await res.json();
                     if(json.status === 'success') {
                         if(refundNominal > 0) {
@@ -2079,7 +3810,7 @@ function doPost(e) {
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
 
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); const json = await res.json();
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) }); const json = await res.json();
                     if(json.status === 'success') { showToast('Pengeluaran ditambahkan!'); closeModalPengeluaran(); fetchDataDariGoogleSheets(); } else showToast('Gagal.');
                 } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
@@ -2110,7 +3841,7 @@ function doPost(e) {
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
 
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) });
                     const json = await res.json();
                     if(json.status === 'success') { showToast('Serah terima kas berhasil dicatat!'); closeModalPindahDana(); fetchDataDariGoogleSheets(); } else showToast('Gagal: ' + (json.message || 'Tidak diketahui'));
                 } catch(e) { showToast('Gagal memproses serah terima kas.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
@@ -2127,13 +3858,18 @@ function doPost(e) {
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg align-middle"></i> Menyimpan...'; this.disabled = true;
 
                 try {
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth(payload)) });
                     const json = await res.json();
                     if(json.status === 'success') { showToast('Profil Sistem diperbarui!'); fetchDataDariGoogleSheets(); } else { showToast('Gagal update pengaturan.'); }
                 } catch(e) { showToast('Gagal koneksi.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
             });
 
-            fetchDataDariGoogleSheets();
+            if (userRole === 'guest') {
+                updateRoleUI();
+                setTimeout(() => window.bukaModalLogin('pasis', true), 150);
+            } else {
+                fetchDataDariGoogleSheets();
+            }
         });
 
         // --- FITUR 4: CETAK KUITANSI DIGITAL ---
@@ -2314,6 +4050,8 @@ function doPost(e) {
 
             const ds = document.getElementById('dash-saldo'); if(ds) ds.textContent = formatRp(saldoAktif);
             const dt = document.getElementById('dash-total-dana'); if(dt) dt.textContent = formatRp(totalMasuk);
+            const dpm = document.getElementById('dash-total-pengeluaran-manual'); if(dpm) dpm.textContent = formatRp(totalPengeluaranManual);
+            const dRefundMini = document.getElementById('dash-total-refund-mini'); if(dRefundMini) dRefundMini.textContent = formatRp(totalRefund);
             const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalKeluar);
             const dpt = document.getElementById('dash-total-piutang'); if(dpt) dpt.textContent = formatRp(totalPiutang);
             const drw = document.getElementById('dash-total-refund-required'); if(drw) drw.textContent = formatRp(totalRefundWajib);
@@ -2337,6 +4075,10 @@ function doPost(e) {
             const dProgressText = document.getElementById('dash-progress-text'); if(dProgressText) dProgressText.textContent = `${formatRp(totalMasuk)} terkumpul dari total target ${formatRp(totalTarget)}.`;
             const dTargetTagihan = document.getElementById('dash-target-tagihan'); if(dTargetTagihan) dTargetTagihan.textContent = formatRp(globalTargetTagihan);
             const dTargetCutiRefund = document.getElementById('dash-target-cuti-refund'); if(dTargetCutiRefund) dTargetCutiRefund.textContent = formatRp(globalTargetCutiRefund);
+            const dManualCard = document.getElementById('dash-total-pengeluaran-manual-card'); if(dManualCard) dManualCard.textContent = formatRp(totalPengeluaranManual);
+            const dTotalKeluarCard = document.getElementById('dash-total-keluar-card'); if(dTotalKeluarCard) dTotalKeluarCard.textContent = formatRp(totalKeluar);
+            const dManualNote = document.getElementById('dash-pengeluaran-manual-note'); if(dManualNote) dManualNote.textContent = `${keluarArr.length} transaksi kebutuhan pasis/operasional tercatat.`;
+            const dTotalKeluarNote = document.getElementById('dash-total-keluar-note'); if(dTotalKeluarNote) dTotalKeluarNote.textContent = `Total keluar = ${formatRp(totalPengeluaranManual)} pengeluaran kebutuhan + ${formatRp(totalRefund)} refund.`;
             const dRefundRequiredCard = document.getElementById('dash-total-refund-required-card'); if(dRefundRequiredCard) dRefundRequiredCard.textContent = formatRp(totalRefundWajib);
             const dRefundSuccessCard = document.getElementById('dash-total-refund-card'); if(dRefundSuccessCard) dRefundSuccessCard.textContent = formatRp(totalRefund);
             const dRefundRemainingCard = document.getElementById('dash-total-refund-remaining-card'); if(dRefundRemainingCard) dRefundRemainingCard.textContent = formatRp(totalSisaRefund);
@@ -2396,7 +4138,7 @@ function doPost(e) {
                 myCashflowChart = new Chart(cashCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Pemasukan', 'Pengeluaran', 'Refund', 'Saldo Aktif'],
+                        labels: ['Pemasukan', 'Kebutuhan Pasis', 'Refund', 'Saldo Aktif'],
                         datasets: [{ data: [totalMasuk, totalPengeluaranManual, totalRefund, Math.max(saldoAktif, 0)], backgroundColor: ['#10b981', '#ef4444', '#f97316', '#0f766e'], borderWidth: 0, hoverOffset: 8 }]
                     },
                     options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatRp(ctx.raw)}` } } } }
@@ -2420,7 +4162,7 @@ function doPost(e) {
                         const icon = isPindah ? 'ph-hand-coins' : (isRefund ? 'ph-check-circle' : 'ph-receipt');
                         const bg = isPindah ? 'bg-amber-50' : (isRefund ? 'bg-emerald-50' : 'bg-red-50');
                         const txt = isPindah ? 'text-amber-600' : (isRefund ? 'text-emerald-600' : 'text-red-600');
-                        const label = isPindah ? `Serah terima ke ${item.penerima || 'Ketua Kelas'}` : (isRefund ? `Refund berhasil: ${item.nama || '-'}` : item.keterangan);
+                        const label = isPindah ? `Serah terima ke ${item.penerima || 'Ketua Kelas'}` : (isRefund ? `Refund berhasil: ${item.nama || '-'}` : `Kebutuhan pasis: ${item.keterangan || '-'}`);
                         const sub = isPindah ? `${dStr} • ${item.metode || '-'}` : (isRefund ? `${dStr} • Pengembalian dana sukses` : dStr);
                         const prefix = isPindah ? 'Audit ' : '- ';
                         recentList.innerHTML += `
@@ -2438,6 +4180,13 @@ function doPost(e) {
             }
         }
 
+        function renderAkunSaya() {
+            const adminNote = document.getElementById('akun-admin-note'); const isPasis = userRole === 'pasis'; const row = getCurrentPasisRow();
+            const nama = row?.nama || currentPasisUser?.nama || (userRole === 'admin' ? globalAdminName : '-'); const nohp = row?.nohp || currentPasisUser?.nohp || '-'; const status = row?.status_aktif || (isPasis ? 'Aktif' : userRole === 'admin' ? 'Admin' : '-'); const pinStatus = row?.pin_diubah || currentPasisUser?.pinDiubah || (isPasis ? 'Belum' : '-');
+            const namaEl = document.getElementById('akun-nama'); if (namaEl) namaEl.textContent = nama; const nohpEl = document.getElementById('akun-nohp'); if (nohpEl) nohpEl.textContent = nohp; const statusEl = document.getElementById('akun-status'); if (statusEl) statusEl.textContent = status; const pinEl = document.getElementById('akun-pin-status'); if (pinEl) pinEl.textContent = pinStatus === 'Ya' ? 'Sudah diganti sendiri' : 'Masih PIN awal';
+            if (adminNote) adminNote.classList.toggle('hidden', userRole !== 'admin'); ['akun-pin-lama', 'akun-pin-baru', 'akun-pin-konfirmasi', 'submit-change-pasis-pin'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !isPasis; });
+        }
+
         // --- RENDER TABEL PASIS (PAGINATION) ---
         function renderTabelPasis(data) {
             const tableBody = document.getElementById('pasis-table-body');
@@ -2449,7 +4198,11 @@ function doPost(e) {
             const isAdmin = userRole === 'admin';
 
             // Filter data dan rekam nomor index original dari database
-            const filteredData = (data || []).map((row, index) => ({...row, originalIndex: index})).filter(row => {
+            let sourceRows = (data || []);
+            if (userRole === 'pasis' && isCurrentPasisCuti()) {
+                sourceRows = sourceRows.filter(row => normalizePhone(row.nohp) === normalizePhone(currentPasisUser?.nohp));
+            }
+            const filteredData = sourceRows.map((row, index) => ({...row, originalIndex: (data || []).indexOf(row)})).filter(row => {
                 let dibayar = parseNominal(row.dibayar);
                 let targetEfektif = getEffectiveTarget(row);
                 let isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
@@ -2526,10 +4279,19 @@ function doPost(e) {
                 
                 let actionButtons = `<button onclick="event.stopPropagation(); window.bukaModalSetoran(${row.originalIndex})" class="btn-press p-2 text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg" title="Lihat Kartu"><i class="ph-fill ph-identification-card text-lg"></i></button>`;
                 
-                // Fitur 6: Tambahan Tombol Hapus Pasis di Sini
-                if (isAdmin) { actionButtons += `
+                // Tombol Admin: Refund hanya muncul untuk pasis berstatus Cuti.
+                // Jika refund sudah berhasil dicatat, tombol tetap terlihat namun dikunci dan berwarna abu-abu.
+                if (isAdmin) {
+                    let refundButton = '';
+                    if (isCuti) {
+                        refundButton = refundBerhasil
+                            ? `<button disabled class="p-2 text-slate-400 bg-slate-100 rounded-lg ml-1 cursor-not-allowed opacity-70" title="Refund sudah berhasil dicatat"><i class="ph-fill ph-lock-key text-lg"></i></button>`
+                            : `<button onclick="event.stopPropagation(); window.bukaModalCutiRefund(${row.originalIndex})" class="btn-press p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg ml-1" title="Cuti / Refund"><i class="ph-fill ph-arrow-u-up-left text-lg"></i></button>`;
+                    }
+
+                    actionButtons += `
                     <button onclick="event.stopPropagation(); window.bukaModalBayar(${row.originalIndex})" class="btn-press p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg ml-1" title="Input Setoran"><i class="ph-fill ph-money text-lg"></i></button>
-                    <button onclick="event.stopPropagation(); window.bukaModalCutiRefund(${row.originalIndex})" class="btn-press p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg ml-1" title="Cuti / Refund"><i class="ph-fill ph-arrow-u-up-left text-lg"></i></button>
+                    ${refundButton}
                     <button onclick="event.stopPropagation(); window.bukaModalEdit(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg ml-1" title="Edit Data"><i class="ph ph-note-pencil text-lg"></i></button>
                     <button onclick="event.stopPropagation(); window.hapusPasis(${row.originalIndex})" class="btn-press p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg ml-1" title="Hapus Pasis"><i class="ph ph-trash text-lg"></i></button>
                 `; }
@@ -2656,7 +4418,7 @@ function doPost(e) {
             showToast(`Menghapus data ${row.nama}...`);
             try {
                 const payload = { action: 'delete_pasis', data: { nohp: row.nohp } };
-                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify(payload) });
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify(withAuth(payload)) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Data berhasil dihapus dari Database.'); fetchDataDariGoogleSheets(); } 
                 else showToast('Gagal menghapus.');
@@ -2710,7 +4472,7 @@ Dibagikan oleh *${globalAdminName}*.`;
             
             showToast('Menghapus data...');
             try {
-                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pengeluaran', data: { id: idStr } }) });
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify(withAuth({ action: 'delete_pengeluaran', data: { id: idStr } })) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus.');
             } catch(e) { showToast('Gagal koneksi server.'); }
@@ -2723,7 +4485,7 @@ Dibagikan oleh *${globalAdminName}*.`;
             
             showToast('Menghapus data serah terima kas...');
             try {
-                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify({ action: 'delete_pindah_dana', data: { id: idStr } }) });
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method:'POST', redirect: 'follow', body: JSON.stringify(withAuth({ action: 'delete_pindah_dana', data: { id: idStr } })) });
                 const json = await res.json();
                 if(json.status === 'success') { showToast('Riwayat serah terima kas berhasil dihapus.'); fetchDataDariGoogleSheets(); } else showToast('Gagal menghapus: ' + (json.message || 'Tidak diketahui'));
             } catch(e) { showToast('Gagal koneksi server.'); }
@@ -2767,19 +4529,198 @@ Dibagikan oleh *${globalAdminName}*.`;
             document.getElementById('modal-broadcast-content').classList.remove('scale-95', 'opacity-0');
         }
 
+
+        function isGeneratedOrCustomPin(p) {
+            const status = String(p?.pin_diubah || '').trim().toLowerCase();
+            return status && status !== 'belum' && status !== 'tidak';
+        }
+
+        function buildPinShareMessage(p) {
+            const pin = String(p.pin || getDefaultPasisPinClient(p.nohp || '') || '').trim();
+            const pinStatus = isGeneratedOrCustomPin(p) ? 'PIN login' : 'PIN awal';
+            return `Halo *${p.nama || 'Pasis'}*,
+
+Berikut akses login Anda untuk membuka web *${globalAppName}*:
+
+🔐 *Data Login Pasis*
+- No HP: *${p.nohp || '-'}*
+- ${pinStatus}: *${pin}*
+
+Silakan login ke web, lalu setelah berhasil masuk buka menu *Akun Saya* untuk mengganti PIN sendiri agar lebih aman.
+
+Catatan: PIN ini bersifat pribadi. Jangan dibagikan ke orang lain.
+
+Terima kasih,
+*${globalAdminName} - ${globalAppName}*`;
+        }
+
+        function buildPinWaLink(p) {
+            const phone = formatNoHP(p.nohp || '');
+            const msg = buildPinShareMessage(p);
+            return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        }
+
+        async function markPinShared(nohpList = []) {
+            if (!Array.isArray(nohpList)) nohpList = [nohpList];
+            nohpList = nohpList.filter(Boolean);
+            if (nohpList.length === 0 || GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+            try {
+                await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth({ action: 'mark_pin_shared', data: { nohp_list: nohpList } })) });
+            } catch (e) {}
+        }
+
+        function renderSharePinList(list = []) {
+            const listContainer = document.getElementById('share-pin-list');
+            const totalEl = document.getElementById('share-pin-total');
+            const btnAll = document.getElementById('btn-share-pin-all');
+            const btnGenerate = document.getElementById('btn-generate-share-pin');
+            if (!listContainer) return;
+
+            // Share PIN harus menampilkan Pasis Aktif dan Cuti selama memiliki No HP.
+            const shareList = (list || []).filter(p => p && p.nohp);
+            window.pinShareDataGlobal = shareList;
+            if (totalEl) totalEl.textContent = `${shareList.length} pasis Aktif/Cuti siap dikirim PIN via WhatsApp`;
+            if (btnAll) btnAll.disabled = shareList.length === 0;
+            if (btnGenerate) btnGenerate.disabled = false;
+
+            if (shareList.length === 0) {
+                listContainer.innerHTML = `<div class="py-10 flex flex-col items-center justify-center text-slate-400 opacity-80"><i class="ph-fill ph-shield-check text-4xl mb-2 text-emerald-400"></i><p class="text-sm font-semibold">Tidak ada pasis dengan No HP yang bisa dikirim PIN.</p><p class="text-xs mt-1">Pasis Aktif dan Cuti akan tampil selama memiliki No HP.</p></div>`;
+                return;
+            }
+
+            listContainer.innerHTML = shareList.map((p, index) => {
+                const pin = String(p.pin || getDefaultPasisPinClient(p.nohp || '') || '').trim();
+                const sudahKirim = (p.pin_wa_terkirim || '').toLowerCase() === 'ya';
+                const pinSudahGenerate = isGeneratedOrCustomPin(p);
+                const isCuti = String(p.status_aktif || '').toLowerCase() === 'cuti';
+                const statusClass = isCuti ? 'bg-orange-50 text-orange-700' : 'bg-brand-50 text-brand-700';
+                const statusText = isCuti ? 'Cuti' : 'Aktif';
+                const statusBadge = sudahKirim
+                    ? `<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold">Sudah dikirim${p.last_pin_share ? ` • ${escapeHTML(p.last_pin_share)}` : ''}</span>`
+                    : `<span class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-bold">Belum dikirim</span>`;
+                return `
+                    <div class="bg-white border border-slate-100 rounded-2xl p-4 mb-3 shadow-sm hover:shadow-md transition-all-custom">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="font-black text-sm text-slate-900 truncate">${escapeHTML(p.nama || '-')}</p>
+                                    <span class="px-2 py-1 rounded-lg ${statusClass} text-[10px] font-bold">${statusText}</span>
+                                    ${statusBadge}
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1"><i class="ph ph-phone"></i> ${escapeHTML(p.nohp || '-')}</p>
+                                <p class="text-[11px] text-slate-400 mt-1">${pinSudahGenerate ? `PIN sudah dibuat/diganti (${escapeHTML(p.pin_diubah || '-')})` : 'PIN awal 6 digit terakhir No HP'} • Last login: ${escapeHTML(p.last_login || '-')}</p>
+                            </div>
+                            <div class="flex items-center gap-2 sm:justify-end">
+                                <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PIN</p>
+                                    <p class="font-black text-slate-900 tracking-widest">${escapeHTML(pin)}</p>
+                                </div>
+                                <button onclick="kirimPinPasisWA(${index})" class="btn-press px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#1DA851] text-white text-xs font-bold flex items-center gap-1.5"><i class="ph-fill ph-whatsapp-logo text-base"></i> Kirim WA</button>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        window.muatDaftarSharePin = async function() {
+            if(!validateAdminSession(true)) return;
+            const listContainer = document.getElementById('share-pin-list');
+            if (listContainer) listContainer.innerHTML = `<div class="py-10 flex flex-col items-center justify-center text-slate-400"><i class="ph ph-spinner-gap animate-spin text-4xl mb-2 text-brand-500"></i><p class="text-sm font-semibold">Memuat daftar PIN pasis Aktif/Cuti...</p></div>`;
+            try {
+                const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth({ action: 'get_pin_share_list' })) });
+                const json = await res.json();
+                if (json.status === 'success') renderSharePinList(json.data || []);
+                else throw new Error(json.message || 'Gagal mengambil daftar PIN.');
+            } catch (e) {
+                // Fallback jika backend belum dideploy ulang: tampilkan PIN awal dari data publik.
+                const fallback = (window.pasisDataGlobal || []).filter(p => p && p.nohp).map(p => ({ ...p, pin: getDefaultPasisPinClient(p.nohp), pin_wa_terkirim: p.pin_wa_terkirim || 'Belum' }));
+                renderSharePinList(fallback);
+                showToast('Backend share PIN belum aktif. Fallback menampilkan PIN awal dari No HP. Deploy backend baru agar Generate PIN ikut aktif.');
+            }
+        };
+
+        window.generatePinSharePasis = async function() {
+            if(!validateAdminSession(true)) return;
+            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi dulu URL Web App Google Apps Script.'); return; }
+
+            const yakin = confirm('Generate PIN baru untuk semua Pasis Aktif dan Cuti yang memiliki No HP?\n\nPIN lama akan diganti, lalu status kirim WhatsApp kembali menjadi Belum dikirim.');
+            if (!yakin) return;
+
+            const btn = document.getElementById('btn-generate-share-pin');
+            const oldHTML = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Generate...';
+            }
+
+            try {
+                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(withAuth({ action: 'generate_share_pin' }))
+                });
+                const json = await res.json();
+                if (json.status !== 'success') throw new Error(json.message || 'Gagal generate PIN.');
+                renderSharePinList(json.data || []);
+                showToast(json.message || `${json.updated || 0} PIN pasis berhasil dibuat ulang.`);
+            } catch (e) {
+                showToast(e.message || 'Gagal generate PIN. Pastikan backend terbaru sudah dideploy ulang.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = oldHTML || '<i class="ph ph-keyhole"></i> Generate PIN';
+                }
+            }
+        };
+
+        window.bukaModalSharePin = async function() {
+            if(!validateAdminSession(true)) return;
+            const m = document.getElementById('modal-share-pin');
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0');
+            document.getElementById('modal-share-pin-content').classList.remove('scale-95', 'opacity-0');
+            await window.muatDaftarSharePin();
+        };
+
+        window.kirimPinPasisWA = async function(index) {
+            const p = (window.pinShareDataGlobal || [])[index];
+            if (!p || !p.nohp) { showToast('Data pasis tidak valid.'); return; }
+            window.open(buildPinWaLink(p), '_blank');
+            await markPinShared([p.nohp]);
+            p.pin_wa_terkirim = 'Ya';
+            p.last_pin_share = 'Baru saja';
+            renderSharePinList(window.pinShareDataGlobal);
+        };
+
+        window.kirimSemuaPinWA = async function() {
+            if(!validateAdminSession(true)) return;
+            const list = (window.pinShareDataGlobal || []).filter(p => p && p.nohp);
+            if (list.length === 0) { showToast('Tidak ada pasis Aktif/Cuti yang bisa dikirim PIN.'); return; }
+            const yakin = confirm(`Kirim PIN login ke ${list.length} pasis via WhatsApp?\n\nPasis Aktif dan Cuti akan dikirim jika ada No HP.`);
+            if (!yakin) return;
+
+            list.forEach((p, idx) => {
+                setTimeout(() => window.open(buildPinWaLink(p), '_blank'), idx * 800);
+            });
+            await markPinShared(list.map(p => p.nohp));
+            list.forEach(p => { p.pin_wa_terkirim = 'Ya'; p.last_pin_share = 'Baru saja'; });
+            renderSharePinList(list);
+            showToast(`Membuka WhatsApp untuk ${list.length} pasis Aktif/Cuti. Jika pop-up diblokir, kirim satu per satu dari daftar.`);
+        };
+
         // --- FETCH DATA API MULTI-SHEET ---
         async function fetchDataDariGoogleSheets() {
+            if (userRole === 'guest') {
+                updateRoleUI();
+                window.bukaModalLogin('pasis', true);
+                return;
+            }
             const loaders = ['table-loading-pasis', 'table-loading-pengeluaran', 'table-loading-pindah-dana'];
             loaders.forEach(id => { const el = document.getElementById(id); if(el) { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; } });
             document.querySelectorAll('tbody').forEach(el => el.style.opacity = '0.3');
             
             try {
                 if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) throw new Error('URL_BELUM_DIISI');
-                const response = await fetch(GOOGLE_SHEET_API_URL, { redirect: 'follow' });
-                const rawText = await response.text();
-                
-                let jsonRes;
-                try { jsonRes = JSON.parse(rawText); } catch(e) { throw new Error("SERVER_AKSES_DITOLAK"); }
+                const jsonRes = await fetchSecureDataFromBackend();
                 
                 if(jsonRes.status === 'success') {
                     // Mengurutkan data pasis berdasarkan abjad nama (A-Z)
@@ -2816,6 +4757,7 @@ Dibagikan oleh *${globalAdminName}*.`;
                     const sidebarName = document.getElementById('app-name-sidebar'); if(sidebarName) sidebarName.textContent = globalAppName;
                     const footerName = document.getElementById('app-name-footer'); if(footerName) footerName.textContent = globalAppName;
                     
+                    validatePasisSessionAgainstData(true);
                     updateRoleUI();
                     perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     renderTabelPasis(window.pasisDataGlobal);
@@ -2824,6 +4766,21 @@ Dibagikan oleh *${globalAdminName}*.`;
                 } else { throw new Error(jsonRes.message); }
 
             } catch (error) {
+                if (error.code === 'CUTI') {
+                    showToast(error.message || 'Akses ditolak karena status Cuti.');
+                    window.prosesLogout();
+                    return;
+                }
+                if (error.message === 'SESSION_EXPIRED' || /Sesi login/i.test(error.message || '')) {
+                    userRole = 'guest';
+                    currentPasisUser = null;
+                    clearAdminSession();
+                    clearPasisSession();
+                    updateRoleUI();
+                    setTimeout(() => window.bukaModalLogin('pasis', true), 150);
+                    showToast('Sesi login berakhir. Silakan login ulang.');
+                    return;
+                }
                 const tb = document.getElementById('pasis-table-body');
                 if (tb) {
                     if(error.message === 'URL_BELUM_DIISI') { tb.innerHTML = `<tr><td colspan="5" class="p-8 text-center bg-amber-50 text-amber-800"><b>Koneksi Database Belum Diatur.</b></td></tr>`; } 
@@ -2895,6 +4852,11 @@ Dibagikan oleh *${globalAdminName}*.`;
         window.bukaModalCutiRefund = function(index) {
             if(!validateAdminSession(true)) return;
             const row = window.pasisDataGlobal[index];
+            if(!row) { showToast('Data pasis tidak ditemukan.'); return; }
+            const isCuti = (row.status_aktif || '').toLowerCase() === 'cuti';
+            const refundSudahBerhasil = getRefundNominal(row) > 0 && ((row.status_refund || '').toLowerCase().includes('berhasil') || !row.status_refund);
+            if(!isCuti) { showToast('Tombol refund hanya tersedia untuk pasis berstatus Cuti.'); return; }
+            if(refundSudahBerhasil) { showToast('Refund pasis ini sudah berhasil dicatat. Tombol refund dikunci.'); return; }
             const dibayar = parseNominal(row.dibayar);
             const targetEfektif = getCutiRefundTarget();
             const shortage = Math.max(targetEfektif - dibayar, 0);
@@ -3042,7 +5004,17 @@ Dibagikan oleh *${globalAdminName}*.`;
         document.getElementById('modal-setoran')?.addEventListener('click', (e) => { if(e.target === document.getElementById('modal-setoran')) document.getElementById('close-setoran-btn').click(); });
 
         // PENYEMPURNAAN: Tutup modal lain saat klik area gelap (backdrop)
-        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast'];
+
+        document.getElementById('close-share-pin-btn')?.addEventListener('click', function() {
+            const m = document.getElementById('modal-share-pin');
+            const mc = document.getElementById('modal-share-pin-content');
+            if (!m || !mc) return;
+            m.classList.add('opacity-0');
+            mc.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        });
+
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast', 'modal-share-pin'];
         modalBackdrops.forEach(id => {
             const el = document.getElementById(id);
             el?.addEventListener('click', (e) => {
