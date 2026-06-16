@@ -219,10 +219,24 @@
                                 </div>
                                 <div class="metric-glass rounded-3xl p-5 dash-card">
                                     <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Dana Harus Dikembalikan</p><h3 id="dash-total-refund-required" class="text-2xl font-black mt-2">Rp 0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-red-400/15 text-red-200 flex items-center justify-center"><i class="ph-fill ph-warning-octagon text-2xl"></i></div>
+                                    </div>
+                                    <p id="dash-refund-required-count" class="text-xs text-white/60 mt-4">0 pasis memiliki kelebihan bayar.</p>
+                                </div>
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
                                         <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Refund Berhasil</p><h3 id="dash-total-refund" class="text-2xl font-black mt-2">Rp 0</h3></div>
                                         <div class="w-11 h-11 rounded-2xl bg-orange-400/15 text-orange-200 flex items-center justify-center"><i class="ph-fill ph-arrow-u-up-left text-2xl"></i></div>
                                     </div>
                                     <p id="dash-refund-count" class="text-xs text-white/60 mt-4">0 data refund tercatat.</p>
+                                </div>
+                                <div class="metric-glass rounded-3xl p-5 dash-card">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Sisa Refund</p><h3 id="dash-total-refund-remaining" class="text-2xl font-black mt-2">Rp 0</h3></div>
+                                        <div class="w-11 h-11 rounded-2xl bg-rose-400/15 text-rose-200 flex items-center justify-center"><i class="ph-fill ph-hourglass-medium text-2xl"></i></div>
+                                    </div>
+                                    <p id="dash-refund-remaining-count" class="text-xs text-white/60 mt-4">0 pasis belum selesai refund.</p>
                                 </div>
                                 <div class="metric-glass rounded-3xl p-5 dash-card">
                                     <div class="flex items-start justify-between gap-3">
@@ -252,7 +266,10 @@
                                 <p id="refund-success-text" class="text-sm text-emerald-700 mt-1">Data refund sudah masuk ke database dan akan mengurangi saldo kas aktif.</p>
                             </div>
                         </div>
-                        <button onclick="document.getElementById('refund-success-panel')?.classList.add('hidden')" class="btn-press px-4 py-2 bg-white border border-emerald-100 text-emerald-700 rounded-xl text-sm font-bold hover:bg-emerald-100">Tutup</button>
+                        <div class="flex gap-2">
+                            <button id="refund-success-wa-btn" onclick="shareLastRefundWA()" class="btn-press px-4 py-2 bg-[#25D366] text-white rounded-xl text-sm font-bold hover:bg-[#1DA851] flex items-center gap-2"><i class="ph-fill ph-whatsapp-logo text-lg"></i> Kirim WA</button>
+                            <button onclick="document.getElementById('refund-success-panel')?.classList.add('hidden')" class="btn-press px-4 py-2 bg-white border border-emerald-100 text-emerald-700 rounded-xl text-sm font-bold hover:bg-emerald-100">Tutup</button>
+                        </div>
                     </div>
                 </div>
 
@@ -285,8 +302,20 @@
                             <p class="text-xs text-slate-500 mt-1">Target aktif dan cuti/refund terkunci dari pengaturan global.</p>
                         </div>
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between bg-brand-50 border border-brand-100 p-4 rounded-2xl"><span class="text-xs font-bold text-brand-700 uppercase">Target Aktif</span><span id="dash-target-tagihan" class="font-black text-brand-900">Rp 0</span></div>
-                            <div class="flex items-center justify-between bg-orange-50 border border-orange-100 p-4 rounded-2xl"><span class="text-xs font-bold text-orange-700 uppercase">Target Cuti/Refund</span><span id="dash-target-cuti-refund" class="font-black text-orange-900">Rp 0</span></div>
+                            <div class="flex items-center justify-between bg-brand-50 border border-brand-100 p-4 rounded-2xl"><span class="text-xs font-bold text-brand-700 uppercase">Target Aktif / Pasis</span><span id="dash-target-tagihan" class="font-black text-brand-900">Rp 0</span></div>
+                            <div class="flex items-center justify-between bg-orange-50 border border-orange-100 p-4 rounded-2xl"><span class="text-xs font-bold text-orange-700 uppercase">Target Cuti / Refund per Pasis</span><span id="dash-target-cuti-refund" class="font-black text-orange-900">Rp 0</span></div>
+                            <div class="bg-red-50 border border-red-100 p-4 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-red-700 uppercase">Total Dana Harus Dikembalikan</span><span id="dash-total-refund-required-card" class="font-black text-red-900 text-right">Rp 0</span></div>
+                                <p id="dash-refund-required-note" class="text-[11px] text-red-700 mt-2 leading-relaxed">Gabungan kelebihan bayar semua pasis: total dibayar dikurangi target efektif.</p>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-emerald-700 uppercase">Total Dana Sudah Refund</span><span id="dash-total-refund-card" class="font-black text-emerald-900 text-right">Rp 0</span></div>
+                                <p id="dash-refund-target-note" class="text-[11px] text-emerald-700 mt-2 leading-relaxed">Total pengembalian dana yang sudah berhasil dicatat.</p>
+                            </div>
+                            <div class="bg-rose-50 border border-rose-100 p-4 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3"><span class="text-xs font-bold text-rose-700 uppercase">Sisa Dana Belum Refund</span><span id="dash-total-refund-remaining-card" class="font-black text-rose-900 text-right">Rp 0</span></div>
+                                <p id="dash-refund-remaining-note" class="text-[11px] text-rose-700 mt-2 leading-relaxed">Sisa dari dana yang harus dikembalikan setelah dikurangi refund berhasil.</p>
+                            </div>
                             <div id="dash-last-refund" class="bg-slate-50 border border-slate-100 p-4 rounded-2xl text-xs text-slate-500">Belum ada refund berhasil.</div>
                         </div>
                     </div>
@@ -1151,7 +1180,7 @@ function doPost(e) {
                             <span id="cuti-refund-dibayar" class="font-bold text-emerald-600">Rp 0</span>
                         </div>
                         <div>
-                            <span class="text-slate-500 block text-xs">Saran Refund</span>
+                            <span class="text-slate-500 block text-xs">Sisa Refund</span>
                             <span id="cuti-refund-saran" class="font-bold text-amber-600">Rp 0</span>
                         </div>
                     </div>
@@ -1188,6 +1217,10 @@ function doPost(e) {
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Catatan</label>
                         <textarea id="cuti-refund-catatan" rows="3" class="w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none" placeholder="Contoh: Cuti mulai bulan ini, target khusus disesuaikan."></textarea>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                        <input type="checkbox" id="cuti-refund-wa-checkbox" checked class="w-5 h-5 text-emerald-600 rounded cursor-pointer mt-0.5">
+                        <label for="cuti-refund-wa-checkbox" class="text-xs font-medium text-emerald-800 cursor-pointer flex-1 leading-relaxed">Setelah refund tersimpan, buka <b class="text-emerald-600">WhatsApp</b> untuk kirim bukti pengembalian dana ke pasis.</label>
                     </div>
                 </div>
             </div>
@@ -1273,6 +1306,7 @@ function doPost(e) {
         let globalAdminName = 'Bendahara Utama';
         let globalTargetTagihan = Number(localStorage.getItem('globalTargetNexus')) || 15000000;
         let globalTargetCutiRefund = Number(localStorage.getItem('globalTargetCutiRefundNexus')) || 0;
+        let lastRefundWAData = null;
 
         function getAdminSession() {
             try {
@@ -1378,8 +1412,19 @@ function doPost(e) {
             return parseNominal(row?.refund);
         };
 
+        // Total kewajiban refund per pasis = kelebihan bayar terhadap target efektif.
+        // Untuk pasis aktif: target efektif = Target Aktif.
+        // Untuk pasis cuti: target efektif = Target Cuti/Refund Global.
+        const getRefundWajibNominal = (row) => {
+            return Math.max(parseNominal(row?.dibayar) - getEffectiveTarget(row), 0);
+        };
+
+        const getSisaRefundNominal = (row) => {
+            return Math.max(getRefundWajibNominal(row) - getRefundNominal(row), 0);
+        };
+
         const getSaranRefund = (row) => {
-            return Math.max(parseNominal(row?.dibayar) - getEffectiveTarget(row) - getRefundNominal(row), 0);
+            return getSisaRefundNominal(row);
         };
 
         const getCutiShortage = (row) => {
@@ -1389,6 +1434,14 @@ function doPost(e) {
 
         const getTotalRefund = (dataPasis) => {
             return (dataPasis || []).reduce((sum, row) => sum + getRefundNominal(row), 0);
+        };
+
+        const getTotalRefundWajib = (dataPasis) => {
+            return (dataPasis || []).reduce((sum, row) => sum + getRefundWajibNominal(row), 0);
+        };
+
+        const getTotalSisaRefund = (dataPasis) => {
+            return (dataPasis || []).reduce((sum, row) => sum + getSisaRefundNominal(row), 0);
         };
         
         // PING SERVER FUNGSI
@@ -1992,7 +2045,11 @@ function doPost(e) {
                     if(json.status === 'success') {
                         if(refundNominal > 0) {
                             showToast(`Pengembalian dana berhasil dicatat: ${formatRp(refundNominal)}.`);
-                            showRefundSuccessPanel(row.nama, refundNominal, tanggalRefund);
+                            showRefundSuccessPanel(row, refundNominal, tanggalRefund, { target: targetGlobalRefund, catatan: catatanRefund });
+                            const kirimWARefund = document.getElementById('cuti-refund-wa-checkbox')?.checked;
+                            if (kirimWARefund) {
+                                setTimeout(() => shareLastRefundWA(), 500);
+                            }
                         } else {
                             showToast('Status cuti berhasil diperbarui.');
                         }
@@ -2143,16 +2200,53 @@ function doPost(e) {
             }, 500);
         }
 
-        function showRefundSuccessPanel(nama, nominal, tanggal) {
+        function buildRefundWAMessage(data) {
+            const nama = data?.nama || '-';
+            const nominal = data?.nominal || 0;
+            const tanggal = data?.tanggal || '-';
+            const target = data?.target || getCutiRefundTarget();
+            const dibayar = data?.dibayar || 0;
+            const catatan = data?.catatan ? `\nCatatan: ${data.catatan}` : '';
+
+            let tglText = tanggal;
+            try {
+                const d = new Date(tanggal);
+                if(!isNaN(d.getTime())) tglText = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+            } catch(e) {}
+
+            return `Halo *${nama}*,\n\nPengembalian dana/refund Anda telah berhasil dicatat.\n\n📌 *Detail Refund*\n- Nominal Refund: *${formatRp(nominal)}*\n- Tanggal Refund: *${tglText || '-'}*\n- Target Pengembalian Dana: *${formatRp(target)}*\n- Total Dana Masuk Sebelum Refund: *${formatRp(dibayar)}*${catatan}\n\nDana tersebut sudah masuk ke pencatatan kas dan saldo dashboard otomatis menyesuaikan.\n\nSalam hormat,\n*${globalAdminName} - ${globalAppName}*`;
+        }
+
+        window.shareLastRefundWA = function() {
+            if(!lastRefundWAData) { showToast('Belum ada data refund terakhir untuk dikirim.'); return; }
+            const phone = formatNoHP(lastRefundWAData.nohp || '');
+            const msg = buildRefundWAMessage(lastRefundWAData);
+            const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        };
+
+        function showRefundSuccessPanel(rowOrNama, nominal, tanggal, options = {}) {
             const panel = document.getElementById('refund-success-panel');
             const text = document.getElementById('refund-success-text');
+            const waBtn = document.getElementById('refund-success-wa-btn');
             if(!panel || !text) return;
+
+            const isObj = rowOrNama && typeof rowOrNama === 'object';
+            const nama = isObj ? rowOrNama.nama : rowOrNama;
+            const nohp = isObj ? rowOrNama.nohp : '';
+            const dibayar = isObj ? parseNominal(rowOrNama.dibayar) : 0;
+            const catatan = isObj ? (rowOrNama.catatan_refund || options.catatan || '') : (options.catatan || '');
+            const target = options.target || getCutiRefundTarget();
+
             let tglText = tanggal || '-';
             try {
                 const d = new Date(tanggal);
                 if(!isNaN(d.getTime())) tglText = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
             } catch(e) {}
+
+            lastRefundWAData = { nama, nohp, nominal, tanggal, target, dibayar, catatan };
             text.textContent = `Refund ${nama || '-'} sebesar ${formatRp(nominal)} berhasil dicatat pada ${tglText}. Saldo kas otomatis berkurang dan riwayat refund muncul di dashboard.`;
+            if(waBtn) waBtn.classList.toggle('hidden', !lastRefundWAData);
             panel.classList.remove('hidden');
             panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -2164,7 +2258,11 @@ function doPost(e) {
             let totalPiutang = 0;
             let totalLunas = 0;
             let totalRefund = 0;
+            let totalRefundWajib = 0;
+            let totalSisaRefund = 0;
             let jumlahRefund = 0;
+            let jumlahWajibRefund = 0;
+            let jumlahSisaRefund = 0;
             let totalAktif = 0;
             let totalCuti = 0;
             let totalCutiKurang = 0;
@@ -2174,13 +2272,19 @@ function doPost(e) {
                 let dibayar = parseNominal(d.dibayar);
                 let targetEfektif = getEffectiveTarget(d);
                 let refund = getRefundNominal(d);
+                let refundWajib = getRefundWajibNominal(d);
+                let sisaRefund = Math.max(refundWajib - refund, 0);
                 let sisa = Math.max(targetEfektif - dibayar, 0);
                 let isCuti = (d.status_aktif || '').toLowerCase() === 'cuti';
 
                 totalMasuk += dibayar;
                 totalTarget += targetEfektif;
                 totalRefund += refund;
+                totalRefundWajib += refundWajib;
+                totalSisaRefund += sisaRefund;
                 if (refund > 0) jumlahRefund++;
+                if (refundWajib > 0) jumlahWajibRefund++;
+                if (sisaRefund > 0) jumlahSisaRefund++;
 
                 if(isCuti) {
                     totalCuti++;
@@ -2212,11 +2316,15 @@ function doPost(e) {
             const dt = document.getElementById('dash-total-dana'); if(dt) dt.textContent = formatRp(totalMasuk);
             const dp = document.getElementById('dash-total-pengeluaran'); if(dp) dp.textContent = formatRp(totalKeluar);
             const dpt = document.getElementById('dash-total-piutang'); if(dpt) dpt.textContent = formatRp(totalPiutang);
+            const drw = document.getElementById('dash-total-refund-required'); if(drw) drw.textContent = formatRp(totalRefundWajib);
             const dr = document.getElementById('dash-total-refund'); if(dr) dr.textContent = formatRp(totalRefund);
+            const dsr = document.getElementById('dash-total-refund-remaining'); if(dsr) dsr.textContent = formatRp(totalSisaRefund);
 
             const dil = document.getElementById('dash-info-lunas'); if(dil) dil.textContent = `${totalLunas} Lunas dari ${totalAktif} Pasis Aktif`;
             const dit = document.getElementById('dash-info-trx'); if(dit) dit.textContent = `${keluarArr.length} Pengeluaran${jumlahRefund ? ` + ${jumlahRefund} Refund` : ''}`;
+            const dRefundRequiredCount = document.getElementById('dash-refund-required-count'); if(dRefundRequiredCount) dRefundRequiredCount.textContent = `${jumlahWajibRefund} pasis memiliki kelebihan bayar.`;
             const dRefundCount = document.getElementById('dash-refund-count'); if(dRefundCount) dRefundCount.textContent = `${jumlahRefund} refund berhasil tercatat.`;
+            const dRefundRemainingCount = document.getElementById('dash-refund-remaining-count'); if(dRefundRemainingCount) dRefundRemainingCount.textContent = `${jumlahSisaRefund} pasis belum selesai refund.`;
             const dActive = document.getElementById('dash-active-pasis'); if(dActive) dActive.textContent = totalAktif;
             const dCuti = document.getElementById('dash-cuti-pasis'); if(dCuti) dCuti.textContent = totalCuti;
             const dCutiKurang = document.getElementById('dash-cuti-kurang'); if(dCutiKurang) dCutiKurang.textContent = `${totalCutiKurang} cuti masih kurang target.`;
@@ -2229,6 +2337,12 @@ function doPost(e) {
             const dProgressText = document.getElementById('dash-progress-text'); if(dProgressText) dProgressText.textContent = `${formatRp(totalMasuk)} terkumpul dari total target ${formatRp(totalTarget)}.`;
             const dTargetTagihan = document.getElementById('dash-target-tagihan'); if(dTargetTagihan) dTargetTagihan.textContent = formatRp(globalTargetTagihan);
             const dTargetCutiRefund = document.getElementById('dash-target-cuti-refund'); if(dTargetCutiRefund) dTargetCutiRefund.textContent = formatRp(globalTargetCutiRefund);
+            const dRefundRequiredCard = document.getElementById('dash-total-refund-required-card'); if(dRefundRequiredCard) dRefundRequiredCard.textContent = formatRp(totalRefundWajib);
+            const dRefundSuccessCard = document.getElementById('dash-total-refund-card'); if(dRefundSuccessCard) dRefundSuccessCard.textContent = formatRp(totalRefund);
+            const dRefundRemainingCard = document.getElementById('dash-total-refund-remaining-card'); if(dRefundRemainingCard) dRefundRemainingCard.textContent = formatRp(totalSisaRefund);
+            const dRefundRequiredNote = document.getElementById('dash-refund-required-note'); if(dRefundRequiredNote) dRefundRequiredNote.textContent = `${jumlahWajibRefund} pasis memiliki kelebihan bayar dari target efektif.`;
+            const dRefundTargetNote = document.getElementById('dash-refund-target-note'); if(dRefundTargetNote) dRefundTargetNote.textContent = `${jumlahRefund} data refund berhasil dicatat.`;
+            const dRefundRemainingNote = document.getElementById('dash-refund-remaining-note'); if(dRefundRemainingNote) dRefundRemainingNote.textContent = totalSisaRefund > 0 ? `${jumlahSisaRefund} pasis masih memiliki sisa refund.` : 'Semua kewajiban refund sudah selesai dicatat.';
 
             const refundArr = pasisArr
                 .filter(item => getRefundNominal(item) > 0)
@@ -2794,6 +2908,11 @@ Dibagikan oleh *${globalAdminName}*.`;
             document.getElementById('cuti-refund-target').value = new Intl.NumberFormat('id-ID').format(targetEfektif);
             document.getElementById('cuti-refund-nominal').value = getRefundNominal(row) > 0 ? new Intl.NumberFormat('id-ID').format(getRefundNominal(row)) : (saranRefund > 0 ? new Intl.NumberFormat('id-ID').format(saranRefund) : '');
             document.getElementById('cuti-refund-catatan').value = row.catatan_refund || '';
+            const waRefundCheckbox = document.getElementById('cuti-refund-wa-checkbox');
+            if (waRefundCheckbox) {
+                waRefundCheckbox.checked = !!row.nohp;
+                waRefundCheckbox.disabled = !row.nohp;
+            }
             const infoEl = document.getElementById('cuti-refund-status-info');
             if (infoEl) {
                 if (shortage > 0) {
