@@ -860,6 +860,22 @@
             }
         }
 
+
+        /* =========================================================
+           NEXUS GALLERY
+           Google Drive-backed documentation gallery.
+           ========================================================= */
+        .gallery-card { position: relative; overflow: hidden; background: rgba(255,255,255,.96); border: 1px solid rgba(226,232,240,.9); box-shadow: 0 18px 40px -30px rgba(15,23,42,.45); transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+        .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 24px 52px -28px rgba(15,23,42,.38); border-color: rgba(34,211,238,.42); }
+        .gallery-image { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; background: #e2e8f0; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+        .gallery-card:hover .gallery-image { transform: scale(1.055); }
+        .gallery-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 38%, rgba(2,6,23,.84)); opacity: .95; pointer-events: none; }
+        .gallery-upload-drop { border: 1.5px dashed rgba(8,145,178,.42); background: linear-gradient(135deg, rgba(236,254,255,.75), rgba(239,246,255,.75)); transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+        .gallery-upload-drop.drag-over { border-color: #0891b2; background: #ecfeff; transform: scale(1.01); }
+        .gallery-preview-item { position: relative; overflow: hidden; border-radius: 1rem; border: 1px solid rgba(226,232,240,.9); background: #f8fafc; }
+        .gallery-preview-item img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        body.nexus-ultra #view-gallery .bg-white { border: 1px solid rgba(255,255,255,.72) !important; }
+
 </style>
 </head>
 <body class="nexus-ultra bg-[#F8FAFC] text-slate-800 font-sans antialiased overflow-hidden flex h-screen">
@@ -901,6 +917,9 @@
             </a>
             <a href="#" class="nav-link admin-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pindah-dana">
                 <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Serah Terima Kas
+            </a>
+            <a href="#" class="nav-link auth-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="gallery">
+                <i class="ph ph-images text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Galeri Dokumentasi
             </a>
 
             <div class="pt-6 mt-6 border-t border-slate-100"></div>
@@ -1356,6 +1375,53 @@
             </div>
 
 
+
+
+            <!-- VIEW: GALERI DOKUMENTASI -->
+            <div id="view-gallery" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3"><i class="ph-fill ph-images text-brand-600"></i> Galeri Dokumentasi</h2>
+                        <p class="text-slate-500 mt-1">Foto kegiatan tersimpan otomatis dan terstruktur di Google Drive.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                        <button type="button" id="gallery-open-drive-btn" class="admin-only hidden-role btn-press flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-700 font-medium text-sm"><i class="ph ph-folder-open text-lg"></i> Buka Drive</button>
+                        <button type="button" onclick="window.loadGallery(true)" class="btn-press flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-700 font-medium text-sm"><i class="ph ph-arrows-clockwise text-lg"></i> Refresh</button>
+                        <button type="button" onclick="window.bukaModalUploadGallery()" class="admin-only hidden-role btn-press flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-brand-950 text-white rounded-xl hover:bg-brand-900 font-bold text-sm shadow-soft"><i class="ph ph-upload-simple text-lg"></i> Upload Foto</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3 bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+                    <div class="relative group">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-600"></i>
+                        <input id="gallery-search" type="search" placeholder="Cari judul, album, kategori, atau keterangan..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                    </div>
+                    <select id="gallery-album-filter" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                        <option value="">Semua Album</option>
+                    </select>
+                    <select id="gallery-category-filter" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                        <option value="">Semua Kategori</option>
+                    </select>
+                </div>
+
+                <div id="gallery-summary" class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-50 text-brand-700 rounded-full font-semibold"><i class="ph ph-image"></i><span id="gallery-count">0</span> Foto</span>
+                    <span id="gallery-last-updated" class="text-xs text-slate-400">Belum dimuat.</span>
+                </div>
+
+                <div id="gallery-loading" class="hidden bg-white rounded-3xl border border-slate-100 p-16 text-center shadow-sm">
+                    <i class="ph ph-spinner-gap text-4xl text-brand-500 animate-spin"></i><p class="mt-3 text-sm font-semibold text-slate-600">Memuat dokumentasi...</p>
+                </div>
+                <div id="gallery-empty" class="hidden bg-white rounded-3xl border border-slate-100 p-14 text-center shadow-sm">
+                    <div class="mx-auto w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center"><i class="ph-fill ph-images text-3xl"></i></div>
+                    <h3 class="mt-4 text-lg font-black text-slate-900">Belum ada dokumentasi</h3>
+                    <p class="mt-2 text-sm text-slate-500 max-w-md mx-auto">Admin dapat mengunggah foto kegiatan. Folder Google Drive dan tab database Galeri akan disiapkan otomatis saat unggahan pertama.</p>
+                    <button type="button" onclick="window.bukaModalUploadGallery()" class="admin-only hidden-role mt-5 px-5 py-3 bg-brand-950 text-white rounded-xl font-bold btn-press"><i class="ph ph-upload-simple"></i> Upload Foto Pertama</button>
+                </div>
+                <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+            </div>
+
+
             <!-- VIEW: AKUN SAYA -->
             <div id="view-akun" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1442,12 +1508,19 @@ var DATA_PASIS_HEADERS = [
 
 var PENGELUARAN_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
 var PINDAH_DANA_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;penerima&#x27;, &#x27;metode&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
+var GALERI_HEADERS = [&#x27;id&#x27;, &#x27;judul&#x27;, &#x27;caption&#x27;, &#x27;album&#x27;, &#x27;kategori&#x27;, &#x27;tanggal&#x27;, &#x27;file_id&#x27;, &#x27;file_name&#x27;, &#x27;mime_type&#x27;, &#x27;size_bytes&#x27;, &#x27;url_view&#x27;, &#x27;url_download&#x27;, &#x27;thumbnail_url&#x27;, &#x27;folder_id&#x27;, &#x27;uploaded_by&#x27;, &#x27;uploaded_at&#x27;, &#x27;status&#x27;, &#x27;deleted_at&#x27;];
 var PENGATURAN_HEADERS = [&#x27;key&#x27;, &#x27;value&#x27;];
+
+var GALLERY_MAX_FILE_BYTES = 3 * 1024 * 1024;
+var GALLERY_MAX_UPLOAD_COUNT = 8;
+var GALLERY_ROOT_PREFIX = &#x27;Nexus Gallery&#x27;;
+var NEXUS_SPREADSHEET_ID_PROPERTY = &#x27;NEXUS_SPREADSHEET_ID&#x27;;
 
 var DEFAULT_SETTINGS = {
   target_tagihan: 15000000,
   target_cuti_refund: 0,
-  pin_admin: &#x27;123456&#x27;
+  pin_admin: &#x27;123456&#x27;,
+  gallery_folder_id: &#x27;&#x27;
 };
 
 var AUTH_SESSION_TTL_SECONDS = 6 * 60 * 60;
@@ -1514,9 +1587,49 @@ function clearAdminFailedAttempts(clientId) {
 }
 
 function getSpreadsheetSafe() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error(&quot;Koneksi ditolak. Pastikan script ditempel pada Apps Script milik Google Sheets.&quot;);
-  return ss;
+  // Web App tidak selalu memiliki &quot;active spreadsheet&quot;. Simpan ID sekali saat setup
+  // agar upload tetap dapat menulis ke Sheets dan Google Drive setelah dideploy.
+  var properties = PropertiesService.getScriptProperties();
+  var savedId = String(properties.getProperty(NEXUS_SPREADSHEET_ID_PROPERTY) || &#x27;&#x27;).trim();
+  if (savedId) {
+    try {
+      return SpreadsheetApp.openById(savedId);
+    } catch (savedSheetError) {
+      properties.deleteProperty(NEXUS_SPREADSHEET_ID_PROPERTY);
+    }
+  }
+
+  var active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) {
+    properties.setProperty(NEXUS_SPREADSHEET_ID_PROPERTY, active.getId());
+    return active;
+  }
+
+  throw new Error(&#x27;DATABASE_TIDAK_TERHUBUNG: Jalankan setupNexusGallery() sekali dari editor Apps Script yang terikat dengan Google Sheet database Anda, lalu deploy ulang Web App.&#x27;);
+}
+
+function configureNexusSpreadsheet(spreadsheetId) {
+  var id = String(spreadsheetId || &#x27;&#x27;).trim();
+  if (!id) throw new Error(&#x27;Spreadsheet ID wajib diisi.&#x27;);
+  var spreadsheet = SpreadsheetApp.openById(id);
+  PropertiesService.getScriptProperties().setProperty(NEXUS_SPREADSHEET_ID_PROPERTY, spreadsheet.getId());
+  return { status: &#x27;success&#x27;, spreadsheet_id: spreadsheet.getId(), spreadsheet_name: spreadsheet.getName() };
+}
+
+function setupNexusGallery() {
+  // Jalankan sekali dari editor Apps Script untuk meminta izin Drive dan mengikat database.
+  var spreadsheet = getSpreadsheetSafe();
+  getPengaturanSheet();
+  getGaleriSheet();
+  var root = getOrCreateGalleryRootFolder();
+  return {
+    status: &#x27;success&#x27;,
+    spreadsheet_id: spreadsheet.getId(),
+    spreadsheet_name: spreadsheet.getName(),
+    folder_id: root.getId(),
+    folder_url: root.getUrl(),
+    message: &#x27;Nexus Gallery siap digunakan.&#x27;
+  };
 }
 
 function normalizeHeader(value) {
@@ -1623,6 +1736,257 @@ function getPengeluaranSheet() {
 
 function getPindahDanaSheet() {
   return getOrCreateSheet(&quot;Pindah Dana&quot;, PINDAH_DANA_HEADERS);
+}
+
+
+function getGaleriSheet() {
+  return getOrCreateSheet(&#x27;Galeri&#x27;, GALERI_HEADERS);
+}
+
+function saveSettingValue(key, value) {
+  var sheet = getPengaturanSheet();
+  var data = sheet.getDataRange().getDisplayValues();
+  var normalizedKey = normalizeHeader(key);
+
+  for (var r = 1; r &lt; data.length; r++) {
+    if (normalizeHeader(data[r][0]) === normalizedKey) {
+      sheet.getRange(r + 1, 2).setValue(value);
+      return;
+    }
+  }
+  sheet.appendRow([key, value]);
+}
+
+function gallerySafeText(value, fallback, maxLength) {
+  var text = String(value === undefined || value === null ? &#x27;&#x27; : value)
+    .replace(/[\r\n]+/g, &#x27; &#x27;)
+    .replace(/[^a-zA-Z0-9À-ÿ _.,()&amp;+\-]/g, &#x27;&#x27;)
+    .trim();
+  if (!text) text = fallback || &#x27;&#x27;;
+  return text.substring(0, maxLength || 120);
+}
+
+function getGalleryMonthKey(dateValue) {
+  var value = String(dateValue || &#x27;&#x27;).trim();
+  if (/^\d{4}-\d{2}/.test(value)) return value.substring(0, 7);
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM&#x27;);
+}
+
+function getOrCreateChildFolder(parentFolder, folderName) {
+  var folders = parentFolder.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  return parentFolder.createFolder(folderName);
+}
+
+function getOrCreateGalleryRootFolder() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(25000);
+  try {
+    var savedFolderId = String(getSettingValue(&#x27;gallery_folder_id&#x27;, &#x27;&#x27;) || &#x27;&#x27;).trim();
+    if (savedFolderId) {
+      try {
+        return DriveApp.getFolderById(savedFolderId);
+      } catch (err) {
+        // Folder lama mungkin dipindahkan/dihapus. Sistem akan membuat folder baru.
+      }
+    }
+
+    var sheetName = gallerySafeText(getSpreadsheetSafe().getName(), &#x27;Database&#x27;, 70);
+    var rootName = GALLERY_ROOT_PREFIX + &#x27; - &#x27; + sheetName;
+    var roots = DriveApp.getFoldersByName(rootName);
+    var root = roots.hasNext() ? roots.next() : DriveApp.createFolder(rootName);
+    saveSettingValue(&#x27;gallery_folder_id&#x27;, root.getId());
+    return root;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getOrCreateGalleryAlbumFolder(album, dateValue) {
+  var root = getOrCreateGalleryRootFolder();
+  var monthFolder = getOrCreateChildFolder(root, getGalleryMonthKey(dateValue));
+  var albumName = gallerySafeText(album, &#x27;Dokumentasi&#x27;, 70);
+  return getOrCreateChildFolder(monthFolder, albumName);
+}
+
+function parseGalleryImageData(dataUrl) {
+  var raw = String(dataUrl || &#x27;&#x27;);
+  var match = raw.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i);
+  if (!match) throw new Error(&#x27;Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.&#x27;);
+
+  var mimeType = match[1].toLowerCase().replace(&#x27;image/jpg&#x27;, &#x27;image/jpeg&#x27;);
+  var bytes = Utilities.base64Decode(match[2].replace(/\s/g, &#x27;&#x27;));
+  if (!bytes || bytes.length === 0) throw new Error(&#x27;Data foto kosong.&#x27;);
+  if (bytes.length &gt; GALLERY_MAX_FILE_BYTES) throw new Error(&#x27;Ukuran satu foto maksimal 4 MB setelah dikompresi.&#x27;);
+
+  return { mime_type: mimeType, bytes: bytes };
+}
+
+function getGalleryExtension(mimeType) {
+  if (mimeType === &#x27;image/png&#x27;) return &#x27;png&#x27;;
+  if (mimeType === &#x27;image/webp&#x27;) return &#x27;webp&#x27;;
+  return &#x27;jpg&#x27;;
+}
+
+function makeGalleryFileName(title, index, mimeType) {
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyyMMdd_HHmmss&#x27;);
+  var safeTitle = gallerySafeText(title, &#x27;foto&#x27;, 50).replace(/\s+/g, &#x27;-&#x27;).toLowerCase();
+  return stamp + &#x27;_&#x27; + safeTitle + &#x27;_&#x27; + (index + 1) + &#x27;.&#x27; + getGalleryExtension(mimeType);
+}
+
+function makeGalleryPublicLinks(fileId) {
+  return {
+    url_view: &#x27;https://drive.google.com/file/d/&#x27; + fileId + &#x27;/view&#x27;,
+    url_download: &#x27;https://drive.google.com/uc?export=download&amp;id=&#x27; + fileId,
+    thumbnail_url: &#x27;https://drive.google.com/thumbnail?id=&#x27; + fileId + &#x27;&amp;sz=w1600&#x27;
+  };
+}
+
+function createGalleryFiles(session, data) {
+  var input = data || {};
+  var images = input.images || [];
+  if (!Array.isArray(images) || images.length === 0) throw new Error(&#x27;Pilih minimal satu foto untuk diunggah.&#x27;);
+  if (images.length &gt; GALLERY_MAX_UPLOAD_COUNT) throw new Error(&#x27;Maksimal &#x27; + GALLERY_MAX_UPLOAD_COUNT + &#x27; foto per unggahan.&#x27;);
+
+  var title = gallerySafeText(input.judul, &#x27;Dokumentasi Kegiatan&#x27;, 100);
+  var caption = String(input.caption || &#x27;&#x27;).replace(/[\r\n]+/g, &#x27; &#x27;).trim().substring(0, 500);
+  var album = gallerySafeText(input.album, &#x27;Dokumentasi&#x27;, 70);
+  var category = gallerySafeText(input.kategori, &#x27;Kegiatan&#x27;, 40);
+  var dateValue = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM-dd&#x27;)).substring(0, 10);
+  var folder = getOrCreateGalleryAlbumFolder(album, dateValue);
+  var gallerySheet = getGaleriSheet();
+  var created = [];
+  var sharingWarning = false;
+
+  images.forEach(function(image, index) {
+    var file = null;
+    try {
+      var parsed = parseGalleryImageData(image &amp;&amp; image.data_url);
+      var fileName = makeGalleryFileName(title, index, parsed.mime_type);
+      var blob = Utilities.newBlob(parsed.bytes, parsed.mime_type, fileName);
+      file = folder.createFile(blob);
+      file.setDescription(&#x27;Nexus Gallery | &#x27; + title + &#x27; | &#x27; + album + &#x27; | &#x27; + nowString());
+
+      try {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch (sharingError) {
+        // Beberapa Google Workspace menonaktifkan sharing publik. File tetap tersimpan;
+        // admin dapat mengatur sharing Drive secara manual bila preview tidak muncul.
+        sharingWarning = true;
+      }
+
+      var links = makeGalleryPublicLinks(file.getId());
+      var row = {
+        id: Utilities.getUuid(),
+        judul: images.length &gt; 1 ? title + &#x27; (&#x27; + (index + 1) + &#x27;)&#x27; : title,
+        caption: caption,
+        album: album,
+        kategori: category,
+        tanggal: dateValue,
+        file_id: file.getId(),
+        file_name: file.getName(),
+        mime_type: parsed.mime_type,
+        size_bytes: file.getSize(),
+        url_view: links.url_view,
+        url_download: links.url_download,
+        thumbnail_url: links.thumbnail_url,
+        folder_id: folder.getId(),
+        uploaded_by: session.nama || &#x27;Admin&#x27;,
+        uploaded_at: nowString(),
+        status: &#x27;Aktif&#x27;,
+        deleted_at: &#x27;&#x27;
+      };
+
+      appendByHeaders(gallerySheet, row);
+      created.push(row);
+    } catch (uploadError) {
+      // Hindari file Drive tanpa baris metadata apabila transaksi gagal di tengah proses.
+      if (file) {
+        try { file.setTrashed(true); } catch (cleanupError) {}
+      }
+      throw uploadError;
+    }
+  });
+
+  return {
+    status: &#x27;success&#x27;,
+    data: created,
+    folder_url: folder.getUrl(),
+    sharing_warning: sharingWarning,
+    message: created.length + &#x27; foto berhasil tersimpan di Google Drive.&#x27;
+  };
+}
+
+function ensureGalleryAccess(session) {
+  if (!session || !session.role) throw new Error(&#x27;Sesi login tidak valid.&#x27;);
+  if (session.role === &#x27;admin&#x27;) return;
+  if (session.role !== &#x27;pasis&#x27;) throw new Error(&#x27;Akses Galeri tidak tersedia.&#x27;);
+
+  var found = findPasisRowByPhone(getDataPasisSheet(), session.nohp);
+  if (!found.row || isPasisCuti(found.row)) {
+    throw new Error(&#x27;Akses Galeri tidak tersedia untuk Pasis berstatus Cuti.&#x27;);
+  }
+}
+
+function getGalleryListForSession(session, data) {
+  var query = String(data &amp;&amp; data.query || &#x27;&#x27;).trim().toLowerCase();
+  var album = String(data &amp;&amp; data.album || &#x27;&#x27;).trim().toLowerCase();
+  var category = String(data &amp;&amp; data.kategori || &#x27;&#x27;).trim().toLowerCase();
+  var limit = Math.min(Math.max(parseInt(data &amp;&amp; data.limit || 200, 10) || 200, 1), 500);
+
+  var rows = sheetToJSON(getGaleriSheet()).filter(function(row) {
+    if (normalizeHeader(row.status) === &#x27;dihapus&#x27;) return false;
+    var haystack = [row.judul, row.caption, row.album, row.kategori, row.tanggal].join(&#x27; &#x27;).toLowerCase();
+    if (query &amp;&amp; haystack.indexOf(query) === -1) return false;
+    if (album &amp;&amp; String(row.album || &#x27;&#x27;).toLowerCase() !== album) return false;
+    if (category &amp;&amp; String(row.kategori || &#x27;&#x27;).toLowerCase() !== category) return false;
+    return true;
+  }).sort(function(a, b) {
+    return String(b.tanggal || b.uploaded_at || &#x27;&#x27;).localeCompare(String(a.tanggal || a.uploaded_at || &#x27;&#x27;));
+  }).slice(0, limit).map(function(row) {
+    var links = makeGalleryPublicLinks(row.file_id);
+    return {
+      id: row.id,
+      judul: row.judul || &#x27;Dokumentasi&#x27;,
+      caption: row.caption || &#x27;&#x27;,
+      album: row.album || &#x27;Dokumentasi&#x27;,
+      kategori: row.kategori || &#x27;Kegiatan&#x27;,
+      tanggal: row.tanggal || &#x27;&#x27;,
+      file_id: row.file_id || &#x27;&#x27;,
+      thumbnail_url: row.thumbnail_url || links.thumbnail_url,
+      url_view: row.url_view || links.url_view,
+      url_download: row.url_download || links.url_download,
+      uploaded_by: row.uploaded_by || &#x27;&#x27;,
+      uploaded_at: row.uploaded_at || &#x27;&#x27;
+    };
+  });
+
+  var folderId = String(getSettingValue(&#x27;gallery_folder_id&#x27;, &#x27;&#x27;) || &#x27;&#x27;).trim();
+  var rootUrl = &#x27;&#x27;;
+  if (folderId) {
+    try { rootUrl = DriveApp.getFolderById(folderId).getUrl(); } catch (err) {}
+  }
+
+  return { status: &#x27;success&#x27;, data: rows, root_folder_url: rootUrl };
+}
+
+function deleteGalleryItem(data) {
+  var itemId = String(data &amp;&amp; data.id || &#x27;&#x27;).trim();
+  if (!itemId) throw new Error(&#x27;ID foto tidak tersedia.&#x27;);
+
+  var sheet = getGaleriSheet();
+  var rowIndex = findRowByHeaderValue(sheet, &#x27;id&#x27;, itemId);
+  if (rowIndex === -1) throw new Error(&#x27;Foto galeri tidak ditemukan.&#x27;);
+
+  var headers = getHeaderInfo(sheet).headers;
+  var values = sheet.getRange(rowIndex, 1, 1, headers.length).getDisplayValues()[0];
+  var row = rowToObjectFromValues(headers, values);
+  if (row.file_id) {
+    try { DriveApp.getFileById(row.file_id).setTrashed(true); } catch (err) {}
+  }
+
+  writeByHeaders(sheet, rowIndex, { status: &#x27;Dihapus&#x27;, deleted_at: nowString() });
+  return { status: &#x27;success&#x27;, message: &#x27;Foto dihapus dari Galeri dan dipindahkan ke Sampah Drive.&#x27; };
 }
 
 function getPengaturanSheet() {
@@ -1960,8 +2324,8 @@ function getSecureDataForSession(session) {
   result.pindah_dana = sheetToJSON(getPindahDanaSheet());
   result.pengaturan = sheetToJSON(getPengaturanSheet());
   result.access_views = session.role === &#x27;admin&#x27;
-    ? [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;pindah-dana&#x27;, &#x27;pengaturan&#x27;]
-    : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;];
+    ? [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;pindah-dana&#x27;, &#x27;gallery&#x27;, &#x27;pengaturan&#x27;]
+    : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;];
 
   if (session.role === &#x27;pasis&#x27;) {
     var targetPhone = normalizePhoneForLogin(session.nohp);
@@ -1984,7 +2348,7 @@ function getSecureDataForSession(session) {
       result.pindah_dana = [];
       result.access_views = [&#x27;pasis&#x27;, &#x27;akun&#x27;];
     } else {
-      result.access_views = [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;];
+      result.access_views = [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;];
     }
   }
 
@@ -2008,6 +2372,28 @@ function doPost(e) {
       var authSession = requireAuthSession(payload);
       var secureResult = getSecureDataForSession(authSession);
       return makeOutput(secureResult);
+    }
+
+    // --- GALERI GOOGLE DRIVE ---
+    if (payload.action === &#x27;initialize_gallery&#x27;) {
+      requireAdminSession(payload);
+      return makeOutput(setupNexusGallery());
+    }
+
+    if (payload.action === &#x27;list_gallery&#x27;) {
+      var gallerySession = requireAuthSession(payload);
+      ensureGalleryAccess(gallerySession);
+      return makeOutput(getGalleryListForSession(gallerySession, payload.data || {}));
+    }
+
+    if (payload.action === &#x27;upload_gallery&#x27;) {
+      var galleryAdminSession = requireAdminSession(payload);
+      return makeOutput(createGalleryFiles(galleryAdminSession, payload.data || {}));
+    }
+
+    if (payload.action === &#x27;delete_gallery&#x27;) {
+      requireAdminSession(payload);
+      return makeOutput(deleteGalleryItem(payload.data || {}));
     }
 
     // --- LOGIN ADMIN CEPAT + PROTEKSI 3x SALAH PER PERANGKAT/BROWSER ---
@@ -2075,7 +2461,7 @@ function doPost(e) {
         user: sanitizePasisForClient(foundLogin.row),
         pasis_status: loginIsCuti ? &#x27;cuti&#x27; : &#x27;aktif&#x27;,
         access_scope: loginIsCuti ? &#x27;self&#x27; : &#x27;all&#x27;,
-        access_views: loginIsCuti ? [&#x27;pasis&#x27;, &#x27;akun&#x27;] : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;],
+        access_views: loginIsCuti ? [&#x27;pasis&#x27;, &#x27;akun&#x27;] : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;],
         default_pin_hint: !foundLogin.row.pin_login ? &#x27;PIN awal adalah 6 digit terakhir No HP.&#x27; : &#x27;&#x27;,
         message: loginIsCuti ? &#x27;Login berhasil. Status Cuti: akses hanya Data Pasis milik Anda dan Akun Saya.&#x27; : &#x27;Login berhasil.&#x27;
       });
@@ -2287,7 +2673,9 @@ function doPost(e) {
 
     throw new Error(&quot;Action tidak valid: &quot; + payload.action);
   } catch (err) {
-    return makeOutput({ status: &#x27;error&#x27;, message: err.toString() });
+    var message = err &amp;&amp; err.message ? err.message : String(err || &#x27;Kesalahan tidak diketahui.&#x27;);
+    console.error(&#x27;Nexus API error: &#x27; + message + &#x27;\n&#x27; + (err &amp;&amp; err.stack ? err.stack : &#x27;&#x27;));
+    return makeOutput({ status: &#x27;error&#x27;, message: message });
   }
 }</code></pre>
                         </div>
@@ -2312,6 +2700,12 @@ function doPost(e) {
                             </div>
                         </div>
 
+                        <!-- Koneksi Database -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                            <div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-lg text-slate-900 flex items-center gap-2"><i class="ph-fill ph-plugs-connected text-brand-500 text-xl"></i> Koneksi Database</h3><p class="mt-1 text-xs text-slate-500">URL Web App tersimpan lokal pada browser, bukan di file HTML.</p></div><span id="nexus-api-settings-status" class="text-xs font-bold text-amber-700 whitespace-nowrap">Belum dikonfigurasi</span></div>
+                            <button type="button" onclick="window.bukaModalApiConnection()" class="w-full py-3 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl font-bold transition-all-custom btn-press flex justify-center items-center gap-2"><i class="ph ph-gear-six"></i> Atur / Uji Koneksi</button>
+                        </div>
+
                         <!-- Struktur Database -->
                         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-5 text-sm text-slate-600">
                             <h3 class="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2"><i class="ph-fill ph-info text-brand-500 text-xl"></i> Struktur Database</h3>
@@ -2333,7 +2727,7 @@ function doPost(e) {
                             <div class="relative pl-8">
                                 <div class="absolute left-0 top-0.5 w-6 h-6 rounded-full bg-brand-50 border-2 border-white flex items-center justify-center text-xs font-bold text-brand-600 z-10">4</div>
                                 <p class="font-semibold text-slate-900">Sheet: Pengaturan</p>
-                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. Key penting: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_tagihan</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_cuti_refund</code>, dan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">total_views</code>.</p>
+                                <p>Kolom A & B: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">key, value</code>. Key penting: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_tagihan</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">target_cuti_refund</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">total_views</code>, dan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] text-slate-700 font-mono">gallery_folder_id</code> (dibuat otomatis).</p>
                             </div>
                         </div>
                     </div>
@@ -2348,6 +2742,36 @@ function doPost(e) {
     <div id="global-toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 transition-all duration-400 cubic-bezier(0.34, 1.56, 0.64, 1) z-[100] bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 pointer-events-none">
         <div class="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400"><i class="ph-fill ph-info text-lg"></i></div>
         <span id="toast-message" class="text-sm font-medium pr-2">Pesan Toast</span>
+    </div>
+
+    <!-- NEXUS DIALOG: KONFIRMASI & INPUT TANPA DIALOG BAWAAN BROWSER -->
+    <div id="modal-nexus-dialog" class="fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[110] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="nexus-dialog-title">
+        <div id="modal-nexus-dialog-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100">
+            <div class="px-6 pt-6 flex items-start justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div id="nexus-dialog-icon-wrap" class="w-11 h-11 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
+                        <i id="nexus-dialog-icon" class="ph-fill ph-question text-xl"></i>
+                    </div>
+                    <div>
+                        <p id="nexus-dialog-eyebrow" class="text-[11px] font-black uppercase tracking-[.16em] text-brand-600">Konfirmasi Tindakan</p>
+                        <h3 id="nexus-dialog-title" class="mt-1 text-lg font-black text-slate-900 leading-snug">Lanjutkan tindakan?</h3>
+                    </div>
+                </div>
+                <button id="nexus-dialog-close-btn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press" aria-label="Tutup"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="px-6 pt-4 pb-6">
+                <p id="nexus-dialog-message" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p>
+                <div id="nexus-dialog-input-wrap" class="hidden mt-5">
+                    <label id="nexus-dialog-input-label" for="nexus-dialog-input" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Konfirmasi</label>
+                    <input id="nexus-dialog-input" type="text" autocomplete="off" spellcheck="false" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold uppercase tracking-[.14em] focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" placeholder="">
+                    <p id="nexus-dialog-input-error" class="hidden mt-2 text-xs font-bold text-red-600" role="alert"></p>
+                </div>
+            </div>
+            <div class="px-6 py-5 border-t border-slate-100 bg-slate-50/60 flex gap-3">
+                <button id="nexus-dialog-cancel-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button id="nexus-dialog-confirm-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press">Lanjutkan</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL LOGIN AKUN -->
@@ -2367,11 +2791,71 @@ function doPost(e) {
                 </div>
                 <div id="login-nohp-container"><label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">No HP Pasis</label><input type="text" id="login-nohp" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="Contoh: 081234567890" inputmode="tel"></div>
                 <div><label id="login-pin-label" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">PIN Pasis</label><input type="password" id="login-pin" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-[0.35em] text-2xl font-bold text-slate-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all-custom" placeholder="••••••" maxlength="12" inputmode="numeric"></div>
-                <p id="login-info-text" class="text-center text-xs text-slate-400 transition-all-custom">Masukkan No HP dan PIN pribadi. Pasis Cuti tetap bisa login, tetapi aksesnya hanya Data Pasis miliknya sendiri dan Akun Saya.</p>
+                <p id="login-info-text" class="hidden text-center text-xs text-slate-400 transition-all-custom"></p>
             </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50/50"><button type="button" id="btn-submit-login" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2 transition-all-custom"><i class="ph ph-sign-in text-lg"></i> Masuk</button></div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3"><button type="button" id="btn-submit-login" onclick="prosesLogin()" class="w-full px-4 py-3 rounded-xl font-medium text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press flex items-center justify-center gap-2 transition-all-custom"><i class="ph ph-sign-in text-lg"></i> Masuk</button><button type="button" onclick="window.bukaModalApiConnection()" class="w-full text-xs font-bold text-brand-700 hover:text-brand-900 flex items-center justify-center gap-1.5"><i class="ph ph-plugs-connected"></i> Atur koneksi database</button></div>
         </div>
     </div>
+
+
+
+
+    <!-- MODAL KONEKSI DATABASE -->
+    <div id="modal-api-connection" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[82] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-api-connection-content" class="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i class="ph-fill ph-plugs-connected text-xl"></i></div><div><h3 class="font-black text-slate-900">Koneksi Database</h3><p class="text-xs text-slate-500">URL tidak disimpan di source code.</p></div></div>
+                <button type="button" id="close-api-connection-btn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">URL Web App Google Apps Script</label><input id="nexus-api-url-input" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4"><p id="nexus-api-status" class="text-xs font-bold text-amber-700">Belum dikonfigurasi</p><p class="mt-1 text-xs text-slate-500 leading-relaxed">URL hanya disimpan pada browser/perangkat ini. Pastikan memakai URL deployment yang berakhir dengan <b>/exec</b>.</p></div>
+                <div class="rounded-2xl bg-brand-50 border border-brand-100 p-4 text-xs text-brand-900 leading-relaxed"><b>Wajib:</b> setelah memasang backend baru, jalankan <code class="px-1 py-0.5 bg-white rounded">setupNexusGallery</code> sekali dari editor Apps Script untuk memberi izin Google Drive dan membuat folder awal.</div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/60 grid grid-cols-1 sm:grid-cols-3 gap-2"><button type="button" id="clear-nexus-api-url-btn" class="px-3 py-3 rounded-xl font-bold text-red-600 bg-white border border-slate-200 hover:bg-red-50 btn-press text-sm">Hapus</button><button type="button" id="test-nexus-api-url-btn" class="px-3 py-3 rounded-xl font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 btn-press text-sm">Uji Koneksi</button><button type="button" id="save-nexus-api-url-btn" class="px-3 py-3 rounded-xl font-bold text-white bg-brand-950 hover:bg-brand-900 btn-press text-sm">Simpan</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL UPLOAD GALERI -->
+    <div id="modal-gallery-upload" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[77] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-gallery-upload-content" class="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/60">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i class="ph-fill ph-upload-simple text-xl"></i></div><div><h3 class="font-black text-slate-900">Upload Dokumentasi</h3><p class="text-xs text-slate-500">Foto dikompresi cerdas lalu disimpan ke Google Drive.</p></div></div>
+                <button id="close-gallery-upload-btn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-5">
+                <div id="gallery-upload-drop" class="gallery-upload-drop rounded-2xl p-7 text-center cursor-pointer">
+                    <input id="gallery-upload-files" type="file" accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+                    <div class="mx-auto w-12 h-12 rounded-2xl bg-white text-brand-600 shadow-sm flex items-center justify-center"><i class="ph ph-images text-2xl"></i></div>
+                    <p class="mt-3 text-sm font-bold text-slate-800">Pilih atau tarik foto ke sini</p>
+                    <p class="mt-1 text-xs text-slate-500">JPG, PNG, atau WEBP • maksimal 8 foto • otomatis dioptimalkan untuk web</p>
+                </div>
+                <div id="gallery-upload-preview" class="hidden grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Judul Dokumentasi</label><input id="gallery-upload-title" type="text" maxlength="100" placeholder="Contoh: Bakti sosial Juli 2026" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Album</label><input id="gallery-upload-album" type="text" maxlength="70" placeholder="Contoh: Bakti Sosial" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Kategori</label><select id="gallery-upload-category" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"><option>Kegiatan</option><option>Rapat</option><option>Prestasi</option><option>Keuangan</option><option>Lainnya</option></select></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Tanggal Kegiatan</label><input id="gallery-upload-date" type="date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></div>
+                </div>
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Keterangan <span class="normal-case font-medium text-slate-400">(opsional)</span></label><textarea id="gallery-upload-caption" rows="3" maxlength="500" placeholder="Tambahkan konteks singkat untuk dokumentasi ini..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></textarea></div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 flex gap-3"><i class="ph-fill ph-info text-brand-600 text-lg mt-0.5"></i><p class="text-xs text-slate-600 leading-relaxed">Struktur penyimpanan dibuat otomatis: <b>Nexus Gallery → Bulan Kegiatan → Album</b>. Metadata foto juga masuk ke tab <b>Galeri</b> pada Google Sheets.</p></div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex gap-3">
+                <button id="cancel-gallery-upload-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button id="submit-gallery-upload-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press"><i class="ph ph-cloud-arrow-up text-lg align-middle"></i> Upload ke Drive</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW GALERI -->
+    <div id="modal-gallery-lightbox" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[78] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-gallery-lightbox-content" class="w-full max-w-5xl max-h-[92vh] transform scale-95 opacity-0 transition-all duration-300 flex flex-col items-center">
+            <div class="w-full flex justify-end mb-3"><button id="close-gallery-lightbox-btn" type="button" class="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center btn-press"><i class="ph ph-x text-xl"></i></button></div>
+            <img id="gallery-lightbox-image" src="" alt="Preview dokumentasi" class="max-w-full max-h-[68vh] rounded-2xl shadow-2xl object-contain bg-slate-900">
+            <div class="w-full max-w-3xl mt-4 px-1 flex flex-col sm:flex-row gap-3 sm:items-end sm:justify-between text-white"><div><p id="gallery-lightbox-album" class="text-xs font-bold text-cyan-200 uppercase tracking-[.16em]"></p><h3 id="gallery-lightbox-title" class="mt-1 text-xl font-black"></h3><p id="gallery-lightbox-caption" class="mt-1 text-sm text-slate-300"></p></div><a id="gallery-lightbox-open" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-cyan-50 font-bold text-sm btn-press"><i class="ph ph-arrow-square-out"></i> Buka di Drive</a></div>
+        </div>
+    </div>
+
 
     <!-- MODAL FORM PENGELUARAN -->
     <div id="modal-pengeluaran" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[65] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
@@ -2718,8 +3202,117 @@ function doPost(e) {
 
     <!-- SCRIPT UTAMA KESELURUHAN -->
     <script>
-        const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec'; 
+        // URL Web App Google Apps Script ditanam di aplikasi agar seluruh pengguna langsung terhubung.
+        const NEXUS_API_URL_STORAGE_KEY = 'nexus_google_apps_script_url_v1';
+        const NEXUS_API_URL_PLACEHOLDER = 'https://script.google.com/macros/s/AKfycbzRVMaV8HvQyUXhmotzLERcXDB-DJ1ukn7PJsIw8PMWureql4_b9YmLfXDAd2nWC6CbFA/exec';
+        let GOOGLE_SHEET_API_URL = NEXUS_API_URL_PLACEHOLDER;
+
+        function getStoredNexusApiUrl() {
+            try { return String(localStorage.getItem(NEXUS_API_URL_STORAGE_KEY) || '').trim(); } catch (error) { return ''; }
+        }
+
+        function isValidNexusWebAppUrl(value) {
+            return /^https:\/\/script\.google\.com\/macros\/s\/[-_A-Za-z0-9]+\/exec(?:[?#].*)?$/i.test(String(value || '').trim());
+        }
+
+        function isNexusApiConfigured() {
+            return isValidNexusWebAppUrl(GOOGLE_SHEET_API_URL);
+        }
+
+        function setNexusApiUrl(value) {
+            const url = String(value || '').trim();
+            if (!isValidNexusWebAppUrl(url)) throw new Error('Masukkan URL deployment Google Apps Script yang diakhiri dengan /exec.');
+            GOOGLE_SHEET_API_URL = url;
+            try { localStorage.setItem(NEXUS_API_URL_STORAGE_KEY, url); } catch (error) {}
+            updateNexusApiConnectionUI();
+            return url;
+        }
+
+        function clearNexusApiUrl() {
+            GOOGLE_SHEET_API_URL = NEXUS_API_URL_PLACEHOLDER;
+            try { localStorage.removeItem(NEXUS_API_URL_STORAGE_KEY); } catch (error) {}
+            updateNexusApiConnectionUI();
+        }
+
+        function updateNexusApiConnectionUI() {
+            const input = document.getElementById('nexus-api-url-input');
+            const status = document.getElementById('nexus-api-status');
+            const settingsStatus = document.getElementById('nexus-api-settings-status');
+            const configured = isNexusApiConfigured();
+            if (input) input.value = configured ? GOOGLE_SHEET_API_URL : '';
+            [status, settingsStatus].forEach(el => {
+                if (!el) return;
+                el.textContent = configured ? 'Tersambung di perangkat ini' : 'Belum dikonfigurasi';
+                el.className = configured ? 'text-xs font-bold text-emerald-700' : 'text-xs font-bold text-amber-700';
+            });
+        }
+
+        async function checkNexusApiConnection() {
+            if (!isNexusApiConfigured()) throw new Error('URL Database belum diatur.');
+            const response = await fetch(GOOGLE_SHEET_API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'ping', sessionId: 'nexus_connection_test', isNewVisit: false })
+            });
+            const raw = await response.text();
+            let json;
+            try { json = JSON.parse(raw); } catch (error) { throw new Error('Endpoint tidak mengembalikan respons Apps Script yang valid.'); }
+            if (json.status !== 'success') throw new Error(json.message || 'Koneksi database ditolak.');
+            return json;
+        }
         
+
+        window.bukaModalApiConnection = function() {
+            updateNexusApiConnectionUI();
+            const modal = document.getElementById('modal-api-connection');
+            const content = document.getElementById('modal-api-connection-content');
+            if (!modal || !content) return;
+            modal.classList.remove('hidden'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95', 'opacity-0');
+        };
+
+        window.tutupModalApiConnection = function() {
+            const modal = document.getElementById('modal-api-connection');
+            const content = document.getElementById('modal-api-connection-content');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+
+        async function saveNexusApiConnection() {
+            const input = document.getElementById('nexus-api-url-input');
+            const button = document.getElementById('save-nexus-api-url-btn');
+            const originalHtml = button?.innerHTML;
+            try {
+                setNexusApiUrl(input?.value || '');
+                if (button) { button.disabled = true; button.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i>'; }
+                await checkNexusApiConnection();
+                showToast('Koneksi database tersimpan dan berhasil diuji.');
+                window.tutupModalApiConnection();
+            } catch (error) {
+                showToast(`Koneksi belum tersimpan: ${error.message}`);
+            } finally {
+                if (button) { button.disabled = false; button.innerHTML = originalHtml; }
+            }
+        }
+
+        async function testNexusApiConnection() {
+            const input = document.getElementById('nexus-api-url-input');
+            const button = document.getElementById('test-nexus-api-url-btn');
+            const originalHtml = button?.innerHTML;
+            try {
+                setNexusApiUrl(input?.value || '');
+                if (button) { button.disabled = true; button.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i>'; }
+                await checkNexusApiConnection();
+                showToast('Koneksi Database berhasil.');
+            } catch (error) {
+                showToast(`Uji koneksi gagal: ${error.message}`);
+            } finally {
+                if (button) { button.disabled = false; button.innerHTML = originalHtml; }
+            }
+        }
+
         let myDashboardChart = null;
         let myCashflowChart = null;
         window.pasisDataGlobal = [];
@@ -2727,6 +3320,11 @@ function doPost(e) {
         window.pindahDanaDataGlobal = [];
         window.pengaturanGlobal = [];
         window.pinShareDataGlobal = [];
+        window.galleryDataGlobal = [];
+        window.galleryRootFolderUrl = '';
+        let gallerySelectedFiles = [];
+        let galleryIsLoading = false;
+        let galleryLastLoadedAt = 0;
         let lockoutTimerInterval = null;
         let adminSessionInterval = null;
         let lastAdminActivityWrite = 0;
@@ -2771,7 +3369,7 @@ function doPost(e) {
         }
 
         async function fetchSecureDataFromBackend() {
-            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) throw new Error('URL_BELUM_DIISI');
+            if (!isNexusApiConfigured()) throw new Error('URL_BELUM_DIISI');
             const token = getCurrentAuthToken();
             if (!token) throw new Error('SESSION_EXPIRED');
 
@@ -2990,7 +3588,7 @@ function doPost(e) {
         // PING SERVER FUNGSI
         async function pingServer() {
             try {
-                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+                if (!isNexusApiConfigured()) return;
                 const payload = { action: 'ping', sessionId: visitorSessionId, isNewVisit: isVisitorNew };
                 const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth(payload)) });
                 const json = await res.json();
@@ -3017,12 +3615,14 @@ function doPost(e) {
                               !document.getElementById('modal-pindah-dana').classList.contains('hidden') ||
                               !document.getElementById('modal-cuti-refund').classList.contains('hidden') ||
                               !document.getElementById('modal-broadcast').classList.contains('hidden') ||
-                              !document.getElementById('modal-share-pin').classList.contains('hidden');
+                              !document.getElementById('modal-share-pin').classList.contains('hidden') ||
+                              !document.getElementById('modal-gallery-upload').classList.contains('hidden') ||
+                              !document.getElementById('modal-gallery-lightbox').classList.contains('hidden');
             if (modalOpen) return;
             if (userRole === 'guest') return;
 
             try {
-                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+                if (!isNexusApiConfigured()) return;
                 const jsonRes = await fetchSecureDataFromBackend();
                 
                 if(jsonRes.status === 'success') {
@@ -3211,6 +3811,7 @@ function doPost(e) {
             pinInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-200'); btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
             if (loginMode === 'admin' && lockoutUntil && Date.now() < parseInt(lockoutUntil)) {
                 let sisaDetik = Math.ceil((parseInt(lockoutUntil) - Date.now()) / 1000);
+                infoText.classList.remove('hidden');
                 infoText.innerHTML = `<span class="text-amber-600 font-semibold"><i class="ph-fill ph-warning-circle align-middle"></i> Perangkat ini sempat terkunci. PIN salah tetap ditolak backend selama <b class="text-amber-700">${sisaDetik}</b> detik, tetapi PIN Admin yang benar tetap bisa membuka akses.</span>`;
                 return false;
             } else {
@@ -3224,7 +3825,11 @@ function doPost(e) {
             document.getElementById('login-subtitle').textContent = isAdminMode ? 'Autentikasi keamanan bendahara.' : 'Masuk menggunakan No HP dan PIN.';
             document.getElementById('login-nohp-container').classList.toggle('hidden', isAdminMode);
             document.getElementById('login-pin-label').textContent = isAdminMode ? 'PIN Admin' : 'PIN Pasis';
-            document.getElementById('login-info-text').innerHTML = isAdminMode ? 'Sesi admin otomatis keluar setelah 15 menit tidak aktif atau 30 menit tidak membuka web.' : 'Masukkan No HP dan PIN pribadi. Pasis Cuti tetap bisa login, tetapi aksesnya hanya Data Pasis miliknya sendiri dan Akun Saya.';
+            const loginInfoText = document.getElementById('login-info-text');
+            if (loginInfoText) {
+                loginInfoText.innerHTML = isAdminMode ? 'Sesi admin otomatis keluar setelah 15 menit tidak aktif atau 30 menit tidak membuka web.' : '';
+                loginInfoText.classList.toggle('hidden', !isAdminMode);
+            }
             document.getElementById('login-mode-pasis').className = isAdminMode ? 'py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-white/70 btn-press' : 'py-2 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm btn-press';
             document.getElementById('login-mode-admin').className = isAdminMode ? 'py-2 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm btn-press' : 'py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-white/70 btn-press';
             document.getElementById('login-pin').value = ''; checkLockoutState();
@@ -3247,9 +3852,9 @@ function doPost(e) {
             return rowStatus === 'cuti' || sessionStatus === 'cuti' || currentPasisUser?.accessScope === 'self' || currentPasisUser?.access_scope === 'self';
         }
         function getAllowedViewsForCurrentRole() {
-            if (userRole === 'admin') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'pindah-dana', 'pengaturan'];
+            if (userRole === 'admin') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'pindah-dana', 'gallery', 'pengaturan'];
             if (userRole === 'pasis' && isCurrentPasisCuti()) return ['pasis', 'akun'];
-            if (userRole === 'pasis') return ['dashboard', 'pasis', 'akun', 'pengeluaran'];
+            if (userRole === 'pasis') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'gallery'];
             return [];
         }
         function isViewAllowedForCurrentRole(targetId) {
@@ -3269,7 +3874,7 @@ function doPost(e) {
                 pinDiubah: row.pin_diubah || currentPasisUser?.pinDiubah || 'Belum',
                 statusAktif: isCuti ? 'Cuti' : 'Aktif',
                 accessScope: isCuti ? 'self' : 'all',
-                accessViews: isCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran']
+                accessViews: isCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran', 'gallery']
             };
             localStorage.setItem(PASIS_SESSION_KEY, JSON.stringify(currentPasisUser));
             return true;
@@ -3280,7 +3885,7 @@ function doPost(e) {
             const rawPinInput = (pinInputEl?.value || '').trim();
             const pinInput = loginMode === 'admin' ? rawPinInput.replace(/[^0-9]/g, '') : rawPinInput;
             if (!pinInput) { showToast('Harap masukkan PIN!'); return; }
-            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database terlebih dahulu.'); return; }
+            if (!isNexusApiConfigured()) { showToast('Isi URL Database terlebih dahulu.'); return; }
 
             const btn = document.getElementById('btn-submit-login');
             const oldHtml = btn.innerHTML;
@@ -3413,11 +4018,14 @@ function doPost(e) {
                     if (targetId === 'pasis') titleText = 'Data Administrasi Pasis';
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
                     if (targetId === 'pindah-dana') titleText = 'Serah Terima Kas';
+                    if (targetId === 'gallery') titleText = 'Galeri Dokumentasi';
                     if (targetId === 'pengaturan') titleText = 'Pengaturan Sistem';
                     if (targetId === 'akun') titleText = 'Akun Saya';
                     pageTitle.textContent = titleText; pageTitle.style.opacity = 1; pageTitle.style.transform = 'translateY(0)';
                 }, 200);
             }
+
+            if (targetId === 'gallery') setTimeout(() => window.loadGallery(false), 150);
 
             if (currentSection) {
                 currentSection.classList.add('view-hidden');
@@ -3444,7 +4052,7 @@ function doPost(e) {
             if (!/^\d{4,12}$/.test(newPin)) { showToast('PIN baru harus angka 4 sampai 12 digit.'); return; }
             if (newPin !== confirmPin) { showToast('Konfirmasi PIN baru tidak sama.'); return; }
             if (!currentPasisUser?.nohp) { showToast('Sesi pasis tidak terbaca. Silakan login ulang.'); window.prosesLogout(); return; }
-            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database terlebih dahulu.'); return; }
+            if (!isNexusApiConfigured()) { showToast('Isi URL Database terlebih dahulu.'); return; }
 
             const btn = document.getElementById('submit-change-pasis-pin');
             const oldHtml = btn.innerHTML;
@@ -3511,6 +4119,24 @@ function doPost(e) {
             document.getElementById('login-pin')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); window.prosesLogin(); }});
             document.getElementById('login-nohp')?.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('login-pin')?.focus(); }});
             document.getElementById('submit-change-pasis-pin')?.addEventListener('click', window.prosesGantiPinPasis);
+            document.getElementById('close-api-connection-btn')?.addEventListener('click', window.tutupModalApiConnection);
+            document.getElementById('save-nexus-api-url-btn')?.addEventListener('click', saveNexusApiConnection);
+            document.getElementById('test-nexus-api-url-btn')?.addEventListener('click', testNexusApiConnection);
+            document.getElementById('clear-nexus-api-url-btn')?.addEventListener('click', () => { clearNexusApiUrl(); showToast('Koneksi database dihapus dari perangkat ini.'); });
+            updateNexusApiConnectionUI();
+            document.getElementById('gallery-search')?.addEventListener('input', renderGallery);
+            document.getElementById('gallery-album-filter')?.addEventListener('change', renderGallery);
+            document.getElementById('gallery-category-filter')?.addEventListener('change', renderGallery);
+            document.getElementById('gallery-upload-files')?.addEventListener('change', (event) => pickGalleryFiles(event.target.files));
+            document.getElementById('gallery-upload-drop')?.addEventListener('click', () => document.getElementById('gallery-upload-files')?.click());
+            document.getElementById('gallery-upload-drop')?.addEventListener('dragover', (event) => { event.preventDefault(); event.currentTarget.classList.add('drag-over'); });
+            document.getElementById('gallery-upload-drop')?.addEventListener('dragleave', (event) => event.currentTarget.classList.remove('drag-over'));
+            document.getElementById('gallery-upload-drop')?.addEventListener('drop', (event) => { event.preventDefault(); event.currentTarget.classList.remove('drag-over'); pickGalleryFiles(event.dataTransfer.files); });
+            document.getElementById('submit-gallery-upload-btn')?.addEventListener('click', submitGalleryUpload);
+            document.getElementById('close-gallery-upload-btn')?.addEventListener('click', window.closeModalUploadGallery);
+            document.getElementById('cancel-gallery-upload-btn')?.addEventListener('click', window.closeModalUploadGallery);
+            document.getElementById('close-gallery-lightbox-btn')?.addEventListener('click', window.closeGalleryLightbox);
+            document.getElementById('gallery-open-drive-btn')?.addEventListener('click', () => { if (window.galleryRootFolderUrl) window.open(window.galleryRootFolderUrl, '_blank', 'noopener'); else showToast('Folder Drive akan tersedia setelah unggahan foto pertama.'); });
             
             // PENCARIAN & FILTER
             document.getElementById('search-pasis')?.addEventListener('input', () => { currentPasisPage = 1; renderTabelPasis(window.pasisDataGlobal); });
@@ -3573,7 +4199,7 @@ function doPost(e) {
                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     }
 
-                    if (userRole === 'admin' && !GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) {
+                    if (userRole === 'admin' && !!isNexusApiConfigured()) {
                         showToast(`Menyimpan ${getLabel()} ke Database...`);
                         try {
                             const payload = { action: 'update_pengaturan', data: { [settingKey]: val } };
@@ -3611,6 +4237,148 @@ function doPost(e) {
                 if(!toast) return; clearTimeout(toastTimeout); toastMsg.textContent = message; toast.classList.remove('translate-y-24', 'opacity-0');
                 toastTimeout = setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
             };
+
+            // NEXUS DIALOG: semua konfirmasi dan input penting memakai popup aplikasi,
+            // bukan dialog bawaan browser.
+            let nexusDialogResolver = null;
+            let nexusDialogHasInput = false;
+            let nexusDialogExpectedValue = '';
+            let nexusDialogClosingTimer = null;
+
+            function closeNexusDialog(result = false) {
+                const modal = document.getElementById('modal-nexus-dialog');
+                const content = document.getElementById('modal-nexus-dialog-content');
+                const resolve = nexusDialogResolver;
+                nexusDialogResolver = null;
+                nexusDialogHasInput = false;
+                nexusDialogExpectedValue = '';
+                clearTimeout(nexusDialogClosingTimer);
+                if (modal && content) {
+                    modal.classList.add('opacity-0');
+                    content.classList.add('scale-95', 'opacity-0');
+                    nexusDialogClosingTimer = setTimeout(() => {
+                        modal.classList.add('hidden');
+                        if (typeof resolve === 'function') resolve(result);
+                    }, 230);
+                } else if (typeof resolve === 'function') {
+                    resolve(result);
+                }
+            }
+
+            function openNexusDialog(options = {}) {
+                return new Promise(resolve => {
+                    const modal = document.getElementById('modal-nexus-dialog');
+                    const content = document.getElementById('modal-nexus-dialog-content');
+                    const title = document.getElementById('nexus-dialog-title');
+                    const eyebrow = document.getElementById('nexus-dialog-eyebrow');
+                    const message = document.getElementById('nexus-dialog-message');
+                    const iconWrap = document.getElementById('nexus-dialog-icon-wrap');
+                    const icon = document.getElementById('nexus-dialog-icon');
+                    const inputWrap = document.getElementById('nexus-dialog-input-wrap');
+                    const inputLabel = document.getElementById('nexus-dialog-input-label');
+                    const input = document.getElementById('nexus-dialog-input');
+                    const inputError = document.getElementById('nexus-dialog-input-error');
+                    const confirmButton = document.getElementById('nexus-dialog-confirm-btn');
+
+                    if (!modal || !content || !confirmButton) { resolve(false); return; }
+                    if (typeof nexusDialogResolver === 'function') nexusDialogResolver(false);
+
+                    const tone = options.tone || 'primary';
+                    const isDanger = tone === 'danger';
+                    const isWarning = tone === 'warning';
+                    const iconClasses = isDanger
+                        ? 'ph-fill ph-warning-octagon text-xl'
+                        : isWarning ? 'ph-fill ph-warning text-xl' : 'ph-fill ph-question text-xl';
+                    const wrapClasses = isDanger
+                        ? 'w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0'
+                        : isWarning
+                            ? 'w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0'
+                            : 'w-11 h-11 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0';
+                    const confirmClasses = isDanger
+                        ? 'flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-soft btn-press'
+                        : isWarning
+                            ? 'flex-1 px-4 py-3 rounded-xl font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-soft btn-press'
+                            : 'flex-1 px-4 py-3 rounded-xl font-bold text-white bg-brand-950 hover:bg-brand-900 shadow-soft btn-press';
+
+                    nexusDialogResolver = resolve;
+                    nexusDialogHasInput = Boolean(options.input);
+                    nexusDialogExpectedValue = String(options.expectedValue || '');
+                    if (title) title.textContent = options.title || 'Lanjutkan tindakan?';
+                    if (eyebrow) eyebrow.textContent = options.eyebrow || (isDanger ? 'Tindakan Berisiko' : 'Konfirmasi Tindakan');
+                    if (message) message.textContent = options.message || '';
+                    if (iconWrap) iconWrap.className = wrapClasses;
+                    if (icon) icon.className = iconClasses;
+                    if (confirmButton) {
+                        confirmButton.className = confirmClasses;
+                        confirmButton.textContent = options.confirmText || 'Lanjutkan';
+                    }
+                    if (inputWrap) inputWrap.classList.toggle('hidden', !nexusDialogHasInput);
+                    if (inputLabel) inputLabel.textContent = options.inputLabel || 'Konfirmasi';
+                    if (input) {
+                        input.value = '';
+                        input.placeholder = options.inputPlaceholder || '';
+                        input.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+                    }
+                    if (inputError) {
+                        inputError.textContent = '';
+                        inputError.classList.add('hidden');
+                    }
+
+                    modal.classList.remove('hidden');
+                    void modal.offsetWidth;
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95', 'opacity-0');
+                    setTimeout(() => (nexusDialogHasInput ? input : confirmButton)?.focus(), 80);
+                });
+            }
+
+            window.nexusConfirm = function(options = {}) {
+                return openNexusDialog({ ...options, input: false });
+            };
+
+            window.nexusPrompt = function(options = {}) {
+                return openNexusDialog({ ...options, input: true });
+            };
+
+            document.getElementById('nexus-dialog-close-btn')?.addEventListener('click', () => closeNexusDialog(false));
+            document.getElementById('nexus-dialog-cancel-btn')?.addEventListener('click', () => closeNexusDialog(false));
+            document.getElementById('modal-nexus-dialog')?.addEventListener('click', event => {
+                if (event.target === event.currentTarget) closeNexusDialog(false);
+            });
+            document.getElementById('nexus-dialog-input')?.addEventListener('input', () => {
+                const input = document.getElementById('nexus-dialog-input');
+                const inputError = document.getElementById('nexus-dialog-input-error');
+                input?.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+                inputError?.classList.add('hidden');
+            });
+            document.getElementById('nexus-dialog-input')?.addEventListener('keydown', event => {
+                if (event.key === 'Enter') document.getElementById('nexus-dialog-confirm-btn')?.click();
+            });
+            document.getElementById('nexus-dialog-confirm-btn')?.addEventListener('click', () => {
+                if (nexusDialogHasInput) {
+                    const input = document.getElementById('nexus-dialog-input');
+                    const inputError = document.getElementById('nexus-dialog-input-error');
+                    const actual = String(input?.value || '').trim();
+                    const normalizedActual = actual.toUpperCase();
+                    const normalizedExpected = String(nexusDialogExpectedValue || '').trim().toUpperCase();
+                    if (normalizedExpected && normalizedActual !== normalizedExpected) {
+                        if (inputError) {
+                            inputError.textContent = `Ketik “${nexusDialogExpectedValue}” dengan benar untuk melanjutkan.`;
+                            inputError.classList.remove('hidden');
+                        }
+                        input?.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+                        input?.focus();
+                        return;
+                    }
+                    closeNexusDialog(nexusDialogExpectedValue || actual || true);
+                    return;
+                }
+                closeNexusDialog(true);
+            });
+            document.addEventListener('keydown', event => {
+                const modal = document.getElementById('modal-nexus-dialog');
+                if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeNexusDialog(false);
+            });
 
             const modalTypes = ['modal', 'bayar', 'pengeluaran', 'broadcast'];
             modalTypes.forEach(mType => {
@@ -3664,7 +4432,7 @@ function doPost(e) {
                 const nohp = document.getElementById('form-nohp').value; const nama = document.getElementById('form-nama').value;
                 const statusAktif = document.getElementById('form-status-aktif').value;
                 if (!nohp || !nama) { showToast('No HP dan Nama wajib diisi!'); return; }
-                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi GOOGLE_SHEET_API_URL di menu Pengaturan.'); return; }
+                if (!isNexusApiConfigured()) { showToast('Isi GOOGLE_SHEET_API_URL di menu Pengaturan.'); return; }
 
                 const payload = { action: formMode === 'add' ? 'create' : 'update', data: { original_nohp: document.getElementById('form-original-nohp').value, nama: nama, nohp: nohp, jk: document.getElementById('form-jk').value, bank: document.getElementById('form-bank').value, norek: document.getElementById('form-norek').value, status_aktif: statusAktif, target_khusus: '', dibayar: formMode === 'add' ? 0 : undefined }};
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
@@ -3804,7 +4572,7 @@ function doPost(e) {
                 const nom = parseNominal(document.getElementById('keluar-nominal').value);
 
                 if(!tgl || !ket || nom <= 0) { showToast('Lengkapi semua data dengan benar!'); return; }
-                if(GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database.'); return; }
+                if(!isNexusApiConfigured()) { showToast('Isi URL Database.'); return; }
 
                 const payload = { action: 'create_pengeluaran', data: { tanggal: tgl, keterangan: ket, nominal: nom } };
                 const oHtml = this.innerHTML; this.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...'; this.disabled = true;
@@ -3826,7 +4594,7 @@ function doPost(e) {
                 const nom = parseNominal(document.getElementById('transfer-nominal').value);
 
                 if(!tgl || !penerima || !ket || nom <= 0) { showToast('Lengkapi data pindah dana dengan benar!'); return; }
-                if(GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi URL Database.'); return; }
+                if(!isNexusApiConfigured()) { showToast('Isi URL Database.'); return; }
 
                 const totalMasuk = (window.pasisDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.dibayar), 0);
                 const totalPengeluaran = (window.pengeluaranDataGlobal || []).reduce((sum, p) => sum + parseNominal(p.nominal), 0);
@@ -4408,12 +5176,17 @@ function doPost(e) {
         window.hapusPasis = async function(index) {
             if(!validateAdminSession(true)) return;
             const row = window.pasisDataGlobal[index];
-            const konfirmasi = prompt(`PERINGATAN: Anda akan menghapus data Pasis beserta riwayat setorannya.\n\nKetik kata "HAPUS" untuk menghapus data ${row.nama} :`);
-            
-            if(konfirmasi !== 'HAPUS') { 
-                if(konfirmasi !== null) showToast('Konfirmasi salah, penghapusan dibatalkan.'); 
-                return; 
-            }
+            const konfirmasi = await window.nexusPrompt({
+                title: 'Hapus data pasis?',
+                message: `Data ${row.nama || 'pasis'} beserta seluruh riwayat setorannya akan dihapus permanen dari database.`,
+                eyebrow: 'Tindakan Berisiko',
+                inputLabel: 'Ketik HAPUS untuk melanjutkan',
+                inputPlaceholder: 'HAPUS',
+                expectedValue: 'HAPUS',
+                confirmText: 'Hapus Permanen',
+                tone: 'danger'
+            });
+            if (konfirmasi !== 'HAPUS') return;
             
             showToast(`Menghapus data ${row.nama}...`);
             try {
@@ -4468,7 +5241,13 @@ Dibagikan oleh *${globalAdminName}*.`;
 
         window.hapusPengeluaran = async function(idStr) {
             if(!validateAdminSession(true)) return;
-            if(!confirm('Apakah Anda yakin ingin menghapus data pengeluaran ini?')) return;
+            const yakin = await window.nexusConfirm({
+                title: 'Hapus data pengeluaran?',
+                message: 'Data pengeluaran ini akan dihapus permanen dari database dan tidak dapat dikembalikan.',
+                confirmText: 'Hapus Data',
+                tone: 'danger'
+            });
+            if (!yakin) return;
             
             showToast('Menghapus data...');
             try {
@@ -4481,7 +5260,13 @@ Dibagikan oleh *${globalAdminName}*.`;
         // --- HAPUS PINDAH DANA ---
         window.hapusPindahDana = async function(idStr) {
             if(!validateAdminSession(true)) return;
-            if(!confirm('Apakah Anda yakin ingin menghapus riwayat serah terima kas ini?')) return;
+            const yakin = await window.nexusConfirm({
+                title: 'Hapus riwayat serah terima?',
+                message: 'Riwayat serah terima kas ini akan dihapus permanen dari database.',
+                confirmText: 'Hapus Riwayat',
+                tone: 'danger'
+            });
+            if (!yakin) return;
             
             showToast('Menghapus data serah terima kas...');
             try {
@@ -4563,7 +5348,7 @@ Terima kasih,
         async function markPinShared(nohpList = []) {
             if (!Array.isArray(nohpList)) nohpList = [nohpList];
             nohpList = nohpList.filter(Boolean);
-            if (nohpList.length === 0 || GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) return;
+            if (nohpList.length === 0 || !isNexusApiConfigured()) return;
             try {
                 await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify(withAuth({ action: 'mark_pin_shared', data: { nohp_list: nohpList } })) });
             } catch (e) {}
@@ -4641,9 +5426,14 @@ Terima kasih,
 
         window.generatePinSharePasis = async function() {
             if(!validateAdminSession(true)) return;
-            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) { showToast('Isi dulu URL Web App Google Apps Script.'); return; }
+            if (!isNexusApiConfigured()) { showToast('Isi dulu URL Web App Google Apps Script.'); return; }
 
-            const yakin = confirm('Generate PIN baru untuk semua Pasis Aktif dan Cuti yang memiliki No HP?\n\nPIN lama akan diganti, lalu status kirim WhatsApp kembali menjadi Belum dikirim.');
+            const yakin = await window.nexusConfirm({
+                title: 'Generate PIN baru?',
+                message: 'PIN lama seluruh Pasis Aktif dan Cuti yang memiliki No HP akan diganti. Status kirim WhatsApp juga kembali menjadi Belum dikirim.',
+                confirmText: 'Generate PIN',
+                tone: 'warning'
+            });
             if (!yakin) return;
 
             const btn = document.getElementById('btn-generate-share-pin');
@@ -4695,7 +5485,12 @@ Terima kasih,
             if(!validateAdminSession(true)) return;
             const list = (window.pinShareDataGlobal || []).filter(p => p && p.nohp);
             if (list.length === 0) { showToast('Tidak ada pasis Aktif/Cuti yang bisa dikirim PIN.'); return; }
-            const yakin = confirm(`Kirim PIN login ke ${list.length} pasis via WhatsApp?\n\nPasis Aktif dan Cuti akan dikirim jika ada No HP.`);
+            const yakin = await window.nexusConfirm({
+                title: 'Kirim PIN melalui WhatsApp?',
+                message: `Aplikasi akan membuka WhatsApp untuk ${list.length} pasis yang memiliki nomor HP.`,
+                confirmText: 'Kirim Sekarang',
+                tone: 'primary'
+            });
             if (!yakin) return;
 
             list.forEach((p, idx) => {
@@ -4706,6 +5501,290 @@ Terima kasih,
             renderSharePinList(list);
             showToast(`Membuka WhatsApp untuk ${list.length} pasis Aktif/Cuti. Jika pop-up diblokir, kirim satu per satu dari daftar.`);
         };
+
+
+        // --- NEXUS GALLERY: GOOGLE DRIVE + SHEETS METADATA ---
+        const GALLERY_MAX_FILES = 8;
+        const GALLERY_MAX_DIMENSION = 1600;
+        const GALLERY_TARGET_BYTES = 2.2 * 1024 * 1024;
+
+        function galleryEscapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+        }
+
+        function galleryFormatDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function gallerySetLoading(isLoading) {
+            const loader = document.getElementById('gallery-loading');
+            if (loader) loader.classList.toggle('hidden', !isLoading);
+            const grid = document.getElementById('gallery-grid');
+            if (grid) grid.classList.toggle('opacity-40', isLoading);
+        }
+
+        async function galleryApi(action, data = {}) {
+            if (!isNexusApiConfigured()) throw new Error('URL_BELUM_DIISI');
+            let response;
+            try {
+                response = await fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(withAuth({ action, data }))
+                });
+            } catch (networkError) {
+                throw new Error('Tidak dapat terhubung ke Web App. Periksa URL /exec dan akses deployment.');
+            }
+            const raw = await response.text();
+            let json;
+            try { json = JSON.parse(raw); } catch (err) { throw new Error('Respons Galeri dari server tidak valid. Pastikan Web App telah dideploy ulang.'); }
+            if (json.status !== 'success') throw new Error(json.message || 'Proses Galeri gagal.');
+            return json;
+        }
+
+        function updateGalleryFilterOptions() {
+            const albums = [...new Set((window.galleryDataGlobal || []).map(item => item.album).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const categories = [...new Set((window.galleryDataGlobal || []).map(item => item.kategori).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const albumSelect = document.getElementById('gallery-album-filter');
+            const categorySelect = document.getElementById('gallery-category-filter');
+            const oldAlbum = albumSelect?.value || '';
+            const oldCategory = categorySelect?.value || '';
+            if (albumSelect) {
+                albumSelect.innerHTML = '<option value="">Semua Album</option>' + albums.map(album => `<option value="${galleryEscapeHtml(album)}">${galleryEscapeHtml(album)}</option>`).join('');
+                albumSelect.value = albums.includes(oldAlbum) ? oldAlbum : '';
+            }
+            if (categorySelect) {
+                categorySelect.innerHTML = '<option value="">Semua Kategori</option>' + categories.map(category => `<option value="${galleryEscapeHtml(category)}">${galleryEscapeHtml(category)}</option>`).join('');
+                categorySelect.value = categories.includes(oldCategory) ? oldCategory : '';
+            }
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const empty = document.getElementById('gallery-empty');
+            const count = document.getElementById('gallery-count');
+            if (!grid || !empty) return;
+
+            const keyword = (document.getElementById('gallery-search')?.value || '').trim().toLowerCase();
+            const album = document.getElementById('gallery-album-filter')?.value || '';
+            const category = document.getElementById('gallery-category-filter')?.value || '';
+            const items = (window.galleryDataGlobal || []).filter(item => {
+                const haystack = [item.judul, item.caption, item.album, item.kategori, item.tanggal].join(' ').toLowerCase();
+                return (!keyword || haystack.includes(keyword)) && (!album || item.album === album) && (!category || item.kategori === category);
+            });
+
+            if (count) count.textContent = items.length;
+            empty.classList.toggle('hidden', items.length > 0);
+            grid.innerHTML = items.map(item => {
+                const safeId = galleryEscapeHtml(item.id);
+                const title = galleryEscapeHtml(item.judul || 'Dokumentasi');
+                const caption = galleryEscapeHtml(item.caption || '');
+                const albumLabel = galleryEscapeHtml(item.album || 'Dokumentasi');
+                const categoryLabel = galleryEscapeHtml(item.kategori || 'Kegiatan');
+                const url = galleryEscapeHtml(item.thumbnail_url || '');
+                return `<article class="gallery-card rounded-3xl group"><div role="button" tabindex="0" onclick="window.bukaGalleryLightbox('${safeId}')" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();window.bukaGalleryLightbox('${safeId}')}" class="w-full text-left focus:outline-none cursor-pointer"><div class="relative overflow-hidden"><img src="${url}" alt="${title}" loading="lazy" class="gallery-image" onerror="this.style.opacity='.25'; this.alt='Foto tidak dapat dimuat. Periksa izin Google Drive.'"><div class="gallery-card-overlay"></div><div class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/65 backdrop-blur text-[10px] font-bold text-white uppercase tracking-wider"><i class="ph ph-folder-simple"></i>${albumLabel}</div>${userRole === 'admin' ? `<button type="button" onclick="event.stopPropagation(); window.hapusFotoGallery('${safeId}')" class="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/90 text-red-600 hover:bg-red-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity btn-press" title="Hapus foto"><i class="ph ph-trash"></i></button>` : ''}<div class="absolute inset-x-0 bottom-0 p-4 text-white"><div class="flex items-end justify-between gap-3"><div><p class="text-xs text-cyan-200 font-bold uppercase tracking-wider">${categoryLabel}</p><h3 class="mt-1 font-black leading-snug line-clamp-2">${title}</h3></div><span class="text-[11px] text-slate-200 whitespace-nowrap">${galleryFormatDate(item.tanggal)}</span></div></div></div></div>${caption ? `<div class="px-4 py-3 text-xs text-slate-500 leading-relaxed line-clamp-2">${caption}</div>` : ''}</article>`;
+            }).join('');
+        }
+
+        window.loadGallery = async function(force = false) {
+            if (!isViewAllowedForCurrentRole('gallery')) return;
+            const now = Date.now();
+            if (!force && window.galleryDataGlobal.length && (now - galleryLastLoadedAt) < 30000) {
+                renderGallery();
+                return;
+            }
+            if (galleryIsLoading) return;
+            galleryIsLoading = true;
+            gallerySetLoading(true);
+            try {
+                const json = await galleryApi('list_gallery', { limit: 300 });
+                window.galleryDataGlobal = json.data || [];
+                window.galleryRootFolderUrl = json.root_folder_url || '';
+                galleryLastLoadedAt = Date.now();
+                updateGalleryFilterOptions();
+                renderGallery();
+                const updated = document.getElementById('gallery-last-updated');
+                if (updated) updated.textContent = `Diperbarui ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+                const driveBtn = document.getElementById('gallery-open-drive-btn');
+                if (driveBtn) driveBtn.disabled = !window.galleryRootFolderUrl;
+            } catch (error) {
+                showToast(error.message === 'URL_BELUM_DIISI' ? 'URL Database belum diatur.' : `Galeri gagal dimuat: ${error.message}`);
+            } finally {
+                galleryIsLoading = false;
+                gallerySetLoading(false);
+            }
+        };
+
+        window.bukaGalleryLightbox = function(id) {
+            const item = (window.galleryDataGlobal || []).find(photo => photo.id === id);
+            if (!item) return;
+            const modal = document.getElementById('modal-gallery-lightbox');
+            const content = document.getElementById('modal-gallery-lightbox-content');
+            const image = document.getElementById('gallery-lightbox-image');
+            if (!modal || !content || !image) return;
+            image.src = item.thumbnail_url || '';
+            image.alt = item.judul || 'Preview dokumentasi';
+            document.getElementById('gallery-lightbox-album').textContent = `${item.album || 'Dokumentasi'} • ${galleryFormatDate(item.tanggal)}`;
+            document.getElementById('gallery-lightbox-title').textContent = item.judul || 'Dokumentasi';
+            document.getElementById('gallery-lightbox-caption').textContent = item.caption || '';
+            const link = document.getElementById('gallery-lightbox-open');
+            if (link) link.href = item.url_view || item.url_download || '#';
+            modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0'); content.classList.remove('scale-95', 'opacity-0');
+        };
+
+        window.closeGalleryLightbox = function() {
+            const modal = document.getElementById('modal-gallery-lightbox');
+            const content = document.getElementById('modal-gallery-lightbox-content');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+
+        window.bukaModalUploadGallery = function() {
+            if (!validateAdminSession(true)) return;
+            gallerySelectedFiles = [];
+            const input = document.getElementById('gallery-upload-files');
+            const title = document.getElementById('gallery-upload-title');
+            const album = document.getElementById('gallery-upload-album');
+            const caption = document.getElementById('gallery-upload-caption');
+            const date = document.getElementById('gallery-upload-date');
+            if (input) input.value = '';
+            if (title) title.value = '';
+            if (album) album.value = '';
+            if (caption) caption.value = '';
+            if (date) date.value = new Date().toISOString().slice(0, 10);
+            renderGalleryUploadPreviews();
+            const modal = document.getElementById('modal-gallery-upload');
+            const content = document.getElementById('modal-gallery-upload-content');
+            modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0'); content.classList.remove('scale-95', 'opacity-0');
+        };
+
+        window.closeModalUploadGallery = function() {
+            const modal = document.getElementById('modal-gallery-upload');
+            const content = document.getElementById('modal-gallery-upload-content');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+
+        function renderGalleryUploadPreviews() {
+            const preview = document.getElementById('gallery-upload-preview');
+            if (!preview) return;
+            preview.classList.toggle('hidden', gallerySelectedFiles.length === 0);
+            preview.innerHTML = gallerySelectedFiles.map((file, index) => `<div class="gallery-preview-item"><img src="${URL.createObjectURL(file)}" alt="Preview ${index + 1}"><button type="button" onclick="window.hapusPilihanFotoGallery(${index})" class="absolute top-1.5 right-1.5 w-7 h-7 rounded-lg bg-slate-950/70 text-white hover:bg-red-600 flex items-center justify-center"><i class="ph ph-x text-sm"></i></button><span class="block px-2 py-1.5 text-[10px] font-semibold text-slate-600 truncate">${galleryEscapeHtml(file.name)}</span></div>`).join('');
+        }
+
+        window.hapusPilihanFotoGallery = function(index) {
+            gallerySelectedFiles.splice(index, 1);
+            renderGalleryUploadPreviews();
+        };
+
+        function pickGalleryFiles(fileList) {
+            const accepted = Array.from(fileList || []).filter(file => /image\/(jpeg|jpg|png|webp)/i.test(file.type));
+            if (!accepted.length) { showToast('Pilih foto berformat JPG, PNG, atau WEBP.'); return; }
+            const combined = [...gallerySelectedFiles, ...accepted].slice(0, GALLERY_MAX_FILES);
+            if (accepted.length + gallerySelectedFiles.length > GALLERY_MAX_FILES) showToast(`Maksimal ${GALLERY_MAX_FILES} foto per unggahan.`);
+            gallerySelectedFiles = combined;
+            renderGalleryUploadPreviews();
+        }
+
+        function readGalleryFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Gagal membaca file foto.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function prepareGalleryImage(file) {
+            const source = await readGalleryFileAsDataURL(file);
+            const image = new Image();
+            await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = () => reject(new Error('Foto tidak dapat diproses.')); image.src = source; });
+            let width = image.naturalWidth || image.width;
+            let height = image.naturalHeight || image.height;
+            const initialScale = Math.min(1, GALLERY_MAX_DIMENSION / Math.max(width, height));
+            width = Math.max(1, Math.round(width * initialScale));
+            height = Math.max(1, Math.round(height * initialScale));
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d', { alpha: false });
+            if (!context) throw new Error('Browser tidak mendukung kompresi foto. Gunakan Chrome atau browser terbaru.');
+            let quality = .84;
+            let output = '';
+            for (let attempt = 0; attempt < 5; attempt++) {
+                canvas.width = width; canvas.height = height;
+                context.fillStyle = '#ffffff'; context.fillRect(0, 0, width, height);
+                context.drawImage(image, 0, 0, width, height);
+                output = canvas.toDataURL('image/jpeg', quality);
+                const estimatedBytes = Math.ceil((output.length - output.indexOf(',') - 1) * 0.75);
+                if (estimatedBytes <= GALLERY_TARGET_BYTES) break;
+                width = Math.max(720, Math.round(width * .85));
+                height = Math.max(720, Math.round(height * .85));
+                quality = Math.max(.62, quality - .06);
+            }
+            const finalBytes = Math.ceil((output.length - output.indexOf(',') - 1) * 0.75);
+            if (finalBytes > 4 * 1024 * 1024) throw new Error(`${file.name}: ukuran masih terlalu besar setelah kompresi.`);
+            return { data_url: output, file_name: file.name.replace(/\.[^.]+$/, '') + '.jpg' };
+        }
+
+        async function submitGalleryUpload() {
+            if (!validateAdminSession(true)) return;
+            if (!gallerySelectedFiles.length) { showToast('Pilih minimal satu foto terlebih dahulu.'); return; }
+            const title = (document.getElementById('gallery-upload-title')?.value || '').trim();
+            const album = (document.getElementById('gallery-upload-album')?.value || '').trim();
+            const category = document.getElementById('gallery-upload-category')?.value || 'Kegiatan';
+            const date = document.getElementById('gallery-upload-date')?.value || new Date().toISOString().slice(0, 10);
+            const caption = (document.getElementById('gallery-upload-caption')?.value || '').trim();
+            if (!title) { showToast('Judul dokumentasi wajib diisi.'); return; }
+            if (!album) { showToast('Nama album wajib diisi.'); return; }
+
+            const button = document.getElementById('submit-gallery-upload-btn');
+            const originalHtml = button.innerHTML;
+            button.disabled = true;
+            try {
+                button.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyiapkan Google Drive...';
+                await galleryApi('initialize_gallery');
+                for (let index = 0; index < gallerySelectedFiles.length; index++) {
+                    button.innerHTML = `<i class="ph ph-spinner-gap animate-spin text-lg"></i> Mengunggah ${index + 1}/${gallerySelectedFiles.length}...`;
+                    const image = await prepareGalleryImage(gallerySelectedFiles[index]);
+                    const result = await galleryApi('upload_gallery', { judul: title, album, kategori: category, tanggal: date, caption, images: [image] });
+                    if (result.sharing_warning) showToast('Foto tersimpan. Jika preview terkunci, aktifkan akses link pada folder Google Drive.');
+                }
+                window.closeModalUploadGallery();
+                showToast(`${gallerySelectedFiles.length} foto berhasil masuk ke Galeri.`);
+                gallerySelectedFiles = [];
+                await window.loadGallery(true);
+            } catch (error) {
+                showToast(`Upload gagal: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+            }
+        }
+
+        window.hapusFotoGallery = async function(id) {
+            if (!validateAdminSession(true)) return;
+            const item = (window.galleryDataGlobal || []).find(photo => photo.id === id);
+            if (!item) return;
+            const yakin = await window.nexusConfirm({
+                title: 'Hapus foto dokumentasi?',
+                message: `Foto “${item.judul || 'Dokumentasi'}” akan dihapus dari galeri dan dipindahkan ke Sampah Google Drive.`,
+                confirmText: 'Hapus Foto',
+                tone: 'danger'
+            });
+            if (!yakin) return;
+            try {
+                await galleryApi('delete_gallery', { id });
+                showToast('Foto dihapus dari Galeri.');
+                await window.loadGallery(true);
+            } catch (error) {
+                showToast(`Gagal menghapus foto: ${error.message}`);
+            }
+        };
+
 
         // --- FETCH DATA API MULTI-SHEET ---
         async function fetchDataDariGoogleSheets() {
@@ -4719,7 +5798,7 @@ Terima kasih,
             document.querySelectorAll('tbody').forEach(el => el.style.opacity = '0.3');
             
             try {
-                if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) throw new Error('URL_BELUM_DIISI');
+                if (!isNexusApiConfigured()) throw new Error('URL_BELUM_DIISI');
                 const jsonRes = await fetchSecureDataFromBackend();
                 
                 if(jsonRes.status === 'success') {
@@ -5014,7 +6093,7 @@ Terima kasih,
             setTimeout(() => m.classList.add('hidden'), 300);
         });
 
-        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast', 'modal-share-pin'];
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast', 'modal-share-pin', 'modal-gallery-upload', 'modal-gallery-lightbox'];
         modalBackdrops.forEach(id => {
             const el = document.getElementById(id);
             el?.addEventListener('click', (e) => {
