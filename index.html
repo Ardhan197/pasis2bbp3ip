@@ -163,6 +163,56 @@
             color: rgba(226, 232, 240, .48) !important;
             letter-spacing: .16em;
         }
+
+        .sidebar-group {
+            margin-bottom: 1.15rem;
+        }
+        .sidebar-group-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: 0 .75rem .55rem;
+            font-size: .68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .16em;
+            color: #94a3b8;
+        }
+        .sidebar-group-title i {
+            font-size: .95rem;
+        }
+        .sidebar-group-card {
+            border: 1px solid rgba(226, 232, 240, .78);
+            background: rgba(248, 250, 252, .78);
+            border-radius: 1.35rem;
+            padding: .45rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+        }
+        .sidebar-group-card .nav-link {
+            margin-top: .15rem;
+        }
+        .sidebar-group-card .nav-link:first-child {
+            margin-top: 0;
+        }
+        .sidebar-link-subtitle {
+            display: block;
+            margin-top: .05rem;
+            font-size: .66rem;
+            line-height: .95rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+        body.nexus-ultra #sidebar .sidebar-group-title {
+            color: rgba(226, 232, 240, .48) !important;
+        }
+        body.nexus-ultra #sidebar .sidebar-group-card {
+            background: linear-gradient(135deg, rgba(255,255,255,.065), rgba(255,255,255,.022));
+            border-color: rgba(148, 163, 184, .15);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 38px -34px rgba(0,0,0,.9);
+        }
+        body.nexus-ultra #sidebar .sidebar-link-subtitle {
+            color: rgba(203, 213, 225, .48) !important;
+        }
         body.nexus-ultra #sidebar .nav-link {
             color: rgba(226, 232, 240, .72) !important;
             border: 1px solid transparent;
@@ -862,6 +912,67 @@
 
 
         /* =========================================================
+           FULL-WIDTH SALDO KAS AKTIF
+           Membuat kartu utama memakai lebar area dashboard agar tidak
+           terjepit pada resolusi laptop, sambil menjaga tata letak responsif.
+           ========================================================= */
+        body.nexus-ultra #view-dashboard {
+            width: 100%;
+            max-width: min(96rem, 100%);
+        }
+        body.nexus-ultra #saldo-kas-card {
+            width: 100%;
+            min-width: 0;
+        }
+        body.nexus-ultra #saldo-kas-card > .relative.z-10 {
+            min-width: 0;
+        }
+        body.nexus-ultra #saldo-kas-card #dash-saldo {
+            font-size: clamp(2.35rem, 4vw, 4.5rem) !important;
+            line-height: 1.03 !important;
+            overflow-wrap: anywhere;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card {
+            min-width: 0;
+            min-height: 7.25rem;
+        }
+        body.nexus-ultra #saldo-kas-card .saldo-mini-card .saldo-mini-value {
+            font-size: clamp(.98rem, 1.4vw, 1.22rem) !important;
+            line-height: 1.35 !important;
+            overflow-wrap: anywhere;
+        }
+        body.nexus-ultra .dashboard-secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            body.nexus-ultra .dashboard-secondary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 1280px) {
+            body.nexus-ultra .dashboard-secondary-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 639px) {
+            body.nexus-ultra #saldo-kas-card {
+                padding: 1.25rem !important;
+            }
+            body.nexus-ultra #saldo-kas-card .saldo-mini-grid {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+
+        /* =========================================================
            NEXUS GALLERY
            Google Drive-backed documentation gallery.
            ========================================================= */
@@ -875,6 +986,11 @@
         .gallery-preview-item { position: relative; overflow: hidden; border-radius: 1rem; border: 1px solid rgba(226,232,240,.9); background: #f8fafc; }
         .gallery-preview-item img { width: 100%; aspect-ratio: 1; object-fit: cover; }
         body.nexus-ultra #view-gallery .bg-white { border: 1px solid rgba(255,255,255,.72) !important; }
+
+        /* TAGIHAN TAMBAHAN: WISUDA & ABSENSI */
+        .tagihan-metric { position: relative; overflow: hidden; }
+        .tagihan-metric::after { content: ""; position: absolute; width: 8rem; height: 8rem; right: -3.25rem; bottom: -4.25rem; border-radius: 9999px; background: currentColor; opacity: .08; pointer-events: none; }
+        .tagihan-pasis-selector { max-height: 17rem; overflow-y: auto; }
 
 </style>
 </head>
@@ -901,32 +1017,77 @@
             </button>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-            <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Menu Utama</p>
-            <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-brand-600 bg-brand-50 rounded-xl font-medium transition-all-custom" data-target="dashboard">
-                <i class="ph ph-squares-four text-xl text-brand-600 transition-all-custom"></i> Dashboard
-            </a>
-            <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pasis">
-                <i class="ph ph-graduation-cap text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Data Pasis
-            </a>
-            <a href="#" class="nav-link auth-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="akun">
-                <i class="ph ph-user-circle-gear text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Akun Saya
-            </a>
-            <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pengeluaran">
-                <i class="ph ph-arrow-up-right text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pengeluaran
-            </a>
-            <a href="#" class="nav-link admin-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pindah-dana">
-                <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Serah Terima Kas
-            </a>
-            <a href="#" class="nav-link auth-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="gallery">
-                <i class="ph ph-images text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Galeri Dokumentasi
-            </a>
+        <nav class="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar">
+            <!-- GROUP: MENU UTAMA -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title"><i class="ph ph-house"></i><span>Menu Utama</span></div>
+                <div class="space-y-1">
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-brand-600 bg-brand-50 rounded-xl font-medium transition-all-custom" data-target="dashboard">
+                        <i class="ph ph-squares-four text-xl text-brand-600 transition-all-custom"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pasis">
+                        <i class="ph ph-graduation-cap text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Data Pasis</span>
+                    </a>
+                    <a href="#" class="nav-link auth-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="akun">
+                        <i class="ph ph-user-circle-gear text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Akun Saya</span>
+                    </a>
+                </div>
+            </div>
 
-            <div class="pt-6 mt-6 border-t border-slate-100"></div>
-            <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Sistem</p>
-            <a href="#" class="nav-link admin-only hidden-role flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group btn-press" data-target="pengaturan">
-                <i class="ph ph-gear text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i> Pengaturan
-            </a>
+            <!-- GROUP: TAGIHAN -->
+            <div class="sidebar-group auth-only hidden-role">
+                <div class="sidebar-group-title"><i class="ph ph-receipt"></i><span>Tagihan</span></div>
+                <div class="sidebar-group-card space-y-1">
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="tagihan" data-tagihan-jenis="Wisuda">
+                        <i class="ph ph-graduation-cap text-xl text-slate-400 group-hover:text-violet-600 transition-all-custom"></i>
+                        <span class="leading-tight">Uang Wisuda<span class="sidebar-link-subtitle">Tagihan wisuda pasis</span></span>
+                    </a>
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="tagihan" data-tagihan-jenis="Absensi">
+                        <i class="ph ph-calendar-check text-xl text-slate-400 group-hover:text-cyan-600 transition-all-custom"></i>
+                        <span class="leading-tight">Uang Absen<span class="sidebar-link-subtitle">Tagihan absensi pasis</span></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GROUP: KEUANGAN KAS -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-title"><i class="ph ph-wallet"></i><span>Keuangan Kas</span></div>
+                <div class="space-y-1">
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pengeluaran">
+                        <i class="ph ph-arrow-up-right text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Pengeluaran</span>
+                    </a>
+                    <a href="#" class="nav-link admin-only hidden-role btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="pindah-dana">
+                        <i class="ph ph-hand-coins text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Serah Terima Kas</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GROUP: DOKUMENTASI -->
+            <div class="sidebar-group auth-only hidden-role">
+                <div class="sidebar-group-title"><i class="ph ph-images"></i><span>Dokumentasi</span></div>
+                <div class="space-y-1">
+                    <a href="#" class="nav-link btn-press flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group" data-target="gallery">
+                        <i class="ph ph-images text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Galeri Dokumentasi</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GROUP: SISTEM -->
+            <div class="sidebar-group admin-only hidden-role pt-4 border-t border-slate-100">
+                <div class="sidebar-group-title"><i class="ph ph-gear-six"></i><span>Sistem</span></div>
+                <div class="space-y-1">
+                    <a href="#" class="nav-link flex items-center gap-3 px-3 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-all-custom group btn-press" data-target="pengaturan">
+                        <i class="ph ph-gear text-xl text-slate-400 group-hover:text-slate-700 transition-all-custom"></i>
+                        <span>Pengaturan</span>
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <!-- Profil Pengguna (Dinamis: Penonton/Admin) -->
@@ -995,7 +1156,7 @@
             </div>
 
             <!-- VIEW: DASHBOARD -->
-            <div id="view-dashboard" class="view-section max-w-7xl mx-auto space-y-8">
+            <div id="view-dashboard" class="view-section w-full max-w-[96rem] mx-auto space-y-8">
                 <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-950 via-slate-900 to-slate-950 text-white shadow-2xl border border-white/10">
                     <div class="dashboard-glow"></div>
                     <div class="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-brand-500/10 blur-3xl"></div>
@@ -1015,15 +1176,15 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-8">
-                            <div id="saldo-kas-card" class="xl:col-span-5 rounded-3xl bg-white text-slate-950 p-6 shadow-xl relative overflow-hidden">
+                        <div class="mt-8 space-y-6">
+                            <div id="saldo-kas-card" class="w-full rounded-3xl bg-white text-slate-950 p-6 sm:p-7 lg:p-8 shadow-xl relative overflow-hidden">
                                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-brand-100 rounded-full blur-2xl opacity-70"></div>
                                 <div class="relative z-10">
                                     <p class="text-sm font-semibold text-slate-500 flex items-center gap-2"><i class="ph-fill ph-vault text-brand-600"></i> Saldo Kas Aktif</p>
                                     <h3 id="dash-saldo" class="text-4xl sm:text-5xl font-black tracking-tight mt-3">Rp 0</h3>
                                     <p id="dash-net-desc" class="text-xs text-slate-500 mt-4 leading-relaxed">Saldo = total pemasukan - pengeluaran kebutuhan pasis - refund berhasil.</p>
                                     <span id="dash-info-trx" class="hidden">0 Pengeluaran</span>
-                                    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-6">
+                                    <div class="saldo-mini-grid mt-7">
                                         <div class="saldo-mini-card saldo-mini-masuk rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
                                             <div class="saldo-mini-icon"><i class="ph-fill ph-arrow-circle-down"></i></div>
                                             <p class="saldo-mini-label text-[10px] uppercase tracking-wider font-bold text-emerald-700">Masuk</p>
@@ -1048,7 +1209,7 @@
                                 </div>
                             </div>
 
-                            <div class="xl:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="dashboard-secondary-grid">
                                 <div class="metric-glass rounded-3xl p-5 dash-card">
                                     <div class="flex items-start justify-between gap-3">
                                         <div><p class="text-brand-100/80 text-xs font-semibold uppercase tracking-wider">Piutang/Sisa</p><h3 id="dash-total-piutang" class="text-2xl font-black mt-2">Rp 0</h3></div>
@@ -1274,6 +1435,82 @@
                 </div>
             </div>
 
+            <!-- VIEW: TAGIHAN TAMBAHAN -->
+            <div id="view-tagihan" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3"><span id="tagihan-page-title-text">Uang Wisuda</span><span id="tagihan-total-badge" class="text-xs font-bold bg-violet-100 text-violet-700 py-1 px-3 rounded-full shadow-sm">0 Tagihan</span></h2>
+                        <p id="tagihan-page-description" class="text-slate-500 mt-1">Kelola tagihan Uang Wisuda untuk seluruh pasis atau pasis tertentu.</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="fetchDataDariGoogleSheets()" class="btn-press flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-medium text-sm"><i class="ph ph-arrows-clockwise text-lg"></i> Refresh</button>
+                        <button onclick="bukaModalTambahTagihan()" id="btn-buat-tagihan-kategori" class="admin-only hidden-role btn-press flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-medium text-sm shadow-sm"><i class="ph ph-plus-circle text-lg"></i><span id="tagihan-create-button-label">Buat Uang Wisuda</span></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="tagihan-metric bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-violet-600">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Tagihan</p>
+                        <p id="tagihan-total-nominal" class="mt-2 text-xl font-black text-slate-900">Rp 0</p>
+                    </div>
+                    <div class="tagihan-metric bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-emerald-600">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sudah Dibayar</p>
+                        <p id="tagihan-total-dibayar" class="mt-2 text-xl font-black text-slate-900">Rp 0</p>
+                    </div>
+                    <div class="tagihan-metric bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-amber-600">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sisa Tagihan</p>
+                        <p id="tagihan-total-sisa" class="mt-2 text-xl font-black text-slate-900">Rp 0</p>
+                    </div>
+                    <div class="tagihan-metric bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-cyan-600">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Status Lunas</p>
+                        <p id="tagihan-total-lunas" class="mt-2 text-xl font-black text-slate-900">0 / 0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3">
+                    <div class="relative group">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-violet-500"></i>
+                        <input id="tagihan-search" type="text" placeholder="Cari nama atau keterangan..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500">
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-violet-100 bg-violet-50 text-violet-700">
+                        <i id="tagihan-context-icon" class="ph ph-graduation-cap text-lg"></i>
+                        <div class="leading-tight"><p class="text-[10px] font-bold uppercase tracking-wider text-violet-500">Kategori Aktif</p><p id="tagihan-context-label" class="text-sm font-black">Uang Wisuda</p></div>
+                    </div>
+                    <select id="tagihan-filter-status" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20">
+                        <option value="">Semua Status</option>
+                        <option value="Belum Bayar">Belum Bayar</option>
+                        <option value="Cicilan">Cicilan</option>
+                        <option value="Lunas">Lunas</option>
+                        <option value="Dibatalkan">Dibatalkan</option>
+                    </select>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[920px]">
+                            <thead>
+                                <tr class="bg-slate-50/90 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                                    <th class="p-4 pl-6">Pasis / Tagihan</th>
+                                    <th class="p-4">Jenis</th>
+                                    <th class="p-4">Nominal</th>
+                                    <th class="p-4">Dibayar</th>
+                                    <th class="p-4">Sisa</th>
+                                    <th class="p-4">Jatuh Tempo</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 pr-6 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tagihan-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                        </table>
+                    </div>
+                    <div id="tagihan-empty" class="hidden p-10 text-center text-slate-500">
+                        <i id="tagihan-empty-icon" class="ph ph-graduation-cap text-4xl text-slate-300"></i>
+                        <p id="tagihan-empty-title" class="mt-3 font-semibold text-slate-700">Belum ada tagihan Uang Wisuda</p>
+                        <p id="tagihan-empty-description" class="mt-1 text-xs">Admin dapat membuat tagihan Uang Wisuda untuk seluruh pasis maupun pasis tertentu.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- VIEW: PENGELUARAN -->
             <div id="view-pengeluaran" class="view-section view-hidden max-w-7xl mx-auto space-y-6 absolute top-0 left-0 right-0 p-6 sm:p-10 w-full hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1493,34 +1730,39 @@
                             </div>
                             <pre class="overflow-x-auto text-[13px] font-mono leading-relaxed text-slate-300 custom-scrollbar"><code id="app-script-code">/**
  * API BACKEND NEXUS
- * PASIS + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC
+ * PASIS + TAGIHAN WISUDA/ABSENSI + PENGELUARAN + PINDAH DANA + PENGATURAN + VISITOR TRAFFIC
  * Update: Pasis Cuti bisa login dengan akses terbatas; Share PIN dilengkapi Generate PIN baru untuk Pasis Aktif dan Cuti.
  */
 
 var DATA_PASIS_HEADERS = [
-  &#x27;nama&#x27;, &#x27;nohp&#x27;, &#x27;jk&#x27;, &#x27;bank&#x27;, &#x27;norek&#x27;,
-  &#x27;dibayar&#x27;, &#x27;tgl_bayar&#x27;, &#x27;riwayat&#x27;, &#x27;status_aktif&#x27;,
-  &#x27;target_khusus&#x27;, &#x27;refund&#x27;, &#x27;tgl_refund&#x27;, &#x27;catatan_refund&#x27;,
-  &#x27;status_refund&#x27;, &#x27;waktu_refund&#x27;,
-  &#x27;pin_login&#x27;, &#x27;pin_diubah&#x27;, &#x27;last_login&#x27;, &#x27;last_pin_change&#x27;,
-  &#x27;pin_wa_terkirim&#x27;, &#x27;last_pin_share&#x27;
+  'nama', 'nohp', 'jk', 'bank', 'norek',
+  'dibayar', 'tgl_bayar', 'riwayat', 'status_aktif',
+  'target_khusus', 'refund', 'tgl_refund', 'catatan_refund',
+  'status_refund', 'waktu_refund',
+  'pin_login', 'pin_diubah', 'last_login', 'last_pin_change',
+  'pin_wa_terkirim', 'last_pin_share'
 ];
 
-var PENGELUARAN_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
-var PINDAH_DANA_HEADERS = [&#x27;id&#x27;, &#x27;tanggal&#x27;, &#x27;penerima&#x27;, &#x27;metode&#x27;, &#x27;keterangan&#x27;, &#x27;nominal&#x27;];
-var GALERI_HEADERS = [&#x27;id&#x27;, &#x27;judul&#x27;, &#x27;caption&#x27;, &#x27;album&#x27;, &#x27;kategori&#x27;, &#x27;tanggal&#x27;, &#x27;file_id&#x27;, &#x27;file_name&#x27;, &#x27;mime_type&#x27;, &#x27;size_bytes&#x27;, &#x27;url_view&#x27;, &#x27;url_download&#x27;, &#x27;thumbnail_url&#x27;, &#x27;folder_id&#x27;, &#x27;uploaded_by&#x27;, &#x27;uploaded_at&#x27;, &#x27;status&#x27;, &#x27;deleted_at&#x27;];
-var PENGATURAN_HEADERS = [&#x27;key&#x27;, &#x27;value&#x27;];
+var PENGELUARAN_HEADERS = ['id', 'tanggal', 'keterangan', 'nominal'];
+var PINDAH_DANA_HEADERS = ['id', 'tanggal', 'penerima', 'metode', 'keterangan', 'nominal'];
+var GALERI_HEADERS = ['id', 'judul', 'caption', 'album', 'kategori', 'tanggal', 'file_id', 'file_name', 'mime_type', 'size_bytes', 'url_view', 'url_download', 'thumbnail_url', 'folder_id', 'uploaded_by', 'uploaded_at', 'status', 'deleted_at'];
+var TAGIHAN_TAMBAHAN_HEADERS = [
+  'id', 'batch_id', 'jenis', 'nama_tagihan', 'nohp', 'nama',
+  'nominal_tagihan', 'nominal_dibayar', 'tanggal_tagihan', 'jatuh_tempo',
+  'keterangan', 'riwayat', 'status', 'dibuat_oleh', 'dibuat_at', 'updated_at'
+];
+var PENGATURAN_HEADERS = ['key', 'value'];
 
 var GALLERY_MAX_FILE_BYTES = 3 * 1024 * 1024;
 var GALLERY_MAX_UPLOAD_COUNT = 8;
-var GALLERY_ROOT_PREFIX = &#x27;Nexus Gallery&#x27;;
-var NEXUS_SPREADSHEET_ID_PROPERTY = &#x27;NEXUS_SPREADSHEET_ID&#x27;;
+var GALLERY_ROOT_PREFIX = 'Nexus Gallery';
+var NEXUS_SPREADSHEET_ID_PROPERTY = 'NEXUS_SPREADSHEET_ID';
 
 var DEFAULT_SETTINGS = {
   target_tagihan: 15000000,
   target_cuti_refund: 0,
-  pin_admin: &#x27;123456&#x27;,
-  gallery_folder_id: &#x27;&#x27;
+  pin_admin: '123456',
+  gallery_folder_id: ''
 };
 
 var AUTH_SESSION_TTL_SECONDS = 6 * 60 * 60;
@@ -1528,19 +1770,19 @@ var ADMIN_MAX_FAILED_ATTEMPTS = 3;
 var ADMIN_LOCK_SECONDS = 10 * 60;
 
 function normalizeClientId(value) {
-  var id = String(value || &#x27;global&#x27;).replace(/[^a-zA-Z0-9_\-]/g, &#x27;&#x27;).substring(0, 80);
-  return id || &#x27;global&#x27;;
+  var id = String(value || 'global').replace(/[^a-zA-Z0-9_\-]/g, '').substring(0, 80);
+  return id || 'global';
 }
 
 function getAdminLoginCacheKeys(clientId) {
   var id = normalizeClientId(clientId);
-  return { attempts: &#x27;nexus_admin_attempts_&#x27; + id, locked: &#x27;nexus_admin_locked_&#x27; + id };
+  return { attempts: 'nexus_admin_attempts_' + id, locked: 'nexus_admin_locked_' + id };
 }
 
 function getAdminLockState(clientId) {
   var cache = CacheService.getScriptCache();
   var keys = getAdminLoginCacheKeys(clientId);
-  var lockedUntil = parseInt(cache.get(keys.locked) || &#x27;0&#x27;, 10);
+  var lockedUntil = parseInt(cache.get(keys.locked) || '0', 10);
   var now = new Date().getTime();
   if (lockedUntil &amp;&amp; now &lt; lockedUntil) {
     return { locked: true, remaining_seconds: Math.ceil((lockedUntil - now) / 1000) };
@@ -1555,27 +1797,27 @@ function getAdminLockState(clientId) {
 function registerAdminFailedAttempt(clientId) {
   var cache = CacheService.getScriptCache();
   var keys = getAdminLoginCacheKeys(clientId);
-  var attempts = parseInt(cache.get(keys.attempts) || &#x27;0&#x27;, 10) + 1;
+  var attempts = parseInt(cache.get(keys.attempts) || '0', 10) + 1;
 
   if (attempts &gt;= ADMIN_MAX_FAILED_ATTEMPTS) {
     var lockedUntil = new Date().getTime() + (ADMIN_LOCK_SECONDS * 1000);
     cache.put(keys.locked, String(lockedUntil), ADMIN_LOCK_SECONDS);
     cache.put(keys.attempts, String(attempts), ADMIN_LOCK_SECONDS);
     return {
-      status: &#x27;locked&#x27;,
-      code: &#x27;ADMIN_LOCKED&#x27;,
+      status: 'locked',
+      code: 'ADMIN_LOCKED',
       remaining_seconds: ADMIN_LOCK_SECONDS,
       remaining_attempts: 0,
-      message: &#x27;Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam 10 menit.&#x27;
+      message: 'Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam 10 menit.'
     };
   }
 
   cache.put(keys.attempts, String(attempts), ADMIN_LOCK_SECONDS);
   return {
-    status: &#x27;error&#x27;,
-    code: &#x27;ADMIN_PIN_WRONG&#x27;,
+    status: 'error',
+    code: 'ADMIN_PIN_WRONG',
     remaining_attempts: ADMIN_MAX_FAILED_ATTEMPTS - attempts,
-    message: &#x27;PIN Admin salah.&#x27;
+    message: 'PIN Admin salah.'
   };
 }
 
@@ -1587,10 +1829,10 @@ function clearAdminFailedAttempts(clientId) {
 }
 
 function getSpreadsheetSafe() {
-  // Web App tidak selalu memiliki &quot;active spreadsheet&quot;. Simpan ID sekali saat setup
+  // Web App tidak selalu memiliki "active spreadsheet". Simpan ID sekali saat setup
   // agar upload tetap dapat menulis ke Sheets dan Google Drive setelah dideploy.
   var properties = PropertiesService.getScriptProperties();
-  var savedId = String(properties.getProperty(NEXUS_SPREADSHEET_ID_PROPERTY) || &#x27;&#x27;).trim();
+  var savedId = String(properties.getProperty(NEXUS_SPREADSHEET_ID_PROPERTY) || '').trim();
   if (savedId) {
     try {
       return SpreadsheetApp.openById(savedId);
@@ -1605,15 +1847,15 @@ function getSpreadsheetSafe() {
     return active;
   }
 
-  throw new Error(&#x27;DATABASE_TIDAK_TERHUBUNG: Jalankan setupNexusGallery() sekali dari editor Apps Script yang terikat dengan Google Sheet database Anda, lalu deploy ulang Web App.&#x27;);
+  throw new Error('DATABASE_TIDAK_TERHUBUNG: Jalankan setupNexusGallery() sekali dari editor Apps Script yang terikat dengan Google Sheet database Anda, lalu deploy ulang Web App.');
 }
 
 function configureNexusSpreadsheet(spreadsheetId) {
-  var id = String(spreadsheetId || &#x27;&#x27;).trim();
-  if (!id) throw new Error(&#x27;Spreadsheet ID wajib diisi.&#x27;);
+  var id = String(spreadsheetId || '').trim();
+  if (!id) throw new Error('Spreadsheet ID wajib diisi.');
   var spreadsheet = SpreadsheetApp.openById(id);
   PropertiesService.getScriptProperties().setProperty(NEXUS_SPREADSHEET_ID_PROPERTY, spreadsheet.getId());
-  return { status: &#x27;success&#x27;, spreadsheet_id: spreadsheet.getId(), spreadsheet_name: spreadsheet.getName() };
+  return { status: 'success', spreadsheet_id: spreadsheet.getId(), spreadsheet_name: spreadsheet.getName() };
 }
 
 function setupNexusGallery() {
@@ -1621,41 +1863,42 @@ function setupNexusGallery() {
   var spreadsheet = getSpreadsheetSafe();
   getPengaturanSheet();
   getGaleriSheet();
+  getTagihanTambahanSheet();
   var root = getOrCreateGalleryRootFolder();
   return {
-    status: &#x27;success&#x27;,
+    status: 'success',
     spreadsheet_id: spreadsheet.getId(),
     spreadsheet_name: spreadsheet.getName(),
     folder_id: root.getId(),
     folder_url: root.getUrl(),
-    message: &#x27;Nexus Gallery siap digunakan.&#x27;
+    message: 'Nexus Gallery siap digunakan.'
   };
 }
 
 function normalizeHeader(value) {
-  return String(value || &#x27;&#x27;).toLowerCase().trim();
+  return String(value || '').toLowerCase().trim();
 }
 
 
 function normalizePinValue(value) {
-  var text = String(value === null || value === undefined ? &#x27;&#x27; : value).trim();
+  var text = String(value === null || value === undefined ? '' : value).trim();
   // Hapus apostrof Google Sheet, spasi tersembunyi, pemisah ribuan, dan desimal .0/,0.
-  text = text.replace(/^&#x27;/, &#x27;&#x27;).replace(/[\u200B-\u200D\uFEFF]/g, &#x27;&#x27;).replace(/\s+/g, &#x27;&#x27;);
-  text = text.replace(/[.,]0+$/, &#x27;&#x27;);
+  text = text.replace(/^'/, '').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, '');
+  text = text.replace(/[.,]0+$/, '');
   // PIN Nexus memakai angka. Bila Google Sheet menampilkan 123.456 atau 123,456, jadikan 123456.
-  return text.replace(/[^0-9]/g, &#x27;&#x27;);
+  return text.replace(/[^0-9]/g, '');
 }
 
 function getAdminPinValue() {
-  var saved = getSettingValue(&#x27;pin_admin&#x27;, &#x27;123456&#x27;);
+  var saved = getSettingValue('pin_admin', '123456');
   var normalized = normalizePinValue(saved);
-  return normalized || &#x27;123456&#x27;;
+  return normalized || '123456';
 }
 
 
 function normalizePhoneForLogin(value) {
-  var digits = String(value || &#x27;&#x27;).replace(/[^0-9]/g, &#x27;&#x27;);
-  if (digits.charAt(0) === &#x27;0&#x27;) digits = &#x27;62&#x27; + digits.substring(1);
+  var digits = String(value || '').replace(/[^0-9]/g, '');
+  if (digits.charAt(0) === '0') digits = '62' + digits.substring(1);
   return digits;
 }
 
@@ -1665,11 +1908,11 @@ function getDefaultPasisPin(nohp) {
 }
 
 function isPasisCuti(row) {
-  return normalizeHeader(row &amp;&amp; row.status_aktif) === &#x27;cuti&#x27;;
+  return normalizeHeader(row &amp;&amp; row.status_aktif) === 'cuti';
 }
 
 function getEffectivePasisPin(row) {
-  var customPin = String((row &amp;&amp; row.pin_login) || &#x27;&#x27;).trim();
+  var customPin = String((row &amp;&amp; row.pin_login) || '').trim();
   return customPin || getDefaultPasisPin(row &amp;&amp; row.nohp);
 }
 
@@ -1681,11 +1924,11 @@ function sanitizePasisForClient(row) {
 }
 
 function nowString() {
-  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM-dd HH:mm:ss&#x27;);
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
 }
 
 function ensureHeaders(sheet, requiredHeaders) {
-  if (!sheet) throw new Error(&quot;Sheet tidak valid.&quot;);
+  if (!sheet) throw new Error("Sheet tidak valid.");
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(requiredHeaders);
@@ -1722,25 +1965,264 @@ function getOrCreateSheet(name, headers) {
 function getSheetSafe(name) {
   var ss = getSpreadsheetSafe();
   var sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error(&quot;Tab &#x27;&quot; + name + &quot;&#x27; tidak ditemukan.&quot;);
+  if (!sheet) throw new Error("Tab '" + name + "' tidak ditemukan.");
   return sheet;
 }
 
 function getDataPasisSheet() {
-  return getOrCreateSheet(&quot;Data Pasis&quot;, DATA_PASIS_HEADERS);
+  return getOrCreateSheet("Data Pasis", DATA_PASIS_HEADERS);
 }
 
 function getPengeluaranSheet() {
-  return getOrCreateSheet(&quot;Pengeluaran&quot;, PENGELUARAN_HEADERS);
+  return getOrCreateSheet("Pengeluaran", PENGELUARAN_HEADERS);
 }
 
 function getPindahDanaSheet() {
-  return getOrCreateSheet(&quot;Pindah Dana&quot;, PINDAH_DANA_HEADERS);
+  return getOrCreateSheet("Pindah Dana", PINDAH_DANA_HEADERS);
 }
 
 
 function getGaleriSheet() {
-  return getOrCreateSheet(&#x27;Galeri&#x27;, GALERI_HEADERS);
+  return getOrCreateSheet('Galeri', GALERI_HEADERS);
+}
+
+
+function getTagihanTambahanSheet() {
+  return getOrCreateSheet('Tagihan Tambahan', TAGIHAN_TAMBAHAN_HEADERS);
+}
+
+function parseTagihanNominal(value) {
+  var digits = String(value === undefined || value === null ? '' : value).replace(/[^0-9]/g, '');
+  return digits ? parseInt(digits, 10) : 0;
+}
+
+function normalizeTagihanJenis(value) {
+  var normalized = normalizeHeader(value).replace(/^uang\s+/, '');
+  if (normalized === 'wisuda') return 'Wisuda';
+  if (normalized === 'absensi') return 'Absensi';
+  throw new Error('Jenis tagihan harus Wisuda atau Absensi.');
+}
+
+function getTagihanTambahanSisa(row) {
+  return Math.max(parseTagihanNominal(row &amp;&amp; row.nominal_tagihan) - parseTagihanNominal(row &amp;&amp; row.nominal_dibayar), 0);
+}
+
+function getTagihanTambahanStatus(row) {
+  if (normalizeHeader(row &amp;&amp; row.status) === 'dibatalkan') return 'Dibatalkan';
+  var total = parseTagihanNominal(row &amp;&amp; row.nominal_tagihan);
+  var paid = parseTagihanNominal(row &amp;&amp; row.nominal_dibayar);
+  if (total &gt; 0 &amp;&amp; paid &gt;= total) return 'Lunas';
+  if (paid &gt; 0) return 'Cicilan';
+  return 'Belum Bayar';
+}
+
+function sanitizeTagihanTambahanForClient(row) {
+  return {
+    id: row.id || '',
+    batch_id: row.batch_id || '',
+    jenis: row.jenis || '',
+    nama_tagihan: row.nama_tagihan || '',
+    nohp: row.nohp || '',
+    nama: row.nama || '',
+    nominal_tagihan: parseTagihanNominal(row.nominal_tagihan),
+    nominal_dibayar: parseTagihanNominal(row.nominal_dibayar),
+    tanggal_tagihan: row.tanggal_tagihan || '',
+    jatuh_tempo: row.jatuh_tempo || '',
+    keterangan: row.keterangan || '',
+    riwayat: row.riwayat || '',
+    status: getTagihanTambahanStatus(row),
+    dibuat_oleh: row.dibuat_oleh || '',
+    dibuat_at: row.dibuat_at || '',
+    updated_at: row.updated_at || ''
+  };
+}
+
+function getTagihanTambahanForSession(session) {
+  var rows = sheetToJSON(getTagihanTambahanSheet()).map(function(row) {
+    return sanitizeTagihanTambahanForClient(row);
+  });
+
+  if (session.role !== 'admin') {
+    var targetPhone = normalizePhoneForLogin(session.nohp);
+    rows = rows.filter(function(row) {
+      return normalizePhoneForLogin(row.nohp) === targetPhone;
+    });
+  }
+
+  return rows.sort(function(a, b) {
+    return String(b.dibuat_at || b.tanggal_tagihan || '').localeCompare(String(a.dibuat_at || a.tanggal_tagihan || ''));
+  });
+}
+
+function getPasisTargetsForTagihan(data) {
+  var input = data || {};
+  var scope = normalizeHeader(input.cakupan || input.scope || 'semua');
+  var allPasis = getPublicPasisData().filter(function(row) { return row &amp;&amp; row.nohp; });
+
+  if (scope === 'semua' || scope === 'all' || scope === 'all_pasis') {
+    return allPasis;
+  }
+
+  if (scope === 'tertentu' || scope === 'selected' || scope === 'pasis_tertentu') {
+    var selected = input.nohp_list || input.pasis_nohp || [];
+    if (!Array.isArray(selected)) selected = [selected];
+    var selectedMap = {};
+    selected.forEach(function(nohp) {
+      var key = normalizePhoneForLogin(nohp);
+      if (key) selectedMap[key] = true;
+    });
+
+    var targets = allPasis.filter(function(row) {
+      return !!selectedMap[normalizePhoneForLogin(row.nohp)];
+    });
+    if (targets.length === 0) throw new Error('Pilih minimal satu pasis untuk tagihan khusus.');
+    return targets;
+  }
+
+  throw new Error('Cakupan tagihan tidak valid.');
+}
+
+function createTagihanTambahan(session, data) {
+  var input = data || {};
+  var jenis = normalizeTagihanJenis(input.jenis);
+  var namaTagihan = String(input.nama_tagihan || ('Uang ' + jenis)).replace(/[\r\n]+/g, ' ').trim().substring(0, 100);
+  if (!namaTagihan) namaTagihan = 'Uang ' + jenis;
+
+  var nominal = parseTagihanNominal(input.nominal_tagihan);
+  if (nominal &lt;= 0) throw new Error('Nominal tagihan harus lebih dari Rp 0.');
+
+  var tanggalTagihan = String(input.tanggal_tagihan || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
+  var jatuhTempo = String(input.jatuh_tempo || '').substring(0, 10);
+  var keterangan = String(input.keterangan || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 500);
+  var targets = getPasisTargetsForTagihan(input);
+  var sheet = getTagihanTambahanSheet();
+  var existing = sheetToJSON(sheet);
+  var batchId = Utilities.getUuid();
+  var created = [];
+  var skipped = [];
+
+  targets.forEach(function(pasis) {
+    var nohp = normalizePhoneForLogin(pasis.nohp);
+    var duplicate = existing.some(function(row) {
+      return normalizePhoneForLogin(row.nohp) === nohp &amp;&amp;
+        normalizeHeader(row.jenis) === normalizeHeader(jenis) &amp;&amp;
+        normalizeHeader(row.nama_tagihan) === normalizeHeader(namaTagihan) &amp;&amp;
+        String(row.tanggal_tagihan || '').substring(0, 10) === tanggalTagihan &amp;&amp;
+        normalizeHeader(row.status) !== 'dibatalkan';
+    });
+
+    if (duplicate) {
+      skipped.push(pasis.nama || pasis.nohp);
+      return;
+    }
+
+    var item = {
+      id: Utilities.getUuid(),
+      batch_id: batchId,
+      jenis: jenis,
+      nama_tagihan: namaTagihan,
+      nohp: pasis.nohp || '',
+      nama: pasis.nama || '',
+      nominal_tagihan: nominal,
+      nominal_dibayar: 0,
+      tanggal_tagihan: tanggalTagihan,
+      jatuh_tempo: jatuhTempo,
+      keterangan: keterangan,
+      riwayat: '',
+      status: 'Belum Bayar',
+      dibuat_oleh: session.nama || 'Admin',
+      dibuat_at: nowString(),
+      updated_at: nowString()
+    };
+    appendByHeaders(sheet, item);
+    existing.push(item);
+    created.push(sanitizeTagihanTambahanForClient(item));
+  });
+
+  if (created.length === 0) {
+    throw new Error('Tidak ada tagihan dibuat. Seluruh pasis pilihan sudah memiliki tagihan yang sama.');
+  }
+
+  return {
+    status: 'success',
+    data: created,
+    batch_id: batchId,
+    created_count: created.length,
+    skipped_count: skipped.length,
+    skipped_names: skipped.slice(0, 10),
+    message: created.length + ' tagihan ' + jenis + ' berhasil dibuat' + (skipped.length ? '. ' + skipped.length + ' pasis dilewati karena tagihan duplikat.' : '.')
+  };
+}
+
+function bayarTagihanTambahan(data) {
+  var input = data || {};
+  var itemId = String(input.id || '').trim();
+  if (!itemId) throw new Error('ID tagihan tidak tersedia.');
+
+  var nominalBayar = parseTagihanNominal(input.nominal);
+  if (nominalBayar &lt;= 0) throw new Error('Nominal pembayaran harus lebih dari Rp 0.');
+
+  var sheet = getTagihanTambahanSheet();
+  var rowIndex = findRowByHeaderValue(sheet, 'id', itemId);
+  if (rowIndex === -1) throw new Error('Tagihan tidak ditemukan.');
+
+  var headers = getHeaderInfo(sheet).headers;
+  var values = sheet.getRange(rowIndex, 1, 1, headers.length).getDisplayValues()[0];
+  var row = rowToObjectFromValues(headers, values);
+  if (normalizeHeader(row.status) === 'dibatalkan') throw new Error('Tagihan yang dibatalkan tidak dapat menerima pembayaran.');
+
+  var sisa = getTagihanTambahanSisa(row);
+  if (sisa &lt;= 0) throw new Error('Tagihan ini sudah lunas.');
+  if (nominalBayar &gt; sisa) throw new Error('Nominal melebihi sisa tagihan (' + sisa + ').');
+
+  var tanggal = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
+  var catatan = String(input.catatan || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 250);
+  var dibayarBaru = parseTagihanNominal(row.nominal_dibayar) + nominalBayar;
+  var riwayatBaru = String(row.riwayat || '');
+  var riwayatItem = tanggal + '::' + nominalBayar + (catatan ? '::' + catatan : '');
+  riwayatBaru = riwayatBaru ? riwayatBaru + '||' + riwayatItem : riwayatItem;
+  var statusBaru = dibayarBaru &gt;= parseTagihanNominal(row.nominal_tagihan) ? 'Lunas' : 'Cicilan';
+
+  writeByHeaders(sheet, rowIndex, {
+    nominal_dibayar: dibayarBaru,
+    riwayat: riwayatBaru,
+    status: statusBaru,
+    updated_at: nowString()
+  });
+
+  row.nominal_dibayar = dibayarBaru;
+  row.riwayat = riwayatBaru;
+  row.status = statusBaru;
+  row.updated_at = nowString();
+
+  return {
+    status: 'success',
+    data: sanitizeTagihanTambahanForClient(row),
+    message: statusBaru === 'Lunas' ? 'Pembayaran dicatat. Tagihan sudah lunas.' : 'Pembayaran dicatat. Sisa tagihan masih tersedia.'
+  };
+}
+
+function batalkanTagihanTambahan(data) {
+  var itemId = String(data &amp;&amp; data.id || '').trim();
+  if (!itemId) throw new Error('ID tagihan tidak tersedia.');
+
+  var sheet = getTagihanTambahanSheet();
+  var rowIndex = findRowByHeaderValue(sheet, 'id', itemId);
+  if (rowIndex === -1) throw new Error('Tagihan tidak ditemukan.');
+
+  var headers = getHeaderInfo(sheet).headers;
+  var values = sheet.getRange(rowIndex, 1, 1, headers.length).getDisplayValues()[0];
+  var row = rowToObjectFromValues(headers, values);
+  if (parseTagihanNominal(row.nominal_dibayar) &gt; 0) {
+    throw new Error('Tagihan yang sudah memiliki pembayaran tidak dapat dibatalkan. Koreksi pembayaran terlebih dahulu.');
+  }
+
+  writeByHeaders(sheet, rowIndex, {
+    status: 'Dibatalkan',
+    updated_at: nowString()
+  });
+
+  return { status: 'success', message: 'Tagihan dibatalkan.' };
 }
 
 function saveSettingValue(key, value) {
@@ -1758,18 +2240,18 @@ function saveSettingValue(key, value) {
 }
 
 function gallerySafeText(value, fallback, maxLength) {
-  var text = String(value === undefined || value === null ? &#x27;&#x27; : value)
-    .replace(/[\r\n]+/g, &#x27; &#x27;)
-    .replace(/[^a-zA-Z0-9À-ÿ _.,()&amp;+\-]/g, &#x27;&#x27;)
+  var text = String(value === undefined || value === null ? '' : value)
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[^a-zA-Z0-9À-ÿ _.,()&amp;+\-]/g, '')
     .trim();
-  if (!text) text = fallback || &#x27;&#x27;;
+  if (!text) text = fallback || '';
   return text.substring(0, maxLength || 120);
 }
 
 function getGalleryMonthKey(dateValue) {
-  var value = String(dateValue || &#x27;&#x27;).trim();
+  var value = String(dateValue || '').trim();
   if (/^\d{4}-\d{2}/.test(value)) return value.substring(0, 7);
-  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM&#x27;);
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM');
 }
 
 function getOrCreateChildFolder(parentFolder, folderName) {
@@ -1782,7 +2264,7 @@ function getOrCreateGalleryRootFolder() {
   var lock = LockService.getScriptLock();
   lock.waitLock(25000);
   try {
-    var savedFolderId = String(getSettingValue(&#x27;gallery_folder_id&#x27;, &#x27;&#x27;) || &#x27;&#x27;).trim();
+    var savedFolderId = String(getSettingValue('gallery_folder_id', '') || '').trim();
     if (savedFolderId) {
       try {
         return DriveApp.getFolderById(savedFolderId);
@@ -1791,11 +2273,11 @@ function getOrCreateGalleryRootFolder() {
       }
     }
 
-    var sheetName = gallerySafeText(getSpreadsheetSafe().getName(), &#x27;Database&#x27;, 70);
-    var rootName = GALLERY_ROOT_PREFIX + &#x27; - &#x27; + sheetName;
+    var sheetName = gallerySafeText(getSpreadsheetSafe().getName(), 'Database', 70);
+    var rootName = GALLERY_ROOT_PREFIX + ' - ' + sheetName;
     var roots = DriveApp.getFoldersByName(rootName);
     var root = roots.hasNext() ? roots.next() : DriveApp.createFolder(rootName);
-    saveSettingValue(&#x27;gallery_folder_id&#x27;, root.getId());
+    saveSettingValue('gallery_folder_id', root.getId());
     return root;
   } finally {
     lock.releaseLock();
@@ -1805,54 +2287,54 @@ function getOrCreateGalleryRootFolder() {
 function getOrCreateGalleryAlbumFolder(album, dateValue) {
   var root = getOrCreateGalleryRootFolder();
   var monthFolder = getOrCreateChildFolder(root, getGalleryMonthKey(dateValue));
-  var albumName = gallerySafeText(album, &#x27;Dokumentasi&#x27;, 70);
+  var albumName = gallerySafeText(album, 'Dokumentasi', 70);
   return getOrCreateChildFolder(monthFolder, albumName);
 }
 
 function parseGalleryImageData(dataUrl) {
-  var raw = String(dataUrl || &#x27;&#x27;);
+  var raw = String(dataUrl || '');
   var match = raw.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i);
-  if (!match) throw new Error(&#x27;Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.&#x27;);
+  if (!match) throw new Error('Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.');
 
-  var mimeType = match[1].toLowerCase().replace(&#x27;image/jpg&#x27;, &#x27;image/jpeg&#x27;);
-  var bytes = Utilities.base64Decode(match[2].replace(/\s/g, &#x27;&#x27;));
-  if (!bytes || bytes.length === 0) throw new Error(&#x27;Data foto kosong.&#x27;);
-  if (bytes.length &gt; GALLERY_MAX_FILE_BYTES) throw new Error(&#x27;Ukuran satu foto maksimal 4 MB setelah dikompresi.&#x27;);
+  var mimeType = match[1].toLowerCase().replace('image/jpg', 'image/jpeg');
+  var bytes = Utilities.base64Decode(match[2].replace(/\s/g, ''));
+  if (!bytes || bytes.length === 0) throw new Error('Data foto kosong.');
+  if (bytes.length &gt; GALLERY_MAX_FILE_BYTES) throw new Error('Ukuran satu foto maksimal 4 MB setelah dikompresi.');
 
   return { mime_type: mimeType, bytes: bytes };
 }
 
 function getGalleryExtension(mimeType) {
-  if (mimeType === &#x27;image/png&#x27;) return &#x27;png&#x27;;
-  if (mimeType === &#x27;image/webp&#x27;) return &#x27;webp&#x27;;
-  return &#x27;jpg&#x27;;
+  if (mimeType === 'image/png') return 'png';
+  if (mimeType === 'image/webp') return 'webp';
+  return 'jpg';
 }
 
 function makeGalleryFileName(title, index, mimeType) {
-  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyyMMdd_HHmmss&#x27;);
-  var safeTitle = gallerySafeText(title, &#x27;foto&#x27;, 50).replace(/\s+/g, &#x27;-&#x27;).toLowerCase();
-  return stamp + &#x27;_&#x27; + safeTitle + &#x27;_&#x27; + (index + 1) + &#x27;.&#x27; + getGalleryExtension(mimeType);
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyyMMdd_HHmmss');
+  var safeTitle = gallerySafeText(title, 'foto', 50).replace(/\s+/g, '-').toLowerCase();
+  return stamp + '_' + safeTitle + '_' + (index + 1) + '.' + getGalleryExtension(mimeType);
 }
 
 function makeGalleryPublicLinks(fileId) {
   return {
-    url_view: &#x27;https://drive.google.com/file/d/&#x27; + fileId + &#x27;/view&#x27;,
-    url_download: &#x27;https://drive.google.com/uc?export=download&amp;id=&#x27; + fileId,
-    thumbnail_url: &#x27;https://drive.google.com/thumbnail?id=&#x27; + fileId + &#x27;&amp;sz=w1600&#x27;
+    url_view: 'https://drive.google.com/file/d/' + fileId + '/view',
+    url_download: 'https://drive.google.com/uc?export=download&amp;id=' + fileId,
+    thumbnail_url: 'https://drive.google.com/thumbnail?id=' + fileId + '&amp;sz=w1600'
   };
 }
 
 function createGalleryFiles(session, data) {
   var input = data || {};
   var images = input.images || [];
-  if (!Array.isArray(images) || images.length === 0) throw new Error(&#x27;Pilih minimal satu foto untuk diunggah.&#x27;);
-  if (images.length &gt; GALLERY_MAX_UPLOAD_COUNT) throw new Error(&#x27;Maksimal &#x27; + GALLERY_MAX_UPLOAD_COUNT + &#x27; foto per unggahan.&#x27;);
+  if (!Array.isArray(images) || images.length === 0) throw new Error('Pilih minimal satu foto untuk diunggah.');
+  if (images.length &gt; GALLERY_MAX_UPLOAD_COUNT) throw new Error('Maksimal ' + GALLERY_MAX_UPLOAD_COUNT + ' foto per unggahan.');
 
-  var title = gallerySafeText(input.judul, &#x27;Dokumentasi Kegiatan&#x27;, 100);
-  var caption = String(input.caption || &#x27;&#x27;).replace(/[\r\n]+/g, &#x27; &#x27;).trim().substring(0, 500);
-  var album = gallerySafeText(input.album, &#x27;Dokumentasi&#x27;, 70);
-  var category = gallerySafeText(input.kategori, &#x27;Kegiatan&#x27;, 40);
-  var dateValue = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || &#x27;Asia/Jakarta&#x27;, &#x27;yyyy-MM-dd&#x27;)).substring(0, 10);
+  var title = gallerySafeText(input.judul, 'Dokumentasi Kegiatan', 100);
+  var caption = String(input.caption || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 500);
+  var album = gallerySafeText(input.album, 'Dokumentasi', 70);
+  var category = gallerySafeText(input.kategori, 'Kegiatan', 40);
+  var dateValue = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
   var folder = getOrCreateGalleryAlbumFolder(album, dateValue);
   var gallerySheet = getGaleriSheet();
   var created = [];
@@ -1865,7 +2347,7 @@ function createGalleryFiles(session, data) {
       var fileName = makeGalleryFileName(title, index, parsed.mime_type);
       var blob = Utilities.newBlob(parsed.bytes, parsed.mime_type, fileName);
       file = folder.createFile(blob);
-      file.setDescription(&#x27;Nexus Gallery | &#x27; + title + &#x27; | &#x27; + album + &#x27; | &#x27; + nowString());
+      file.setDescription('Nexus Gallery | ' + title + ' | ' + album + ' | ' + nowString());
 
       try {
         file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
@@ -1878,7 +2360,7 @@ function createGalleryFiles(session, data) {
       var links = makeGalleryPublicLinks(file.getId());
       var row = {
         id: Utilities.getUuid(),
-        judul: images.length &gt; 1 ? title + &#x27; (&#x27; + (index + 1) + &#x27;)&#x27; : title,
+        judul: images.length &gt; 1 ? title + ' (' + (index + 1) + ')' : title,
         caption: caption,
         album: album,
         kategori: category,
@@ -1891,10 +2373,10 @@ function createGalleryFiles(session, data) {
         url_download: links.url_download,
         thumbnail_url: links.thumbnail_url,
         folder_id: folder.getId(),
-        uploaded_by: session.nama || &#x27;Admin&#x27;,
+        uploaded_by: session.nama || 'Admin',
         uploaded_at: nowString(),
-        status: &#x27;Aktif&#x27;,
-        deleted_at: &#x27;&#x27;
+        status: 'Aktif',
+        deleted_at: ''
       };
 
       appendByHeaders(gallerySheet, row);
@@ -1909,74 +2391,74 @@ function createGalleryFiles(session, data) {
   });
 
   return {
-    status: &#x27;success&#x27;,
+    status: 'success',
     data: created,
     folder_url: folder.getUrl(),
     sharing_warning: sharingWarning,
-    message: created.length + &#x27; foto berhasil tersimpan di Google Drive.&#x27;
+    message: created.length + ' foto berhasil tersimpan di Google Drive.'
   };
 }
 
 function ensureGalleryAccess(session) {
-  if (!session || !session.role) throw new Error(&#x27;Sesi login tidak valid.&#x27;);
-  if (session.role === &#x27;admin&#x27;) return;
-  if (session.role !== &#x27;pasis&#x27;) throw new Error(&#x27;Akses Galeri tidak tersedia.&#x27;);
+  if (!session || !session.role) throw new Error('Sesi login tidak valid.');
+  if (session.role === 'admin') return;
+  if (session.role !== 'pasis') throw new Error('Akses Galeri tidak tersedia.');
 
   var found = findPasisRowByPhone(getDataPasisSheet(), session.nohp);
   if (!found.row || isPasisCuti(found.row)) {
-    throw new Error(&#x27;Akses Galeri tidak tersedia untuk Pasis berstatus Cuti.&#x27;);
+    throw new Error('Akses Galeri tidak tersedia untuk Pasis berstatus Cuti.');
   }
 }
 
 function getGalleryListForSession(session, data) {
-  var query = String(data &amp;&amp; data.query || &#x27;&#x27;).trim().toLowerCase();
-  var album = String(data &amp;&amp; data.album || &#x27;&#x27;).trim().toLowerCase();
-  var category = String(data &amp;&amp; data.kategori || &#x27;&#x27;).trim().toLowerCase();
+  var query = String(data &amp;&amp; data.query || '').trim().toLowerCase();
+  var album = String(data &amp;&amp; data.album || '').trim().toLowerCase();
+  var category = String(data &amp;&amp; data.kategori || '').trim().toLowerCase();
   var limit = Math.min(Math.max(parseInt(data &amp;&amp; data.limit || 200, 10) || 200, 1), 500);
 
   var rows = sheetToJSON(getGaleriSheet()).filter(function(row) {
-    if (normalizeHeader(row.status) === &#x27;dihapus&#x27;) return false;
-    var haystack = [row.judul, row.caption, row.album, row.kategori, row.tanggal].join(&#x27; &#x27;).toLowerCase();
+    if (normalizeHeader(row.status) === 'dihapus') return false;
+    var haystack = [row.judul, row.caption, row.album, row.kategori, row.tanggal].join(' ').toLowerCase();
     if (query &amp;&amp; haystack.indexOf(query) === -1) return false;
-    if (album &amp;&amp; String(row.album || &#x27;&#x27;).toLowerCase() !== album) return false;
-    if (category &amp;&amp; String(row.kategori || &#x27;&#x27;).toLowerCase() !== category) return false;
+    if (album &amp;&amp; String(row.album || '').toLowerCase() !== album) return false;
+    if (category &amp;&amp; String(row.kategori || '').toLowerCase() !== category) return false;
     return true;
   }).sort(function(a, b) {
-    return String(b.tanggal || b.uploaded_at || &#x27;&#x27;).localeCompare(String(a.tanggal || a.uploaded_at || &#x27;&#x27;));
+    return String(b.tanggal || b.uploaded_at || '').localeCompare(String(a.tanggal || a.uploaded_at || ''));
   }).slice(0, limit).map(function(row) {
     var links = makeGalleryPublicLinks(row.file_id);
     return {
       id: row.id,
-      judul: row.judul || &#x27;Dokumentasi&#x27;,
-      caption: row.caption || &#x27;&#x27;,
-      album: row.album || &#x27;Dokumentasi&#x27;,
-      kategori: row.kategori || &#x27;Kegiatan&#x27;,
-      tanggal: row.tanggal || &#x27;&#x27;,
-      file_id: row.file_id || &#x27;&#x27;,
+      judul: row.judul || 'Dokumentasi',
+      caption: row.caption || '',
+      album: row.album || 'Dokumentasi',
+      kategori: row.kategori || 'Kegiatan',
+      tanggal: row.tanggal || '',
+      file_id: row.file_id || '',
       thumbnail_url: row.thumbnail_url || links.thumbnail_url,
       url_view: row.url_view || links.url_view,
       url_download: row.url_download || links.url_download,
-      uploaded_by: row.uploaded_by || &#x27;&#x27;,
-      uploaded_at: row.uploaded_at || &#x27;&#x27;
+      uploaded_by: row.uploaded_by || '',
+      uploaded_at: row.uploaded_at || ''
     };
   });
 
-  var folderId = String(getSettingValue(&#x27;gallery_folder_id&#x27;, &#x27;&#x27;) || &#x27;&#x27;).trim();
-  var rootUrl = &#x27;&#x27;;
+  var folderId = String(getSettingValue('gallery_folder_id', '') || '').trim();
+  var rootUrl = '';
   if (folderId) {
     try { rootUrl = DriveApp.getFolderById(folderId).getUrl(); } catch (err) {}
   }
 
-  return { status: &#x27;success&#x27;, data: rows, root_folder_url: rootUrl };
+  return { status: 'success', data: rows, root_folder_url: rootUrl };
 }
 
 function deleteGalleryItem(data) {
-  var itemId = String(data &amp;&amp; data.id || &#x27;&#x27;).trim();
-  if (!itemId) throw new Error(&#x27;ID foto tidak tersedia.&#x27;);
+  var itemId = String(data &amp;&amp; data.id || '').trim();
+  if (!itemId) throw new Error('ID foto tidak tersedia.');
 
   var sheet = getGaleriSheet();
-  var rowIndex = findRowByHeaderValue(sheet, &#x27;id&#x27;, itemId);
-  if (rowIndex === -1) throw new Error(&#x27;Foto galeri tidak ditemukan.&#x27;);
+  var rowIndex = findRowByHeaderValue(sheet, 'id', itemId);
+  if (rowIndex === -1) throw new Error('Foto galeri tidak ditemukan.');
 
   var headers = getHeaderInfo(sheet).headers;
   var values = sheet.getRange(rowIndex, 1, 1, headers.length).getDisplayValues()[0];
@@ -1985,12 +2467,12 @@ function deleteGalleryItem(data) {
     try { DriveApp.getFileById(row.file_id).setTrashed(true); } catch (err) {}
   }
 
-  writeByHeaders(sheet, rowIndex, { status: &#x27;Dihapus&#x27;, deleted_at: nowString() });
-  return { status: &#x27;success&#x27;, message: &#x27;Foto dihapus dari Galeri dan dipindahkan ke Sampah Drive.&#x27; };
+  writeByHeaders(sheet, rowIndex, { status: 'Dihapus', deleted_at: nowString() });
+  return { status: 'success', message: 'Foto dihapus dari Galeri dan dipindahkan ke Sampah Drive.' };
 }
 
 function getPengaturanSheet() {
-  var sheet = getOrCreateSheet(&quot;Pengaturan&quot;, PENGATURAN_HEADERS);
+  var sheet = getOrCreateSheet("Pengaturan", PENGATURAN_HEADERS);
   ensureDefaultSettings(sheet);
   return sheet;
 }
@@ -2027,7 +2509,7 @@ function sheetToJSON(sheet) {
     return obj;
   }).filter(function(r) {
     var firstKey = headers[0];
-    return r[firstKey] &amp;&amp; r[firstKey] !== &quot;&quot;;
+    return r[firstKey] &amp;&amp; r[firstKey] !== "";
   });
 }
 
@@ -2038,22 +2520,22 @@ function getPinShareDataForAdmin() {
     return row &amp;&amp; row.nohp;
   }).map(function(row) {
     return {
-      nama: row.nama || &#x27;&#x27;,
-      nohp: row.nohp || &#x27;&#x27;,
-      jk: row.jk || &#x27;&#x27;,
-      status_aktif: row.status_aktif || &#x27;Aktif&#x27;,
+      nama: row.nama || '',
+      nohp: row.nohp || '',
+      jk: row.jk || '',
+      status_aktif: row.status_aktif || 'Aktif',
       pin: getEffectivePasisPin(row),
-      pin_diubah: row.pin_diubah || &#x27;Belum&#x27;,
-      pin_wa_terkirim: row.pin_wa_terkirim || &#x27;Belum&#x27;,
-      last_pin_share: row.last_pin_share || &#x27;&#x27;,
-      last_login: row.last_login || &#x27;&#x27;
+      pin_diubah: row.pin_diubah || 'Belum',
+      pin_wa_terkirim: row.pin_wa_terkirim || 'Belum',
+      last_pin_share: row.last_pin_share || '',
+      last_login: row.last_login || ''
     };
   });
 }
 
 
 function generateRandomPasisPin() {
-  var pin = &#x27;&#x27;;
+  var pin = '';
   for (var i = 0; i &lt; 6; i++) {
     pin += Math.floor(Math.random() * 10).toString();
   }
@@ -2066,8 +2548,8 @@ function resetPinsForActivePasis() {
   if (data.length &lt; 2) return [];
 
   var headers = data[0].map(normalizeHeader);
-  var nohpIndex = headers.indexOf(&#x27;nohp&#x27;);
-  if (nohpIndex === -1) throw new Error(&quot;Kolom &#x27;nohp&#x27; tidak ditemukan.&quot;);
+  var nohpIndex = headers.indexOf('nohp');
+  if (nohpIndex === -1) throw new Error("Kolom 'nohp' tidak ditemukan.");
 
   var updatedRows = [];
   for (var r = 1; r &lt; data.length; r++) {
@@ -2082,27 +2564,27 @@ function resetPinsForActivePasis() {
     var newPin = generateRandomPasisPin();
     writeByHeaders(sheet, r + 1, {
       pin_login: newPin,
-      pin_diubah: &#x27;Reset Admin&#x27;,
+      pin_diubah: 'Reset Admin',
       last_pin_change: nowString(),
-      pin_wa_terkirim: &#x27;Belum&#x27;,
-      last_pin_share: &#x27;&#x27;
+      pin_wa_terkirim: 'Belum',
+      last_pin_share: ''
     });
 
     rowObj.pin_login = newPin;
-    rowObj.pin_diubah = &#x27;Reset Admin&#x27;;
+    rowObj.pin_diubah = 'Reset Admin';
     rowObj.last_pin_change = nowString();
-    rowObj.pin_wa_terkirim = &#x27;Belum&#x27;;
-    rowObj.last_pin_share = &#x27;&#x27;;
+    rowObj.pin_wa_terkirim = 'Belum';
+    rowObj.last_pin_share = '';
     updatedRows.push({
-      nama: rowObj.nama || &#x27;&#x27;,
-      nohp: rowObj.nohp || &#x27;&#x27;,
-      jk: rowObj.jk || &#x27;&#x27;,
-      status_aktif: rowObj.status_aktif || &#x27;Aktif&#x27;,
+      nama: rowObj.nama || '',
+      nohp: rowObj.nohp || '',
+      jk: rowObj.jk || '',
+      status_aktif: rowObj.status_aktif || 'Aktif',
       pin: newPin,
       pin_diubah: rowObj.pin_diubah,
       pin_wa_terkirim: rowObj.pin_wa_terkirim,
       last_pin_share: rowObj.last_pin_share,
-      last_login: rowObj.last_login || &#x27;&#x27;
+      last_login: rowObj.last_login || ''
     });
   }
 
@@ -2119,7 +2601,7 @@ function markPinSharedByPhone(sheet, nohp) {
   var found = findPasisRowByPhone(sheet, nohp);
   if (found.rowIndex === -1 || !found.row) return false;
   writeByHeaders(sheet, found.rowIndex, {
-    pin_wa_terkirim: &#x27;Ya&#x27;,
+    pin_wa_terkirim: 'Ya',
     last_pin_share: nowString()
   });
   return true;
@@ -2139,7 +2621,7 @@ function getSettingsObject() {
 function getSettingValue(key, fallback) {
   var settings = getSettingsObject();
   var val = settings[normalizeHeader(key)];
-  return val !== undefined &amp;&amp; val !== &#x27;&#x27; ? String(val).trim() : fallback;
+  return val !== undefined &amp;&amp; val !== '' ? String(val).trim() : fallback;
 }
 
 function getHeaderInfo(sheet) {
@@ -2161,15 +2643,15 @@ function rowToObjectFromValues(headers, values) {
 }
 
 function buildPhoneCandidates(value) {
-  var raw = String(value || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
-  var digits = raw.replace(/[^0-9]/g, &#x27;&#x27;);
+  var raw = String(value || '').replace(/^'/, '').trim();
+  var digits = raw.replace(/[^0-9]/g, '');
   var normalized = normalizePhoneForLogin(raw);
   var candidates = {};
   [raw, digits, normalized].forEach(function(item) {
     if (item) candidates[item] = true;
   });
-  if (normalized.indexOf(&#x27;62&#x27;) === 0) candidates[&#x27;0&#x27; + normalized.substring(2)] = true;
-  if (digits.charAt(0) === &#x27;0&#x27;) candidates[&#x27;62&#x27; + digits.substring(1)] = true;
+  if (normalized.indexOf('62') === 0) candidates['0' + normalized.substring(2)] = true;
+  if (digits.charAt(0) === '0') candidates['62' + digits.substring(1)] = true;
   return Object.keys(candidates);
 }
 
@@ -2189,11 +2671,11 @@ function findRowByHeaderValue(sheet, headerName, targetValue) {
 
   var headers = data[0].map(normalizeHeader);
   var targetIndex = headers.indexOf(normalizeHeader(headerName));
-  if (targetIndex === -1) throw new Error(&quot;Kolom &#x27;&quot; + headerName + &quot;&#x27; tidak ditemukan.&quot;);
+  if (targetIndex === -1) throw new Error("Kolom '" + headerName + "' tidak ditemukan.");
 
-  var target = String(targetValue || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
+  var target = String(targetValue || '').replace(/^'/, '').trim();
   for (var r = 1; r &lt; data.length; r++) {
-    var cell = String(data[r][targetIndex] || &#x27;&#x27;).replace(/^&#x27;/, &#x27;&#x27;).trim();
+    var cell = String(data[r][targetIndex] || '').replace(/^'/, '').trim();
     if (cell === target) return r + 1;
   }
 
@@ -2209,7 +2691,7 @@ function findPasisRowByPhone(sheet, nohp) {
   var info = getHeaderInfo(sheet);
   var headers = info.headers;
   var nohpIndex = info.map.nohp;
-  if (nohpIndex === undefined) throw new Error(&quot;Kolom &#x27;nohp&#x27; tidak ditemukan.&quot;);
+  if (nohpIndex === undefined) throw new Error("Kolom 'nohp' tidak ditemukan.");
 
   var target = normalizePhoneForLogin(nohp);
   var phoneRange = sheet.getRange(2, nohpIndex + 1, lastRow - 1, 1);
@@ -2248,7 +2730,7 @@ function writeByHeaders(sheet, rowIndex, payloadData) {
     var key = normalizeHeader(header);
     if (payloadData[key] !== undefined) {
       var val = payloadData[key];
-      if (val !== &quot;&quot; &amp;&amp; (key === &#x27;nohp&#x27; || key === &#x27;norek&#x27;)) val = &quot;&#x27;&quot; + val;
+      if (val !== "" &amp;&amp; (key === 'nohp' || key === 'norek')) val = "'" + val;
       sheet.getRange(rowIndex, idx + 1).setValue(val);
     }
   });
@@ -2260,11 +2742,11 @@ function appendByHeaders(sheet, payloadData) {
 
   headers.forEach(function(header) {
     var key = normalizeHeader(header);
-    var val = payloadData[key] !== undefined ? payloadData[key] : &quot;&quot;;
-    if (key === &#x27;id&#x27; &amp;&amp; val === &quot;&quot;) val = new Date().getTime().toString();
-    if (key === &#x27;pin_diubah&#x27; &amp;&amp; val === &quot;&quot;) val = &quot;Belum&quot;;
-    if (key === &#x27;pin_wa_terkirim&#x27; &amp;&amp; val === &quot;&quot;) val = &quot;Belum&quot;;
-    if (val !== &quot;&quot; &amp;&amp; (key === &#x27;nohp&#x27; || key === &#x27;norek&#x27;)) val = &quot;&#x27;&quot; + val;
+    var val = payloadData[key] !== undefined ? payloadData[key] : "";
+    if (key === 'id' &amp;&amp; val === "") val = new Date().getTime().toString();
+    if (key === 'pin_diubah' &amp;&amp; val === "") val = "Belum";
+    if (key === 'pin_wa_terkirim' &amp;&amp; val === "") val = "Belum";
+    if (val !== "" &amp;&amp; (key === 'nohp' || key === 'norek')) val = "'" + val;
     newRow.push(val);
   });
 
@@ -2279,21 +2761,21 @@ function sortDataRowsByFirstColumn(sheet) {
 
 
 function createAuthSession(role, nohp, nama) {
-  var token = Utilities.getUuid() + &#x27;_&#x27; + new Date().getTime();
+  var token = Utilities.getUuid() + '_' + new Date().getTime();
   var sessionData = {
     role: role,
-    nohp: nohp || &#x27;&#x27;,
-    nama: nama || &#x27;&#x27;,
+    nohp: nohp || '',
+    nama: nama || '',
     created_at: nowString()
   };
-  CacheService.getScriptCache().put(&#x27;nexus_auth_&#x27; + token, JSON.stringify(sessionData), AUTH_SESSION_TTL_SECONDS);
+  CacheService.getScriptCache().put('nexus_auth_' + token, JSON.stringify(sessionData), AUTH_SESSION_TTL_SECONDS);
   return token;
 }
 
 function getAuthSession(token) {
-  token = String(token || &#x27;&#x27;).trim();
+  token = String(token || '').trim();
   if (!token) return null;
-  var raw = CacheService.getScriptCache().get(&#x27;nexus_auth_&#x27; + token);
+  var raw = CacheService.getScriptCache().get('nexus_auth_' + token);
   if (!raw) return null;
   try {
     return JSON.parse(raw);
@@ -2303,52 +2785,53 @@ function getAuthSession(token) {
 }
 
 function requireAuthSession(payload) {
-  var token = (payload &amp;&amp; (payload.token || (payload.auth &amp;&amp; payload.auth.token))) || &#x27;&#x27;;
+  var token = (payload &amp;&amp; (payload.token || (payload.auth &amp;&amp; payload.auth.token))) || '';
   var session = getAuthSession(token);
-  if (!session || !session.role) throw new Error(&#x27;Sesi login tidak valid atau sudah berakhir. Silakan login ulang.&#x27;);
+  if (!session || !session.role) throw new Error('Sesi login tidak valid atau sudah berakhir. Silakan login ulang.');
   return session;
 }
 
 function requireAdminSession(payload) {
   var session = requireAuthSession(payload);
-  if (session.role !== &#x27;admin&#x27;) throw new Error(&#x27;Akses ditolak. Fitur ini hanya untuk Admin.&#x27;);
+  if (session.role !== 'admin') throw new Error('Akses ditolak. Fitur ini hanya untuk Admin.');
   return session;
 }
 
 function getSecureDataForSession(session) {
-  var result = { status: &#x27;success&#x27;, role: session.role };
+  var result = { status: 'success', role: session.role };
   var allPasis = getPublicPasisData();
 
   result.pasis = allPasis;
   result.pengeluaran = sheetToJSON(getPengeluaranSheet());
   result.pindah_dana = sheetToJSON(getPindahDanaSheet());
+  result.tagihan_tambahan = getTagihanTambahanForSession(session);
   result.pengaturan = sheetToJSON(getPengaturanSheet());
-  result.access_views = session.role === &#x27;admin&#x27;
-    ? [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;pindah-dana&#x27;, &#x27;gallery&#x27;, &#x27;pengaturan&#x27;]
-    : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;];
+  result.access_views = session.role === 'admin'
+    ? ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'pindah-dana', 'gallery', 'pengaturan']
+    : ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'gallery'];
 
-  if (session.role === &#x27;pasis&#x27;) {
+  if (session.role === 'pasis') {
     var targetPhone = normalizePhoneForLogin(session.nohp);
     var rowPasis = allPasis.filter(function(row) {
       return normalizePhoneForLogin(row.nohp) === targetPhone;
     })[0];
-    if (!rowPasis) throw new Error(&#x27;Sesi pasis tidak ditemukan. Silakan login ulang.&#x27;);
+    if (!rowPasis) throw new Error('Sesi pasis tidak ditemukan. Silakan login ulang.');
 
     var pasisCuti = isPasisCuti(rowPasis);
     result.user = rowPasis;
-    result.pasis_status = pasisCuti ? &#x27;cuti&#x27; : &#x27;aktif&#x27;;
-    result.access_scope = pasisCuti ? &#x27;self&#x27; : &#x27;all&#x27;;
+    result.pasis_status = pasisCuti ? 'cuti' : 'aktif';
+    result.access_scope = pasisCuti ? 'self' : 'all';
 
     // Aturan akses:
     // - Pasis Aktif: boleh melihat seluruh Data Pasis dan menu umum.
-    // - Pasis Cuti: boleh login, tetapi hanya menerima data dirinya sendiri dan menu Akun Saya.
+    // - Pasis Cuti: hanya menerima data dirinya sendiri, Akun Saya, dan tagihan pribadinya.
     if (pasisCuti) {
       result.pasis = [rowPasis];
       result.pengeluaran = [];
       result.pindah_dana = [];
-      result.access_views = [&#x27;pasis&#x27;, &#x27;akun&#x27;];
+      result.access_views = ['pasis', 'akun', 'tagihan'];
     } else {
-      result.access_views = [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;];
+      result.access_views = ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'gallery'];
     }
   }
 
@@ -2357,51 +2840,67 @@ function getSecureDataForSession(session) {
 
 function doGet(e) {
   return makeOutput({
-    status: &#x27;locked&#x27;,
-    message: &#x27;Data dilindungi. Silakan login melalui aplikasi Nexus.&#x27;
+    status: 'locked',
+    message: 'Data dilindungi. Silakan login melalui aplikasi Nexus.'
   });
 }
 
 function doPost(e) {
   try {
-    var payload = JSON.parse(e.postData.contents || &#x27;{}&#x27;);
-    if (!payload.action) throw new Error(&quot;Action kosong.&quot;);
+    var payload = JSON.parse(e.postData.contents || '{}');
+    if (!payload.action) throw new Error("Action kosong.");
 
     // --- AMBIL DATA SETELAH LOGIN ---
-    if (payload.action === &#x27;get_secure_data&#x27;) {
+    if (payload.action === 'get_secure_data') {
       var authSession = requireAuthSession(payload);
       var secureResult = getSecureDataForSession(authSession);
       return makeOutput(secureResult);
     }
 
+    // --- TAGIHAN TAMBAHAN: UANG WISUDA &amp; UANG ABSENSI ---
+    if (payload.action === 'create_tagihan_tambahan') {
+      var tagihanAdmin = requireAdminSession(payload);
+      return makeOutput(createTagihanTambahan(tagihanAdmin, payload.data || {}));
+    }
+
+    if (payload.action === 'bayar_tagihan_tambahan') {
+      requireAdminSession(payload);
+      return makeOutput(bayarTagihanTambahan(payload.data || {}));
+    }
+
+    if (payload.action === 'batalkan_tagihan_tambahan') {
+      requireAdminSession(payload);
+      return makeOutput(batalkanTagihanTambahan(payload.data || {}));
+    }
+
     // --- GALERI GOOGLE DRIVE ---
-    if (payload.action === &#x27;initialize_gallery&#x27;) {
+    if (payload.action === 'initialize_gallery') {
       requireAdminSession(payload);
       return makeOutput(setupNexusGallery());
     }
 
-    if (payload.action === &#x27;list_gallery&#x27;) {
+    if (payload.action === 'list_gallery') {
       var gallerySession = requireAuthSession(payload);
       ensureGalleryAccess(gallerySession);
       return makeOutput(getGalleryListForSession(gallerySession, payload.data || {}));
     }
 
-    if (payload.action === &#x27;upload_gallery&#x27;) {
+    if (payload.action === 'upload_gallery') {
       var galleryAdminSession = requireAdminSession(payload);
       return makeOutput(createGalleryFiles(galleryAdminSession, payload.data || {}));
     }
 
-    if (payload.action === &#x27;delete_gallery&#x27;) {
+    if (payload.action === 'delete_gallery') {
       requireAdminSession(payload);
       return makeOutput(deleteGalleryItem(payload.data || {}));
     }
 
     // --- LOGIN ADMIN CEPAT + PROTEKSI 3x SALAH PER PERANGKAT/BROWSER ---
-    if (payload.action === &#x27;login_admin&#x27;) {
+    if (payload.action === 'login_admin') {
       var adminData = payload.data || {};
       var pinAdmin = normalizePinValue(adminData.pin);
-      var clientId = adminData.client_id || adminData.device_id || &#x27;global&#x27;;
-      if (!pinAdmin) throw new Error(&quot;PIN Admin wajib diisi.&quot;);
+      var clientId = adminData.client_id || adminData.device_id || 'global';
+      if (!pinAdmin) throw new Error("PIN Admin wajib diisi.");
 
       var savedAdminPin = getAdminPinValue();
 
@@ -2411,24 +2910,24 @@ function doPost(e) {
         clearAdminFailedAttempts(clientId);
         var settingsLogin = getSettingsObject();
         return makeOutput({
-          status: &#x27;success&#x27;,
-          role: &#x27;admin&#x27;,
-          token: createAuthSession(&#x27;admin&#x27;, &#x27;&#x27;, &#x27;Admin&#x27;),
+          status: 'success',
+          role: 'admin',
+          token: createAuthSession('admin', '', 'Admin'),
           pengaturan: Object.keys(settingsLogin).map(function(key) {
             return { key: key, value: settingsLogin[key] };
           }),
-          message: &#x27;Login Admin berhasil.&#x27;
+          message: 'Login Admin berhasil.'
         });
       }
 
       var lockState = getAdminLockState(clientId);
       if (lockState.locked) {
         return makeOutput({
-          status: &#x27;locked&#x27;,
-          code: &#x27;ADMIN_LOCKED&#x27;,
+          status: 'locked',
+          code: 'ADMIN_LOCKED',
           remaining_seconds: lockState.remaining_seconds,
           remaining_attempts: 0,
-          message: &#x27;Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam &#x27; + Math.ceil(lockState.remaining_seconds / 60) + &#x27; menit.&#x27;
+          message: 'Login Admin terkunci sementara karena PIN salah 3 kali. Coba lagi dalam ' + Math.ceil(lockState.remaining_seconds / 60) + ' menit.'
         });
       }
 
@@ -2436,18 +2935,18 @@ function doPost(e) {
     }
 
     // --- LOGIN PASIS ---
-    if (payload.action === &#x27;login_pasis&#x27;) {
+    if (payload.action === 'login_pasis') {
       var loginData = payload.data || {};
       var nohpLogin = loginData.nohp;
-      var pinLogin = String(loginData.pin || &#x27;&#x27;).trim();
-      if (!nohpLogin || !pinLogin) throw new Error(&quot;No HP dan PIN wajib diisi.&quot;);
+      var pinLogin = String(loginData.pin || '').trim();
+      if (!nohpLogin || !pinLogin) throw new Error("No HP dan PIN wajib diisi.");
 
       var sheetLogin = getDataPasisSheet();
       var foundLogin = findPasisRowByPhone(sheetLogin, nohpLogin);
-      if (foundLogin.rowIndex === -1 || !foundLogin.row) throw new Error(&quot;Akun pasis tidak ditemukan.&quot;);
+      if (foundLogin.rowIndex === -1 || !foundLogin.row) throw new Error("Akun pasis tidak ditemukan.");
 
       var effectivePin = getEffectivePasisPin(foundLogin.row);
-      if (pinLogin !== effectivePin) throw new Error(&quot;PIN salah.&quot;);
+      if (pinLogin !== effectivePin) throw new Error("PIN salah.");
 
       var loginTime = nowString();
       writeByHeaders(sheetLogin, foundLogin.rowIndex, { last_login: loginTime });
@@ -2455,78 +2954,78 @@ function doPost(e) {
 
       var loginIsCuti = isPasisCuti(foundLogin.row);
       return makeOutput({
-        status: &#x27;success&#x27;,
-        role: &#x27;pasis&#x27;,
-        token: createAuthSession(&#x27;pasis&#x27;, normalizePhoneForLogin(foundLogin.row.nohp), foundLogin.row.nama || &#x27;Pasis&#x27;),
+        status: 'success',
+        role: 'pasis',
+        token: createAuthSession('pasis', normalizePhoneForLogin(foundLogin.row.nohp), foundLogin.row.nama || 'Pasis'),
         user: sanitizePasisForClient(foundLogin.row),
-        pasis_status: loginIsCuti ? &#x27;cuti&#x27; : &#x27;aktif&#x27;,
-        access_scope: loginIsCuti ? &#x27;self&#x27; : &#x27;all&#x27;,
-        access_views: loginIsCuti ? [&#x27;pasis&#x27;, &#x27;akun&#x27;] : [&#x27;dashboard&#x27;, &#x27;pasis&#x27;, &#x27;akun&#x27;, &#x27;pengeluaran&#x27;, &#x27;gallery&#x27;],
-        default_pin_hint: !foundLogin.row.pin_login ? &#x27;PIN awal adalah 6 digit terakhir No HP.&#x27; : &#x27;&#x27;,
-        message: loginIsCuti ? &#x27;Login berhasil. Status Cuti: akses hanya Data Pasis milik Anda dan Akun Saya.&#x27; : &#x27;Login berhasil.&#x27;
+        pasis_status: loginIsCuti ? 'cuti' : 'aktif',
+        access_scope: loginIsCuti ? 'self' : 'all',
+        access_views: loginIsCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran', 'gallery'],
+        default_pin_hint: !foundLogin.row.pin_login ? 'PIN awal adalah 6 digit terakhir No HP.' : '',
+        message: loginIsCuti ? 'Login berhasil. Status Cuti: akses hanya Data Pasis milik Anda dan Akun Saya.' : 'Login berhasil.'
       });
     }
 
     // --- GANTI PIN PASIS ---
-    if (payload.action === &#x27;update_pin_pasis&#x27;) {
+    if (payload.action === 'update_pin_pasis') {
       var pinData = payload.data || {};
       var nohpPin = pinData.nohp;
-      var oldPin = String(pinData.old_pin || &#x27;&#x27;).trim();
-      var newPin = String(pinData.new_pin || &#x27;&#x27;).trim();
+      var oldPin = String(pinData.old_pin || '').trim();
+      var newPin = String(pinData.new_pin || '').trim();
 
-      if (!nohpPin || !oldPin || !newPin) throw new Error(&quot;No HP, PIN lama, dan PIN baru wajib diisi.&quot;);
-      if (!/^\d{4,12}$/.test(newPin)) throw new Error(&quot;PIN baru harus angka 4 sampai 12 digit.&quot;);
+      if (!nohpPin || !oldPin || !newPin) throw new Error("No HP, PIN lama, dan PIN baru wajib diisi.");
+      if (!/^\d{4,12}$/.test(newPin)) throw new Error("PIN baru harus angka 4 sampai 12 digit.");
 
       var sheetPin = getDataPasisSheet();
       var foundPin = findPasisRowByPhone(sheetPin, nohpPin);
-      if (foundPin.rowIndex === -1 || !foundPin.row) throw new Error(&quot;Akun pasis tidak ditemukan.&quot;);
+      if (foundPin.rowIndex === -1 || !foundPin.row) throw new Error("Akun pasis tidak ditemukan.");
 
       var currentPin = getEffectivePasisPin(foundPin.row);
-      if (oldPin !== currentPin) throw new Error(&quot;PIN lama salah.&quot;);
-      if (newPin === currentPin) throw new Error(&quot;PIN baru tidak boleh sama dengan PIN lama.&quot;);
+      if (oldPin !== currentPin) throw new Error("PIN lama salah.");
+      if (newPin === currentPin) throw new Error("PIN baru tidak boleh sama dengan PIN lama.");
 
       writeByHeaders(sheetPin, foundPin.rowIndex, {
         pin_login: newPin,
-        pin_diubah: &#x27;Ya&#x27;,
+        pin_diubah: 'Ya',
         last_pin_change: nowString()
       });
 
-      foundPin.row.pin_diubah = &#x27;Ya&#x27;;
+      foundPin.row.pin_diubah = 'Ya';
       foundPin.row.last_pin_change = nowString();
       return makeOutput({
-        status: &#x27;success&#x27;,
-        message: &#x27;PIN berhasil diperbarui.&#x27;,
+        status: 'success',
+        message: 'PIN berhasil diperbarui.',
         user: sanitizePasisForClient(foundPin.row)
       });
     }
 
     // --- SHARE PIN PASIS VIA WHATSAPP (ADMIN) ---
-    if (payload.action === &#x27;get_pin_share_list&#x27;) {
+    if (payload.action === 'get_pin_share_list') {
       requireAdminSession(payload);
       return makeOutput({
-        status: &#x27;success&#x27;,
+        status: 'success',
         data: getPinShareDataForAdmin()
       });
     }
 
-    if (payload.action === &#x27;generate_share_pin&#x27; || payload.action === &#x27;reset_active_pasis_pins&#x27;) {
+    if (payload.action === 'generate_share_pin' || payload.action === 'reset_active_pasis_pins') {
       requireAdminSession(payload);
       var resetList = generatePinsForSharePinPasis();
       return makeOutput({
-        status: &#x27;success&#x27;,
+        status: 'success',
         updated: resetList.length,
         data: resetList,
-        message: resetList.length + &#x27; PIN pasis Aktif/Cuti berhasil dibuat ulang.&#x27;
+        message: resetList.length + ' PIN pasis Aktif/Cuti berhasil dibuat ulang.'
       });
     }
 
-    if (payload.action === &#x27;mark_pin_shared&#x27;) {
+    if (payload.action === 'mark_pin_shared') {
       requireAdminSession(payload);
       var shareData = payload.data || {};
       var listPhone = shareData.nohp_list || [];
       if (!Array.isArray(listPhone)) listPhone = [];
       if (shareData.nohp) listPhone.push(shareData.nohp);
-      if (listPhone.length === 0) throw new Error(&quot;Daftar No HP kosong.&quot;);
+      if (listPhone.length === 0) throw new Error("Daftar No HP kosong.");
 
       var sheetShare = getDataPasisSheet();
       var updatedCount = 0;
@@ -2535,16 +3034,16 @@ function doPost(e) {
       });
 
       return makeOutput({
-        status: &#x27;success&#x27;,
+        status: 'success',
         updated: updatedCount,
-        message: updatedCount + &#x27; status share PIN diperbarui.&#x27;
+        message: updatedCount + ' status share PIN diperbarui.'
       });
     }
 
     // --- AKSI PING (KUNJUNGAN &amp; USER AKTIF) ---
-    if (payload.action === &#x27;ping&#x27;) {
+    if (payload.action === 'ping') {
       var cache = CacheService.getScriptCache();
-      var activeUsersStr = cache.get(&#x27;nexus_active_users&#x27;);
+      var activeUsersStr = cache.get('nexus_active_users');
       var activeUsers = activeUsersStr ? JSON.parse(activeUsersStr) : {};
       var now = new Date().getTime();
 
@@ -2555,7 +3054,7 @@ function doPost(e) {
         if (now - activeUsers[key] &gt; 120000) delete activeUsers[key];
         else activeCount++;
       }
-      cache.put(&#x27;nexus_active_users&#x27;, JSON.stringify(activeUsers), 300);
+      cache.put('nexus_active_users', JSON.stringify(activeUsers), 300);
 
       var sheetPengaturan = getPengaturanSheet();
       var dataPengaturan = sheetPengaturan.getDataRange().getDisplayValues();
@@ -2563,7 +3062,7 @@ function doPost(e) {
       var viewRowIndex = -1;
 
       for (var r = 1; r &lt; dataPengaturan.length; r++) {
-        if (normalizeHeader(dataPengaturan[r][0]) === &#x27;total_views&#x27;) {
+        if (normalizeHeader(dataPengaturan[r][0]) === 'total_views') {
           viewRowIndex = r + 1;
           totalViews = parseInt(dataPengaturan[r][1]) || 0;
           break;
@@ -2573,84 +3072,84 @@ function doPost(e) {
       if (payload.isNewVisit) {
         totalViews++;
         if (viewRowIndex &gt; -1) sheetPengaturan.getRange(viewRowIndex, 2).setValue(totalViews);
-        else sheetPengaturan.appendRow([&#x27;total_views&#x27;, totalViews]);
+        else sheetPengaturan.appendRow(['total_views', totalViews]);
       }
 
-      return makeOutput({ status: &#x27;success&#x27;, activeUsers: activeCount, totalViews: totalViews });
+      return makeOutput({ status: 'success', activeUsers: activeCount, totalViews: totalViews });
     }
 
     // --- AKSI DATA PASIS ---
-    if (payload.action === &#x27;create&#x27; || payload.action === &#x27;update&#x27;) {
+    if (payload.action === 'create' || payload.action === 'update') {
       requireAdminSession(payload);
       var sheetPasis = getDataPasisSheet();
 
-      if (payload.action === &#x27;create&#x27;) {
+      if (payload.action === 'create') {
         var createData = payload.data || {};
-        if (!createData.pin_diubah) createData.pin_diubah = &#x27;Belum&#x27;;
+        if (!createData.pin_diubah) createData.pin_diubah = 'Belum';
         appendByHeaders(sheetPasis, createData);
         sortDataRowsByFirstColumn(sheetPasis);
-        return makeOutput({ status: &#x27;success&#x27; });
+        return makeOutput({ status: 'success' });
       }
 
-      if (payload.action === &#x27;update&#x27;) {
+      if (payload.action === 'update') {
         var data = payload.data || {};
         var targetNohp = data.original_nohp || data.nohp;
-        if (!targetNohp) throw new Error(&quot;Nomor HP target kosong.&quot;);
+        if (!targetNohp) throw new Error("Nomor HP target kosong.");
 
-        var rowIndex = findRowByHeaderValue(sheetPasis, &#x27;nohp&#x27;, targetNohp);
-        if (rowIndex === -1) throw new Error(&quot;Data tidak ditemukan.&quot;);
+        var rowIndex = findRowByHeaderValue(sheetPasis, 'nohp', targetNohp);
+        if (rowIndex === -1) throw new Error("Data tidak ditemukan.");
 
         writeByHeaders(sheetPasis, rowIndex, data);
-        return makeOutput({ status: &#x27;success&#x27; });
+        return makeOutput({ status: 'success' });
       }
     }
 
-    if (payload.action === &#x27;delete_pasis&#x27;) {
+    if (payload.action === 'delete_pasis') {
       requireAdminSession(payload);
       var sheetDeletePasis = getDataPasisSheet();
-      var rowDelete = findRowByHeaderValue(sheetDeletePasis, &#x27;nohp&#x27;, payload.data &amp;&amp; payload.data.nohp);
-      if (rowDelete === -1) throw new Error(&quot;Pasis tidak ditemukan.&quot;);
+      var rowDelete = findRowByHeaderValue(sheetDeletePasis, 'nohp', payload.data &amp;&amp; payload.data.nohp);
+      if (rowDelete === -1) throw new Error("Pasis tidak ditemukan.");
 
       sheetDeletePasis.deleteRow(rowDelete);
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
     // --- AKSI PENGELUARAN ---
-    if (payload.action === &#x27;create_pengeluaran&#x27;) {
+    if (payload.action === 'create_pengeluaran') {
       requireAdminSession(payload);
       appendByHeaders(getPengeluaranSheet(), payload.data || {});
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
-    if (payload.action === &#x27;delete_pengeluaran&#x27;) {
+    if (payload.action === 'delete_pengeluaran') {
       requireAdminSession(payload);
       var sheetPengeluaran = getPengeluaranSheet();
-      var rowPengeluaran = findRowByHeaderValue(sheetPengeluaran, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
-      if (rowPengeluaran === -1) throw new Error(&quot;Pengeluaran tidak ditemukan.&quot;);
+      var rowPengeluaran = findRowByHeaderValue(sheetPengeluaran, 'id', payload.data &amp;&amp; payload.data.id);
+      if (rowPengeluaran === -1) throw new Error("Pengeluaran tidak ditemukan.");
 
       sheetPengeluaran.deleteRow(rowPengeluaran);
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
     // --- AKSI PINDAH DANA / SERAH TERIMA KE KETUA KELAS ---
-    if (payload.action === &#x27;create_pindah_dana&#x27;) {
+    if (payload.action === 'create_pindah_dana') {
       requireAdminSession(payload);
       appendByHeaders(getPindahDanaSheet(), payload.data || {});
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
-    if (payload.action === &#x27;delete_pindah_dana&#x27;) {
+    if (payload.action === 'delete_pindah_dana') {
       requireAdminSession(payload);
       var sheetPindah = getPindahDanaSheet();
-      var rowPindah = findRowByHeaderValue(sheetPindah, &#x27;id&#x27;, payload.data &amp;&amp; payload.data.id);
-      if (rowPindah === -1) throw new Error(&quot;Data serah terima kas tidak ditemukan.&quot;);
+      var rowPindah = findRowByHeaderValue(sheetPindah, 'id', payload.data &amp;&amp; payload.data.id);
+      if (rowPindah === -1) throw new Error("Data serah terima kas tidak ditemukan.");
 
       sheetPindah.deleteRow(rowPindah);
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
     // --- AKSI UPDATE PENGATURAN ---
-    if (payload.action === &#x27;update_pengaturan&#x27;) {
+    if (payload.action === 'update_pengaturan') {
       requireAdminSession(payload);
       var sheetSetting = getPengaturanSheet();
       var settingData = sheetSetting.getDataRange().getDisplayValues();
@@ -2668,14 +3167,14 @@ function doPost(e) {
         if (!found) sheetSetting.appendRow([k, keysToUpdate[k]]);
       }
 
-      return makeOutput({ status: &#x27;success&#x27; });
+      return makeOutput({ status: 'success' });
     }
 
-    throw new Error(&quot;Action tidak valid: &quot; + payload.action);
+    throw new Error("Action tidak valid: " + payload.action);
   } catch (err) {
-    var message = err &amp;&amp; err.message ? err.message : String(err || &#x27;Kesalahan tidak diketahui.&#x27;);
-    console.error(&#x27;Nexus API error: &#x27; + message + &#x27;\n&#x27; + (err &amp;&amp; err.stack ? err.stack : &#x27;&#x27;));
-    return makeOutput({ status: &#x27;error&#x27;, message: message });
+    var message = err &amp;&amp; err.message ? err.message : String(err || 'Kesalahan tidak diketahui.');
+    console.error('Nexus API error: ' + message + '\n' + (err &amp;&amp; err.stack ? err.stack : ''));
+    return makeOutput({ status: 'error', message: message });
   }
 }</code></pre>
                         </div>
@@ -2858,6 +3357,67 @@ function doPost(e) {
 
 
     <!-- MODAL FORM PENGELUARAN -->
+    <!-- MODAL BUAT TAGIHAN TAMBAHAN -->
+    <div id="modal-tagihan-tambah" class="fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-[83] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-tagihan-tambah-content" class="bg-white rounded-[2rem] w-full max-w-3xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-violet-50/60">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center"><i id="tagihan-modal-icon" class="ph-fill ph-graduation-cap text-xl"></i></div><div><h3 id="tagihan-modal-title" class="font-black text-slate-900">Buat Uang Wisuda</h3><p id="tagihan-modal-description" class="text-xs text-slate-500">Terapkan Uang Wisuda untuk seluruh pasis maupun pilihan tertentu.</p></div></div>
+                <button id="close-tagihan-tambah-btn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-white btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Jenis Tagihan</label><div class="w-full px-4 py-3 bg-violet-50 border border-violet-100 rounded-xl text-sm font-black text-violet-700 flex items-center gap-2"><i id="tagihan-modal-type-icon" class="ph ph-graduation-cap text-lg"></i><span id="tagihan-modal-type-label">Uang Wisuda</span></div><input id="tagihan-jenis" type="hidden" value="Wisuda"></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nominal per Pasis</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span><input id="tagihan-nominal" type="text" inputmode="numeric" placeholder="Contoh: 250.000" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"></div></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nama Tagihan</label><input id="tagihan-nama" type="text" maxlength="100" placeholder="Contoh: Uang Wisuda Tahun 2026" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Tanggal Ditetapkan</label><input id="tagihan-tanggal" type="date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"></div>
+                    <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Jatuh Tempo <span class="normal-case font-medium text-slate-400">(opsional)</span></label><input id="tagihan-jatuh-tempo" type="date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"></div>
+                </div>
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Keterangan <span class="normal-case font-medium text-slate-400">(opsional)</span></label><textarea id="tagihan-keterangan" rows="2" maxlength="500" placeholder="Contoh: Pembayaran untuk kebutuhan administrasi wisuda." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"></textarea></div>
+
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="text-xs font-bold text-slate-600 uppercase tracking-wider">Cakupan Pasis</p>
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-violet-200 bg-violet-50 cursor-pointer"><input type="radio" name="tagihan-cakupan" value="semua" checked class="mt-0.5 accent-violet-600"><span><b class="block text-sm text-slate-800">Seluruh Pasis</b><span class="block mt-0.5 text-xs text-slate-500">Termasuk pasis Aktif dan Cuti yang terdaftar.</span></span></label>
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-violet-200 cursor-pointer"><input type="radio" name="tagihan-cakupan" value="tertentu" class="mt-0.5 accent-violet-600"><span><b class="block text-sm text-slate-800">Pasis Tertentu</b><span class="block mt-0.5 text-xs text-slate-500">Pilih hanya pasis yang terkena tagihan.</span></span></label>
+                    </div>
+                    <div id="tagihan-pasis-selector-wrap" class="hidden mt-4 border-t border-slate-100 pt-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div class="relative flex-1"><i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="tagihan-pasis-search" type="text" placeholder="Cari pasis..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20"></div>
+                            <label class="inline-flex items-center gap-2 text-xs font-bold text-violet-700 cursor-pointer"><input id="tagihan-pilih-semua" type="checkbox" class="accent-violet-600"> Pilih semua yang tampil</label>
+                        </div>
+                        <div id="tagihan-pasis-selector" class="tagihan-pasis-selector mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1"></div>
+                        <p id="tagihan-pasis-selected-info" class="mt-3 text-xs text-slate-500">0 pasis dipilih.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex gap-3">
+                <button id="cancel-tagihan-tambah-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button id="submit-tagihan-tambah-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-violet-600 hover:bg-violet-700 shadow-soft btn-press"><i class="ph ph-plus-circle text-lg align-middle"></i> Buat Tagihan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PEMBAYARAN TAGIHAN TAMBAHAN -->
+    <div id="modal-tagihan-bayar" class="fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-[84] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="modal-tagihan-bayar-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-emerald-50/60">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="ph-fill ph-money text-xl"></i></div><div><h3 class="font-black text-slate-900">Catat Pembayaran</h3><p id="tagihan-bayar-identitas" class="text-xs text-slate-500"></p></div></div>
+                <button id="close-tagihan-bayar-btn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-white btn-press"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input id="tagihan-bayar-id" type="hidden">
+                <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4"><p class="text-xs font-bold text-amber-700 uppercase tracking-wider">Sisa Tagihan</p><p id="tagihan-bayar-sisa" class="mt-1 text-2xl font-black text-amber-900">Rp 0</p></div>
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nominal Dibayar</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span><input id="tagihan-bayar-nominal" type="text" inputmode="numeric" placeholder="0" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></div></div>
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Tanggal Pembayaran</label><input id="tagihan-bayar-tanggal" type="date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></div>
+                <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Catatan <span class="normal-case font-medium text-slate-400">(opsional)</span></label><input id="tagihan-bayar-catatan" type="text" maxlength="250" placeholder="Contoh: Tunai / Transfer" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex gap-3">
+                <button id="cancel-tagihan-bayar-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 btn-press">Batal</button>
+                <button id="submit-tagihan-bayar-btn" type="button" class="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-soft btn-press"><i class="ph ph-check-circle text-lg align-middle"></i> Simpan Pembayaran</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-pengeluaran" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[65] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
         <div id="modal-pengeluaran-content" class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -3322,6 +3882,23 @@ function doPost(e) {
         window.pinShareDataGlobal = [];
         window.galleryDataGlobal = [];
         window.galleryRootFolderUrl = '';
+        window.tagihanTambahanDataGlobal = [];
+        let tagihanSelectedPasis = new Set();
+        let activeTagihanJenis = 'Wisuda';
+        const TAGIHAN_CONTEXT = {
+            Wisuda: {
+                jenis: 'Wisuda',
+                label: 'Uang Wisuda',
+                icon: 'ph-graduation-cap',
+                description: 'Kelola tagihan Uang Wisuda untuk seluruh pasis atau pasis tertentu.'
+            },
+            Absensi: {
+                jenis: 'Absensi',
+                label: 'Uang Absen',
+                icon: 'ph-calendar-check',
+                description: 'Kelola tagihan Uang Absen untuk seluruh pasis atau pasis tertentu.'
+            }
+        };
         let gallerySelectedFiles = [];
         let galleryIsLoading = false;
         let galleryLastLoadedAt = 0;
@@ -3617,7 +4194,9 @@ function doPost(e) {
                               !document.getElementById('modal-broadcast').classList.contains('hidden') ||
                               !document.getElementById('modal-share-pin').classList.contains('hidden') ||
                               !document.getElementById('modal-gallery-upload').classList.contains('hidden') ||
-                              !document.getElementById('modal-gallery-lightbox').classList.contains('hidden');
+                              !document.getElementById('modal-gallery-lightbox').classList.contains('hidden') ||
+                              !document.getElementById('modal-tagihan-tambah').classList.contains('hidden') ||
+                              !document.getElementById('modal-tagihan-bayar').classList.contains('hidden');
             if (modalOpen) return;
             if (userRole === 'guest') return;
 
@@ -3651,6 +4230,13 @@ function doPost(e) {
                          window.pindahDanaDataGlobal = jsonRes.pindah_dana || [];
                          renderTabelPindahDana(window.pindahDanaDataGlobal);
                          perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
+                    }
+
+                    const newTagihanStr = JSON.stringify(jsonRes.tagihan_tambahan || []);
+                    const oldTagihanStr = JSON.stringify(window.tagihanTambahanDataGlobal || []);
+                    if (newTagihanStr !== oldTagihanStr) {
+                         window.tagihanTambahanDataGlobal = jsonRes.tagihan_tambahan || [];
+                         renderTagihanTambahan();
                     }
                     
                     const syncStatus = document.getElementById('sync-status');
@@ -3801,6 +4387,7 @@ function doPost(e) {
             if(window.pasisDataGlobal.length > 0) renderTabelPasis(window.pasisDataGlobal);
             if(window.pengeluaranDataGlobal.length > 0) renderTabelPengeluaran(window.pengeluaranDataGlobal);
             if(window.pindahDanaDataGlobal.length > 0) renderTabelPindahDana(window.pindahDanaDataGlobal);
+            renderTagihanTambahan();
         }
 
         function checkLockoutState() {
@@ -3852,9 +4439,9 @@ function doPost(e) {
             return rowStatus === 'cuti' || sessionStatus === 'cuti' || currentPasisUser?.accessScope === 'self' || currentPasisUser?.access_scope === 'self';
         }
         function getAllowedViewsForCurrentRole() {
-            if (userRole === 'admin') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'pindah-dana', 'gallery', 'pengaturan'];
+            if (userRole === 'admin') return ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'pindah-dana', 'gallery', 'pengaturan'];
             if (userRole === 'pasis' && isCurrentPasisCuti()) return ['pasis', 'akun'];
-            if (userRole === 'pasis') return ['dashboard', 'pasis', 'akun', 'pengeluaran', 'gallery'];
+            if (userRole === 'pasis') return ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'gallery'];
             return [];
         }
         function isViewAllowedForCurrentRole(targetId) {
@@ -3874,7 +4461,7 @@ function doPost(e) {
                 pinDiubah: row.pin_diubah || currentPasisUser?.pinDiubah || 'Belum',
                 statusAktif: isCuti ? 'Cuti' : 'Aktif',
                 accessScope: isCuti ? 'self' : 'all',
-                accessViews: isCuti ? ['pasis', 'akun'] : ['dashboard', 'pasis', 'akun', 'pengeluaran', 'gallery']
+                accessViews: isCuti ? ['pasis', 'akun', 'tagihan'] : ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'gallery']
             };
             localStorage.setItem(PASIS_SESSION_KEY, JSON.stringify(currentPasisUser));
             return true;
@@ -3999,9 +4586,13 @@ function doPost(e) {
                 return;
             }
             
+            if (targetId === 'tagihan') {
+                setTagihanJenisAktif(targetLink.getAttribute('data-tagihan-jenis') || 'Wisuda', { render: false });
+            }
+
             const targetSection = document.getElementById(`view-${targetId}`);
             const currentSection = document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
-            if (!targetSection || currentSection === targetSection) return;
+            if (!targetSection) return;
 
             document.querySelectorAll('.nav-link').forEach(l => {
                 l.classList.remove('text-brand-600', 'bg-brand-50'); l.classList.add('text-slate-500', 'hover:text-slate-900', 'hover:bg-slate-50');
@@ -4016,6 +4607,7 @@ function doPost(e) {
                 setTimeout(() => {
                     let titleText = 'Dashboard Utama';
                     if (targetId === 'pasis') titleText = 'Data Administrasi Pasis';
+                    if (targetId === 'tagihan') titleText = getTagihanContext().label;
                     if (targetId === 'pengeluaran') titleText = 'Data Pengeluaran';
                     if (targetId === 'pindah-dana') titleText = 'Serah Terima Kas';
                     if (targetId === 'gallery') titleText = 'Galeri Dokumentasi';
@@ -4026,6 +4618,11 @@ function doPost(e) {
             }
 
             if (targetId === 'gallery') setTimeout(() => window.loadGallery(false), 150);
+            if (targetId === 'tagihan') setTimeout(() => renderTagihanTambahan(), 80);
+            if (currentSection === targetSection) {
+                if (window.innerWidth < 1024) toggleSidebar(false);
+                return;
+            }
 
             if (currentSection) {
                 currentSection.classList.add('view-hidden');
@@ -5786,6 +6383,359 @@ Terima kasih,
         };
 
 
+
+        // --- TAGIHAN TAMBAHAN: WISUDA & ABSENSI ---
+        function tagihanEscapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+        }
+
+        function getTagihanNominal(value) {
+            return parseNominal(value || 0);
+        }
+
+        function getTagihanSisa(row) {
+            return Math.max(getTagihanNominal(row.nominal_tagihan) - getTagihanNominal(row.nominal_dibayar), 0);
+        }
+
+        function getTagihanStatus(row) {
+            const raw = String(row.status || '').toLowerCase();
+            if (raw === 'dibatalkan') return 'Dibatalkan';
+            const total = getTagihanNominal(row.nominal_tagihan);
+            const paid = getTagihanNominal(row.nominal_dibayar);
+            if (total > 0 && paid >= total) return 'Lunas';
+            if (paid > 0) return 'Cicilan';
+            return 'Belum Bayar';
+        }
+
+        function getTagihanStatusBadge(status) {
+            const map = {
+                'Lunas': 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                'Cicilan': 'bg-amber-50 text-amber-700 border-amber-100',
+                'Dibatalkan': 'bg-slate-100 text-slate-600 border-slate-200',
+                'Belum Bayar': 'bg-rose-50 text-rose-700 border-rose-100'
+            };
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${map[status] || map['Belum Bayar']}">${tagihanEscapeHtml(status)}</span>`;
+        }
+
+        function formatTanggalTagihan(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        async function tagihanApi(action, data = {}) {
+            if (GOOGLE_SHEET_API_URL.includes('URL_WEB_APP')) throw new Error('URL_BELUM_DIISI');
+            const response = await fetch(GOOGLE_SHEET_API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(withAuth({ action, data }))
+            });
+            const raw = await response.text();
+            let json;
+            try { json = JSON.parse(raw); } catch (error) { throw new Error('Respons server untuk tagihan tidak valid.'); }
+            if (json.status !== 'success') throw new Error(json.message || 'Proses tagihan gagal.');
+            return json;
+        }
+
+        function getTagihanContext(jenis = activeTagihanJenis) {
+            return TAGIHAN_CONTEXT[jenis] || TAGIHAN_CONTEXT.Wisuda;
+        }
+
+        function setTagihanJenisAktif(jenis, options = {}) {
+            activeTagihanJenis = getTagihanContext(jenis).jenis;
+            const context = getTagihanContext();
+
+            const applyText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            };
+
+            applyText('tagihan-page-title-text', context.label);
+            applyText('tagihan-page-description', context.description);
+            applyText('tagihan-context-label', context.label);
+            applyText('tagihan-create-button-label', `Buat ${context.label}`);
+            applyText('tagihan-modal-title', `Buat ${context.label}`);
+            applyText('tagihan-modal-description', `Terapkan ${context.label} untuk seluruh pasis maupun pilihan tertentu.`);
+            applyText('tagihan-modal-type-label', context.label);
+            applyText('tagihan-empty-title', `Belum ada tagihan ${context.label}`);
+            applyText('tagihan-empty-description', `Admin dapat membuat tagihan ${context.label} untuk seluruh pasis maupun pasis tertentu.`);
+
+            ['tagihan-context-icon', 'tagihan-modal-icon', 'tagihan-modal-type-icon', 'tagihan-empty-icon'].forEach(id => {
+                const icon = document.getElementById(id);
+                if (!icon) return;
+                icon.className = icon.className.replace(/ph-(graduation-cap|calendar-check)/g, '').replace(/\s+/g, ' ').trim();
+                icon.classList.add(context.icon);
+            });
+
+            const type = document.getElementById('tagihan-jenis');
+            if (type) type.value = context.jenis;
+
+            const pageTitle = document.getElementById('page-title');
+            const activeView = document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
+            if (pageTitle && activeView?.id === 'view-tagihan') pageTitle.textContent = context.label;
+
+            if (options.render !== false) renderTagihanTambahan();
+        }
+
+        function renderTagihanTambahan() {
+            const table = document.getElementById('tagihan-table-body');
+            const empty = document.getElementById('tagihan-empty');
+            if (!table || !empty) return;
+
+            const keyword = (document.getElementById('tagihan-search')?.value || '').trim().toLowerCase();
+            const jenis = getTagihanContext().jenis;
+            const status = document.getElementById('tagihan-filter-status')?.value || '';
+            const categoryData = (window.tagihanTambahanDataGlobal || []).filter(item => item.jenis === jenis);
+            const data = categoryData.filter(item => {
+                const currentStatus = getTagihanStatus(item);
+                const haystack = [item.nama, item.nohp, item.nama_tagihan, item.keterangan, item.tanggal_tagihan].join(' ').toLowerCase();
+                return (!keyword || haystack.includes(keyword)) &&
+                    (!status || currentStatus === status);
+            });
+
+            const all = categoryData.filter(item => getTagihanStatus(item) !== 'Dibatalkan');
+            const total = all.reduce((sum, item) => sum + getTagihanNominal(item.nominal_tagihan), 0);
+            const paid = all.reduce((sum, item) => sum + getTagihanNominal(item.nominal_dibayar), 0);
+            const lunas = all.filter(item => getTagihanStatus(item) === 'Lunas').length;
+            const totalBadge = document.getElementById('tagihan-total-badge');
+            const totalNominal = document.getElementById('tagihan-total-nominal');
+            const totalDibayar = document.getElementById('tagihan-total-dibayar');
+            const totalSisa = document.getElementById('tagihan-total-sisa');
+            const totalLunas = document.getElementById('tagihan-total-lunas');
+            if (totalBadge) totalBadge.textContent = `${all.length} Tagihan`;
+            if (totalNominal) totalNominal.textContent = formatRp(total);
+            if (totalDibayar) totalDibayar.textContent = formatRp(paid);
+            if (totalSisa) totalSisa.textContent = formatRp(Math.max(total - paid, 0));
+            if (totalLunas) totalLunas.textContent = `${lunas} / ${all.length}`;
+
+            empty.classList.toggle('hidden', data.length > 0);
+            table.innerHTML = data.map(item => {
+                const sisa = getTagihanSisa(item);
+                const currentStatus = getTagihanStatus(item);
+                const isAdmin = userRole === 'admin';
+                const canPay = isAdmin && currentStatus !== 'Lunas' && currentStatus !== 'Dibatalkan';
+                const canCancel = isAdmin && getTagihanNominal(item.nominal_dibayar) === 0 && currentStatus !== 'Dibatalkan';
+                const safeId = tagihanEscapeHtml(item.id);
+                return `<tr class="hover:bg-slate-50/60">
+                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">${tagihanEscapeHtml(item.nama || '-')}</div><div class="text-xs text-slate-500 mt-0.5">${tagihanEscapeHtml(item.nama_tagihan || 'Tagihan Tambahan')}${item.keterangan ? ` • ${tagihanEscapeHtml(item.keterangan)}` : ''}</div></td>
+                    <td class="p-4"><span class="inline-flex items-center gap-1.5 text-xs font-bold ${item.jenis === 'Wisuda' ? 'text-violet-700 bg-violet-50 border-violet-100' : 'text-cyan-700 bg-cyan-50 border-cyan-100'} border px-2.5 py-1 rounded-full"><i class="ph ${item.jenis === 'Wisuda' ? 'ph-graduation-cap' : 'ph-calendar-check'}"></i>${tagihanEscapeHtml(item.jenis === 'Absensi' ? 'Uang Absen' : 'Uang Wisuda')}</span></td>
+                    <td class="p-4 font-bold text-slate-800">${formatRp(getTagihanNominal(item.nominal_tagihan))}</td>
+                    <td class="p-4 font-bold text-emerald-700">${formatRp(getTagihanNominal(item.nominal_dibayar))}</td>
+                    <td class="p-4 font-bold ${sisa > 0 ? 'text-amber-700' : 'text-emerald-700'}">${formatRp(sisa)}</td>
+                    <td class="p-4 text-xs text-slate-600">${formatTanggalTagihan(item.jatuh_tempo)}</td>
+                    <td class="p-4">${getTagihanStatusBadge(currentStatus)}</td>
+                    <td class="p-4 pr-6 text-right">${isAdmin ? `<div class="inline-flex items-center gap-1"><button type="button" ${canPay ? '' : 'disabled'} onclick="window.bukaModalBayarTagihan('${safeId}')" class="p-2 rounded-lg ${canPay ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-300 cursor-not-allowed'}" title="Catat pembayaran"><i class="ph ph-money text-lg"></i></button><button type="button" ${canCancel ? '' : 'disabled'} onclick="window.batalkanTagihanTambahan('${safeId}')" class="p-2 rounded-lg ${canCancel ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-300 cursor-not-allowed'}" title="Batalkan tagihan"><i class="ph ph-x-circle text-lg"></i></button></div>` : '<span class="text-xs text-slate-400">-</span>'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderTagihanPasisSelector() {
+            const wrap = document.getElementById('tagihan-pasis-selector');
+            const info = document.getElementById('tagihan-pasis-selected-info');
+            const selectAll = document.getElementById('tagihan-pilih-semua');
+            if (!wrap) return;
+            const keyword = (document.getElementById('tagihan-pasis-search')?.value || '').trim().toLowerCase();
+            const pasis = (window.pasisDataGlobal || []).filter(row => {
+                const haystack = [row.nama, row.nohp, row.status_aktif].join(' ').toLowerCase();
+                return !keyword || haystack.includes(keyword);
+            });
+            wrap.innerHTML = pasis.map(row => {
+                const id = String(row.nohp || '').replace(/'/g, '');
+                const selected = tagihanSelectedPasis.has(id);
+                return `<label class="flex items-center gap-3 p-3 rounded-xl border ${selected ? 'border-violet-200 bg-violet-50' : 'border-slate-200 hover:border-violet-200'} cursor-pointer"><input type="checkbox" class="tagihan-pasis-check accent-violet-600" value="${tagihanEscapeHtml(id)}" ${selected ? 'checked' : ''}><span class="min-w-0"><b class="block text-sm text-slate-800 truncate">${tagihanEscapeHtml(row.nama || '-')}</b><span class="block text-[11px] text-slate-500">${tagihanEscapeHtml(row.nohp || '-')} • ${tagihanEscapeHtml(row.status_aktif || 'Aktif')}</span></span></label>`;
+            }).join('') || '<p class="col-span-2 p-4 text-center text-sm text-slate-500">Pasis tidak ditemukan.</p>';
+            wrap.querySelectorAll('.tagihan-pasis-check').forEach(input => input.addEventListener('change', event => {
+                if (event.target.checked) tagihanSelectedPasis.add(event.target.value);
+                else tagihanSelectedPasis.delete(event.target.value);
+                renderTagihanPasisSelector();
+            }));
+            if (selectAll) {
+                selectAll.checked = pasis.length > 0 && pasis.every(row => tagihanSelectedPasis.has(String(row.nohp || '').replace(/'/g, '')));
+                selectAll.indeterminate = pasis.some(row => tagihanSelectedPasis.has(String(row.nohp || '').replace(/'/g, ''))) && !selectAll.checked;
+            }
+            if (info) info.textContent = `${tagihanSelectedPasis.size} pasis dipilih.`;
+        }
+
+        function updateTagihanScopeUI() {
+            const scope = document.querySelector('input[name="tagihan-cakupan"]:checked')?.value || 'semua';
+            document.getElementById('tagihan-pasis-selector-wrap')?.classList.toggle('hidden', scope !== 'tertentu');
+            if (scope === 'tertentu') renderTagihanPasisSelector();
+        }
+
+        function setTodayForTagihan(fieldId) {
+            const element = document.getElementById(fieldId);
+            if (!element) return;
+            const offset = new Date().getTimezoneOffset() * 60000;
+            element.value = new Date(Date.now() - offset).toISOString().split('T')[0];
+        }
+
+        window.bukaModalTambahTagihan = function(jenis = activeTagihanJenis) {
+            if (!validateAdminSession(true)) return;
+            setTagihanJenisAktif(jenis, { render: false });
+            const context = getTagihanContext();
+            tagihanSelectedPasis = new Set();
+            const type = document.getElementById('tagihan-jenis');
+            const title = document.getElementById('tagihan-nama');
+            const nominal = document.getElementById('tagihan-nominal');
+            const due = document.getElementById('tagihan-jatuh-tempo');
+            const notes = document.getElementById('tagihan-keterangan');
+            if (type) type.value = context.jenis;
+            if (title) title.value = context.label;
+            if (nominal) nominal.value = '';
+            if (due) due.value = '';
+            if (notes) notes.value = '';
+            document.querySelector('input[name="tagihan-cakupan"][value="semua"]')?.click();
+            setTodayForTagihan('tagihan-tanggal');
+            renderTagihanPasisSelector();
+            updateTagihanScopeUI();
+            const modal = document.getElementById('modal-tagihan-tambah');
+            const content = document.getElementById('modal-tagihan-tambah-content');
+            modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0'); content.classList.remove('scale-95', 'opacity-0');
+        };
+
+        window.closeModalTambahTagihan = function() {
+            const modal = document.getElementById('modal-tagihan-tambah');
+            const content = document.getElementById('modal-tagihan-tambah-content');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+
+        async function submitTagihanTambahan() {
+            if (!validateAdminSession(true)) return;
+            const jenis = document.getElementById('tagihan-jenis')?.value || '';
+            const nama_tagihan = (document.getElementById('tagihan-nama')?.value || '').trim();
+            const nominal_tagihan = getTagihanNominal(document.getElementById('tagihan-nominal')?.value);
+            const tanggal_tagihan = document.getElementById('tagihan-tanggal')?.value || '';
+            const jatuh_tempo = document.getElementById('tagihan-jatuh-tempo')?.value || '';
+            const keterangan = (document.getElementById('tagihan-keterangan')?.value || '').trim();
+            const cakupan = document.querySelector('input[name="tagihan-cakupan"]:checked')?.value || 'semua';
+            if (!nama_tagihan) { showToast('Nama tagihan wajib diisi.'); return; }
+            if (!nominal_tagihan) { showToast('Nominal tagihan wajib diisi.'); return; }
+            if (!tanggal_tagihan) { showToast('Tanggal ditetapkan wajib diisi.'); return; }
+            if (cakupan === 'tertentu' && tagihanSelectedPasis.size === 0) { showToast('Pilih minimal satu pasis.'); return; }
+
+            const button = document.getElementById('submit-tagihan-tambah-btn');
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Membuat...';
+            try {
+                const result = await tagihanApi('create_tagihan_tambahan', {
+                    jenis, nama_tagihan, nominal_tagihan, tanggal_tagihan, jatuh_tempo, keterangan, cakupan,
+                    nohp_list: Array.from(tagihanSelectedPasis)
+                });
+                window.closeModalTambahTagihan();
+                showToast(result.message || 'Tagihan berhasil dibuat.');
+                await fetchDataDariGoogleSheets();
+            } catch (error) {
+                showToast(`Gagal membuat tagihan: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = original;
+            }
+        }
+
+        window.bukaModalBayarTagihan = function(id) {
+            if (!validateAdminSession(true)) return;
+            const item = (window.tagihanTambahanDataGlobal || []).find(row => String(row.id) === String(id));
+            if (!item) { showToast('Tagihan tidak ditemukan.'); return; }
+            const sisa = getTagihanSisa(item);
+            if (sisa <= 0) { showToast('Tagihan ini sudah lunas.'); return; }
+            document.getElementById('tagihan-bayar-id').value = item.id;
+            document.getElementById('tagihan-bayar-identitas').textContent = `${item.nama || '-'} • ${item.nama_tagihan || item.jenis}`;
+            document.getElementById('tagihan-bayar-sisa').textContent = formatRp(sisa);
+            document.getElementById('tagihan-bayar-nominal').value = '';
+            document.getElementById('tagihan-bayar-catatan').value = '';
+            setTodayForTagihan('tagihan-bayar-tanggal');
+            const modal = document.getElementById('modal-tagihan-bayar');
+            const content = document.getElementById('modal-tagihan-bayar-content');
+            modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0'); content.classList.remove('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('tagihan-bayar-nominal')?.focus(), 250);
+        };
+
+        window.closeModalBayarTagihan = function() {
+            const modal = document.getElementById('modal-tagihan-bayar');
+            const content = document.getElementById('modal-tagihan-bayar-content');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+
+        async function submitBayarTagihanTambahan() {
+            if (!validateAdminSession(true)) return;
+            const id = document.getElementById('tagihan-bayar-id')?.value || '';
+            const nominal = getTagihanNominal(document.getElementById('tagihan-bayar-nominal')?.value);
+            const tanggal = document.getElementById('tagihan-bayar-tanggal')?.value || '';
+            const catatan = (document.getElementById('tagihan-bayar-catatan')?.value || '').trim();
+            if (!id || !nominal || !tanggal) { showToast('Lengkapi nominal dan tanggal pembayaran.'); return; }
+            const button = document.getElementById('submit-tagihan-bayar-btn');
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Menyimpan...';
+            try {
+                const result = await tagihanApi('bayar_tagihan_tambahan', { id, nominal, tanggal, catatan });
+                window.closeModalBayarTagihan();
+                showToast(result.message || 'Pembayaran berhasil dicatat.');
+                await fetchDataDariGoogleSheets();
+            } catch (error) {
+                showToast(`Gagal mencatat pembayaran: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = original;
+            }
+        }
+
+        window.batalkanTagihanTambahan = async function(id) {
+            if (!validateAdminSession(true)) return;
+            const item = (window.tagihanTambahanDataGlobal || []).find(row => String(row.id) === String(id));
+            if (!item) return;
+            const setuju = await window.nexusConfirm({
+                title: 'Batalkan tagihan?',
+                message: `Tagihan ${item.nama_tagihan || item.jenis} untuk ${item.nama || 'pasis'} akan dibatalkan. Tagihan yang sudah memiliki pembayaran tidak dapat dibatalkan.`,
+                confirmText: 'Batalkan Tagihan',
+                tone: 'danger'
+            });
+            if (!setuju) return;
+            try {
+                const result = await tagihanApi('batalkan_tagihan_tambahan', { id });
+                showToast(result.message || 'Tagihan dibatalkan.');
+                await fetchDataDariGoogleSheets();
+            } catch (error) {
+                showToast(`Gagal membatalkan tagihan: ${error.message}`);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('tagihan-search')?.addEventListener('input', renderTagihanTambahan);
+            document.getElementById('tagihan-filter-status')?.addEventListener('change', renderTagihanTambahan);
+            document.querySelectorAll('input[name="tagihan-cakupan"]').forEach(input => input.addEventListener('change', updateTagihanScopeUI));
+            document.getElementById('tagihan-pasis-search')?.addEventListener('input', renderTagihanPasisSelector);
+            document.getElementById('tagihan-pilih-semua')?.addEventListener('change', event => {
+                const keyword = (document.getElementById('tagihan-pasis-search')?.value || '').trim().toLowerCase();
+                const matches = (window.pasisDataGlobal || []).filter(row => !keyword || [row.nama, row.nohp, row.status_aktif].join(' ').toLowerCase().includes(keyword));
+                matches.forEach(row => {
+                    const nohp = String(row.nohp || '').replace(/'/g, '');
+                    if (event.target.checked) tagihanSelectedPasis.add(nohp); else tagihanSelectedPasis.delete(nohp);
+                });
+                renderTagihanPasisSelector();
+            });
+            document.getElementById('tagihan-nominal')?.addEventListener('input', event => {
+                const value = getTagihanNominal(event.target.value);
+                event.target.value = value ? new Intl.NumberFormat('id-ID').format(value) : '';
+            });
+            document.getElementById('tagihan-bayar-nominal')?.addEventListener('input', event => {
+                const value = getTagihanNominal(event.target.value);
+                event.target.value = value ? new Intl.NumberFormat('id-ID').format(value) : '';
+            });
+            document.getElementById('submit-tagihan-tambah-btn')?.addEventListener('click', submitTagihanTambahan);
+            document.getElementById('submit-tagihan-bayar-btn')?.addEventListener('click', submitBayarTagihanTambahan);
+            document.getElementById('close-tagihan-tambah-btn')?.addEventListener('click', window.closeModalTambahTagihan);
+            document.getElementById('cancel-tagihan-tambah-btn')?.addEventListener('click', window.closeModalTambahTagihan);
+            document.getElementById('close-tagihan-bayar-btn')?.addEventListener('click', window.closeModalBayarTagihan);
+            document.getElementById('cancel-tagihan-bayar-btn')?.addEventListener('click', window.closeModalBayarTagihan);
+        });
+
         // --- FETCH DATA API MULTI-SHEET ---
         async function fetchDataDariGoogleSheets() {
             if (userRole === 'guest') {
@@ -5806,6 +6756,7 @@ Terima kasih,
                     window.pasisDataGlobal = (jsonRes.pasis || []).sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
                     window.pengeluaranDataGlobal = jsonRes.pengeluaran || [];
                     window.pindahDanaDataGlobal = jsonRes.pindah_dana || [];
+                    window.tagihanTambahanDataGlobal = jsonRes.tagihan_tambahan || [];
                     window.pengaturanGlobal = jsonRes.pengaturan || [];
                     
                     // UPDATE PENGATURAN
@@ -5842,6 +6793,7 @@ Terima kasih,
                     renderTabelPasis(window.pasisDataGlobal);
                     renderTabelPengeluaran(window.pengeluaranDataGlobal);
                     renderTabelPindahDana(window.pindahDanaDataGlobal);
+                    renderTagihanTambahan();
                 } else { throw new Error(jsonRes.message); }
 
             } catch (error) {
@@ -6093,7 +7045,7 @@ Terima kasih,
             setTimeout(() => m.classList.add('hidden'), 300);
         });
 
-        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast', 'modal-share-pin', 'modal-gallery-upload', 'modal-gallery-lightbox'];
+        const modalBackdrops = ['global-modal', 'modal-bayar', 'modal-pengeluaran', 'modal-pindah-dana', 'modal-cuti-refund', 'modal-broadcast', 'modal-share-pin', 'modal-gallery-upload', 'modal-gallery-lightbox', 'modal-tagihan-tambah', 'modal-tagihan-bayar'];
         modalBackdrops.forEach(id => {
             const el = document.getElementById(id);
             el?.addEventListener('click', (e) => {
