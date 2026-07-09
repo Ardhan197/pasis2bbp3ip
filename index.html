@@ -1889,6 +1889,35 @@
                     </div>
                 </div>
 
+                <div id="tagihan-absen-dana-summary" class="hidden bg-white rounded-[1.75rem] border border-cyan-100 shadow-sm overflow-hidden">
+                    <div class="p-5 sm:p-6 bg-gradient-to-br from-cyan-50 via-white to-slate-50">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div class="min-w-0">
+                                <p class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-cyan-700"><i class="ph-fill ph-wallet"></i> Saldo Dana Absen</p>
+                                <h3 class="mt-2 text-lg sm:text-xl font-black text-slate-900">Informasi Dana Keluar & Sisa Dana</h3>
+                            </div>
+                            <div class="inline-flex items-center gap-2 rounded-2xl border border-cyan-100 bg-white/80 px-4 py-3 text-xs font-bold text-cyan-800">
+                                <i class="ph ph-lock-key"></i>
+                                Dana Absen terkunci dari sumber Uang Absen
+                            </div>
+                        </div>
+                        <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="rounded-2xl border border-cyan-100 bg-white p-4 min-w-0">
+                                <p class="text-[11px] font-black uppercase tracking-wider text-slate-500">Dana Masuk</p>
+                                <p id="absen-dana-masuk" class="mt-2 text-xl font-black text-cyan-700 break-words">Rp 0</p>
+                            </div>
+                            <div class="rounded-2xl border border-rose-100 bg-white p-4 min-w-0">
+                                <p class="text-[11px] font-black uppercase tracking-wider text-slate-500">Dana Keluar</p>
+                                <p id="absen-dana-keluar" class="mt-2 text-xl font-black text-rose-700 break-words">Rp 0</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-100 bg-white p-4 min-w-0">
+                                <p class="text-[11px] font-black uppercase tracking-wider text-slate-500">Sisa Dana</p>
+                                <p id="absen-dana-sisa" class="mt-2 text-xl font-black text-emerald-700 break-words">Rp 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3">
                     <div class="relative group">
                         <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-violet-500"></i>
@@ -7580,6 +7609,34 @@ Terima kasih,
             return json;
         }
 
+        function updateTagihanAbsenDanaSummary() {
+            const context = getTagihanContext();
+            const summary = document.getElementById('tagihan-absen-dana-summary');
+            if (!summary) return;
+
+            const isAbsensi = context.jenis === 'Absensi';
+            summary.classList.toggle('hidden', !isAbsensi);
+            if (!isAbsensi) return;
+
+            const ledger = typeof getNexusDanaLedger === 'function'
+                ? getNexusDanaLedger()
+                : { masuk: { 'Dana Absen': 0 }, keluar: { 'Dana Absen': 0 }, saldo: { 'Dana Absen': 0 } };
+            const masuk = Number(ledger.masuk?.['Dana Absen'] || 0);
+            const keluar = Number(ledger.keluar?.['Dana Absen'] || 0);
+            const sisa = Number(ledger.saldo?.['Dana Absen'] || (masuk - keluar));
+
+            const masukEl = document.getElementById('absen-dana-masuk');
+            const keluarEl = document.getElementById('absen-dana-keluar');
+            const sisaEl = document.getElementById('absen-dana-sisa');
+            if (masukEl) masukEl.textContent = formatRp(masuk);
+            if (keluarEl) keluarEl.textContent = formatRp(keluar);
+            if (sisaEl) {
+                sisaEl.textContent = formatRp(sisa);
+                sisaEl.classList.toggle('text-emerald-700', sisa >= 0);
+                sisaEl.classList.toggle('text-rose-700', sisa < 0);
+            }
+        }
+
         function getTagihanContext(jenis = activeTagihanJenis) {
             return TAGIHAN_CONTEXT[jenis] || TAGIHAN_CONTEXT.Wisuda;
         }
@@ -7614,6 +7671,7 @@ Terima kasih,
             const type = document.getElementById('tagihan-jenis');
             if (type) type.value = context.jenis;
             updateTagihanScopeUI();
+            updateTagihanAbsenDanaSummary();
 
             const pageTitle = document.getElementById('page-title');
             const activeView = document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
@@ -8033,6 +8091,7 @@ Terima kasih,
             if (totalDibayar) totalDibayar.textContent = formatRp(paid);
             if (totalSisa) totalSisa.textContent = formatRp(Math.max(total - paid, 0));
             if (totalLunas) totalLunas.textContent = `${lunas} / ${all.length}`;
+            updateTagihanAbsenDanaSummary();
             empty.classList.toggle('hidden', data.length > 0);
             table.innerHTML = data.map(item => {
                 const sisa = getTagihanSisa(item);
