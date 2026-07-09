@@ -2327,6 +2327,9 @@ var TAGIHAN_TAMBAHAN_HEADERS = [
   'nominal_tagihan', 'nominal_dibayar', 'tanggal_tagihan', 'jatuh_tempo',
   'keterangan', 'riwayat', 'status', 'dibuat_oleh', 'dibuat_at', 'updated_at'
 ];
+var BUKTI_PEMBAYARAN_HEADERS = ['id', 'tanggal', 'jenis', 'nama_tagihan', 'nohp', 'nama', 'nominal', 'catatan', 'file_name', 'mime_type', 'file_id', 'url_view', 'status', 'submitted_by', 'submitted_at', 'reviewed_by', 'reviewed_at', 'review_note'];
+var ACTIVITY_LOG_HEADERS = ['id', 'waktu', 'role', 'nama', 'aksi', 'kategori', 'target', 'detail'];
+var BACKUP_LOG_HEADERS = ['id', 'waktu', 'file_name', 'file_id', 'backup_url', 'dibuat_oleh'];
 var PENGATURAN_HEADERS = ['key', 'value'];
 
 var GALLERY_MAX_FILE_BYTES = 3 * 1024 * 1024;
@@ -2499,6 +2502,71 @@ function sanitizePasisForClient(row) {
   return clean;
 }
 
+
+function normalizeSumberDanaPengeluaran(value) {
+  var raw = String(value || '').trim();
+  var key = normalizeHeader(raw).replace(/\s+/g, ' ');
+  if (!key) return 'Dana Kas';
+  if (key.indexOf('wisuda') !== -1) return 'Dana Wisuda';
+  if (key.indexOf('absen') !== -1 || key.indexOf('absensi') !== -1) return 'Dana Absen';
+  if (key.indexOf('lain') !== -1) return 'Dana Lainnya';
+  if (key.indexOf('kas') !== -1 || key.indexOf('khas') !== -1) return 'Dana Kas';
+  return 'Dana Lainnya';
+}
+
+function getNexusDanaLedger() {
+  var masuk = { 'Dana Kas': 0, 'Dana Wisuda': 0, 'Dana Absen': 0, 'Dana Lainnya': 0 };
+  var keluar = { 'Dana Kas': 0, 'Dana Wisuda': 0, 'Dana Absen': 0, 'Dana Lainnya': 0 };
+
+  sheetToJSON(getDataPasisSheet()).forEach(function(row) {
+    masuk['Dana Kas'] += parseTagihanNominal(row &amp;&amp; row.dibayar);
+    keluar['Dana Kas'] += parseTagihanNominal(row &amp;&amp; row.refund);
+  });
+
+  sheetToJSON(getTagihanTambahanSheet()).forEach(function(row) {
+    if (normalizeHeader(row &amp;&amp; row.status) === 'dibatalkan') return;
+    var jenis = normalizeHeader(row &amp;&amp; row.jenis);
+    if (jenis === 'wisuda') masuk['Dana Wisuda'] += parseTagihanNominal(row &amp;&amp; row.nominal_dibayar);
+    if (jenis === 'absensi' || jenis === 'absen') masuk['Dana Absen'] += parseTagihanNominal(row &amp;&amp; row.nominal_dibayar);
+  });
+
+  sheetToJSON(getPengeluaranSheet()).forEach(function(row) {
+    var sumber = normalizeSumberDanaPengeluaran(row &amp;&amp; (row.sumber_dana || row.sumberDana || row.sumber));
+    var key = keluar[sumber] !== undefined ? sumber : 'Dana Lainnya';
+    keluar[key] += parseTagihanNominal(row &amp;&amp; row.nominal);
+  });
+
+  var saldo = {};
+  for (var key in masuk) saldo[key] = masuk[key] - keluar[key];
+  return { masuk: masuk, keluar: keluar, saldo: saldo };
+}
+
+function sanitizePengeluaranData(data) {
+  var input = data || {};
+  var sumber = normalizeSumberDanaPengeluaran(input.sumber_dana || input.sumberDana || input.sumber || 'Dana Kas');
+  var nominal = parseTagihanNominal(input.nominal);
+  var tanggal = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
+  var keterangan = String(input.keterangan || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 500);
+
+  if (!tanggal) throw new Error('Tanggal pengeluaran wajib diisi.');
+  if (!keterangan) throw new Error('Rincian pengeluaran wajib diisi.');
+  if (nominal &lt;= 0) throw new Error('Nominal pengeluaran harus lebih dari Rp 0.');
+
+  var ledger = getNexusDanaLedger();
+  var saldoSumber = Number(ledger.saldo[sumber] || 0);
+  if (sumber !== 'Dana Lainnya' &amp;&amp; nominal &gt; saldoSumber) {
+    throw new Error('Saldo ' + sumber + ' tidak cukup. Saldo tersedia Rp ' + saldoSumber.toLocaleString('id-ID') + ', nominal pengeluaran Rp ' + nominal.toLocaleString('id-ID') + '.');
+  }
+
+  return {
+    id: input.id || Utilities.getUuid(),
+    tanggal: tanggal,
+    sumber_dana: sumber,
+    keterangan: keterangan,
+    nominal: nominal
+  };
+}
+
 function nowString() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
 }
@@ -2565,6 +2633,18 @@ function getGaleriSheet() {
 
 function getTagihanTambahanSheet() {
   return getOrCreateSheet('Tagihan Tambahan', TAGIHAN_TAMBAHAN_HEADERS);
+}
+
+function getBuktiPembayaranSheet() {
+  return getOrCreateSheet('Bukti Pembayaran', BUKTI_PEMBAYARAN_HEADERS);
+}
+
+function getActivityLogSheet() {
+  return getOrCreateSheet('Activity Log', ACTIVITY_LOG_HEADERS);
+}
+
+function getBackupLogSheet() {
+  return getOrCreateSheet('Backup Log', BACKUP_LOG_HEADERS);
 }
 
 function parseTagihanNominal(value) {
@@ -2670,6 +2750,21 @@ function createTagihanTambahan(session, data) {
   var tanggalTagihan = String(input.tanggal_tagihan || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
   var jatuhTempo = String(input.jatuh_tempo || '').substring(0, 10);
   var keterangan = String(input.keterangan || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 500);
+  // Pengaman backend: Uang Absen tidak boleh dibuat global untuk semua pasis.
+  // Frontend sudah mengunci pilihan ini, tetapi validasi server tetap wajib agar data tidak tercampur.
+  var scope = normalizeHeader(input.cakupan || input.scope || 'semua');
+  if (jenis === 'Absensi') {
+    var selectedPasis = input.nohp_list || input.pasis_nohp || [];
+    if (!Array.isArray(selectedPasis)) selectedPasis = [selectedPasis];
+    selectedPasis = selectedPasis.filter(function(nohp) { return normalizePhoneForLogin(nohp); });
+    if (scope !== 'tertentu' &amp;&amp; scope !== 'selected' &amp;&amp; scope !== 'pasis_tertentu') {
+      throw new Error('Uang Absen wajib dibuat berdasarkan nama pasis yang dipilih, tidak boleh global untuk seluruh pasis.');
+    }
+    if (selectedPasis.length === 0) {
+      throw new Error('Pilih minimal satu nama pasis untuk membuat Uang Absen.');
+    }
+  }
+
   var targets = getPasisTargetsForTagihan(input);
   var sheet = getTagihanTambahanSheet();
   var existing = sheetToJSON(sheet);
@@ -3381,6 +3476,9 @@ function getSecureDataForSession(session) {
   result.pengeluaran = sheetToJSON(getPengeluaranSheet());
   result.pindah_dana = sheetToJSON(getPindahDanaSheet());
   result.tagihan_tambahan = getTagihanTambahanForSession(session);
+  result.saldo_dana = session.role === 'admin' ? getNexusDanaLedger() : null;
+  result.bukti_pembayaran = getBuktiPembayaranForSession(session);
+  result.activity_log = getActivityLogForSession(session);
   result.pengaturan = sheetToJSON(getPengaturanSheet());
   result.access_views = session.role === 'admin'
     ? ['dashboard', 'pasis', 'tagihan', 'akun', 'pengeluaran', 'pindah-dana', 'gallery', 'pengaturan']
@@ -3414,6 +3512,168 @@ function getSecureDataForSession(session) {
   return result;
 }
 
+
+function safeJsonDetail(value) {
+  try {
+    if (typeof value === 'string') return value.substring(0, 1000);
+    return JSON.stringify(value || {}).substring(0, 1000);
+  } catch (err) {
+    return String(value || '').substring(0, 1000);
+  }
+}
+
+function recordActivity(session, aksi, kategori, target, detail) {
+  try {
+    appendByHeaders(getActivityLogSheet(), {
+      id: Utilities.getUuid(),
+      waktu: nowString(),
+      role: session &amp;&amp; session.role || 'system',
+      nama: session &amp;&amp; session.nama || 'System',
+      aksi: aksi || '',
+      kategori: kategori || '',
+      target: target || '',
+      detail: safeJsonDetail(detail)
+    });
+  } catch (err) {
+    console.error('Gagal mencatat activity log: ' + (err &amp;&amp; err.message ? err.message : err));
+  }
+}
+
+function getActivityLogForSession(session) {
+  var rows = sheetToJSON(getActivityLogSheet()).sort(function(a, b) {
+    return String(b.waktu || '').localeCompare(String(a.waktu || ''));
+  });
+  if (session.role !== 'admin') {
+    var phone = normalizePhoneForLogin(session.nohp);
+    rows = rows.filter(function(row) {
+      return String(row.target || '').indexOf(phone) !== -1 || normalizePhoneForLogin(row.target) === phone;
+    });
+  }
+  return rows.slice(0, 250);
+}
+
+function getBuktiPembayaranForSession(session) {
+  var rows = sheetToJSON(getBuktiPembayaranSheet()).sort(function(a, b) {
+    return String(b.submitted_at || b.tanggal || '').localeCompare(String(a.submitted_at || a.tanggal || ''));
+  });
+  if (session.role !== 'admin') {
+    var phone = normalizePhoneForLogin(session.nohp);
+    rows = rows.filter(function(row) { return normalizePhoneForLogin(row.nohp) === phone; });
+  }
+  return rows.slice(0, 300);
+}
+
+function getOrCreateBuktiPembayaranFolder() {
+  var folderName = 'Nexus Bukti Pembayaran';
+  var folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  return DriveApp.createFolder(folderName);
+}
+
+function dataUrlToBlob(fileBase64, mimeType, fileName) {
+  var raw = String(fileBase64 || '');
+  if (!raw) return null;
+  var commaIndex = raw.indexOf(',');
+  if (commaIndex !== -1) raw = raw.substring(commaIndex + 1);
+  var bytes = Utilities.base64Decode(raw);
+  return Utilities.newBlob(bytes, mimeType || 'application/octet-stream', fileName || ('bukti_' + new Date().getTime()));
+}
+
+function submitBuktiPembayaran(session, data) {
+  var input = data || {};
+  var tagihanId = String(input.tagihan_id || '').trim();
+  var tanggal = String(input.tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyy-MM-dd')).substring(0, 10);
+  var jenis = input.jenis ? normalizeTagihanJenis(input.jenis) : '';
+  var namaTagihan = String(input.nama_tagihan || '').trim().substring(0, 100);
+  var nohp = String(input.nohp || '').trim();
+  var nama = String(input.nama || '').trim();
+  var nominal = parseTagihanNominal(input.nominal);
+  var catatan = String(input.catatan || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 250);
+
+  if (tagihanId) {
+    var tagihanSheet = getTagihanTambahanSheet();
+    var rowIndex = findRowByHeaderValue(tagihanSheet, 'id', tagihanId);
+    if (rowIndex !== -1) {
+      var headers = getHeaderInfo(tagihanSheet).headers;
+      var values = tagihanSheet.getRange(rowIndex, 1, 1, headers.length).getDisplayValues()[0];
+      var row = rowToObjectFromValues(headers, values);
+      jenis = normalizeTagihanJenis(row.jenis || jenis);
+      namaTagihan = row.nama_tagihan || namaTagihan;
+      nohp = row.nohp || nohp;
+      nama = row.nama || nama;
+      if (!nominal) nominal = getTagihanTambahanSisa(row);
+    }
+  }
+
+  if (!jenis) throw new Error('Jenis pembayaran wajib diisi.');
+  if (!nohp) throw new Error('No HP pasis wajib diisi.');
+  if (!nama) throw new Error('Nama pasis wajib diisi.');
+  if (nominal &lt;= 0) throw new Error('Nominal bukti pembayaran harus lebih dari Rp 0.');
+
+  var fileId = '';
+  var urlView = '';
+  var fileName = String(input.file_name || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 160);
+  var mimeType = String(input.mime_type || '').trim().substring(0, 100);
+  if (input.file_base64) {
+    var folder = getOrCreateBuktiPembayaranFolder();
+    var safeName = fileName || ('bukti_' + jenis + '_' + normalizePhoneForLogin(nohp) + '_' + new Date().getTime());
+    var blob = dataUrlToBlob(input.file_base64, mimeType, safeName);
+    var file = folder.createFile(blob);
+    file.setName(safeName);
+    fileId = file.getId();
+    urlView = file.getUrl();
+  }
+
+  var item = {
+    id: Utilities.getUuid(),
+    tanggal: tanggal,
+    jenis: jenis,
+    nama_tagihan: namaTagihan,
+    nohp: nohp,
+    nama: nama,
+    nominal: nominal,
+    catatan: catatan,
+    file_name: fileName,
+    mime_type: mimeType,
+    file_id: fileId,
+    url_view: urlView,
+    status: 'Menunggu Verifikasi',
+    submitted_by: session.nama || session.role || '',
+    submitted_at: nowString(),
+    reviewed_by: '',
+    reviewed_at: '',
+    review_note: ''
+  };
+  appendByHeaders(getBuktiPembayaranSheet(), item);
+  recordActivity(session, 'Upload bukti pembayaran', 'Bukti Pembayaran', normalizePhoneForLogin(nohp), item);
+  return { status: 'success', data: item, message: 'Bukti pembayaran berhasil disimpan dan menunggu verifikasi.' };
+}
+
+function reviewBuktiPembayaran(session, data) {
+  var id = String(data &amp;&amp; data.id || '').trim();
+  if (!id) throw new Error('ID bukti pembayaran wajib diisi.');
+  var status = String(data.status || '').trim() || 'Diterima';
+  if (['Diterima', 'Ditolak', 'Menunggu Verifikasi'].indexOf(status) === -1) throw new Error('Status review tidak valid.');
+  var note = String(data.review_note || '').replace(/[\r\n]+/g, ' ').trim().substring(0, 250);
+  var sheet = getBuktiPembayaranSheet();
+  var rowIndex = findRowByHeaderValue(sheet, 'id', id);
+  if (rowIndex === -1) throw new Error('Bukti pembayaran tidak ditemukan.');
+  writeByHeaders(sheet, rowIndex, { status: status, reviewed_by: session.nama || 'Admin', reviewed_at: nowString(), review_note: note });
+  recordActivity(session, 'Review bukti pembayaran', 'Bukti Pembayaran', id, { status: status, note: note });
+  return { status: 'success', message: 'Status bukti pembayaran diperbarui.' };
+}
+
+function createBackupSnapshot(session) {
+  var ss = getSpreadsheetSafe();
+  var sourceFile = DriveApp.getFileById(ss.getId());
+  var name = 'Backup Nexus - ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Jakarta', 'yyyyMMdd-HHmmss');
+  var copy = sourceFile.makeCopy(name);
+  var item = { id: Utilities.getUuid(), waktu: nowString(), file_name: name, file_id: copy.getId(), backup_url: copy.getUrl(), dibuat_oleh: session.nama || 'Admin' };
+  appendByHeaders(getBackupLogSheet(), item);
+  recordActivity(session, 'Backup database', 'Backup', copy.getId(), item);
+  return { status: 'success', backup_url: copy.getUrl(), file_id: copy.getId(), message: 'Backup database berhasil dibuat di Google Drive.' };
+}
+
 function doGet(e) {
   return makeOutput({
     status: 'locked',
@@ -3436,17 +3696,43 @@ function doPost(e) {
     // --- TAGIHAN TAMBAHAN: UANG WISUDA &amp; UANG ABSENSI ---
     if (payload.action === 'create_tagihan_tambahan') {
       var tagihanAdmin = requireAdminSession(payload);
-      return makeOutput(createTagihanTambahan(tagihanAdmin, payload.data || {}));
+      var tagihanResult = createTagihanTambahan(tagihanAdmin, payload.data || {});
+      recordActivity(tagihanAdmin, 'Membuat tagihan tambahan', 'Tagihan', tagihanResult.batch_id || '', { input: payload.data || {}, created_count: tagihanResult.created_count });
+      return makeOutput(tagihanResult);
     }
 
     if (payload.action === 'bayar_tagihan_tambahan') {
-      requireAdminSession(payload);
-      return makeOutput(bayarTagihanTambahan(payload.data || {}));
+      var bayarAdmin = requireAdminSession(payload);
+      var bayarResult = bayarTagihanTambahan(payload.data || {});
+      recordActivity(bayarAdmin, 'Mencatat pembayaran tagihan', 'Tagihan', payload.data &amp;&amp; payload.data.id || '', payload.data || {});
+      return makeOutput(bayarResult);
     }
 
     if (payload.action === 'batalkan_tagihan_tambahan') {
-      requireAdminSession(payload);
-      return makeOutput(batalkanTagihanTambahan(payload.data || {}));
+      var batalAdmin = requireAdminSession(payload);
+      var batalResult = batalkanTagihanTambahan(payload.data || {});
+      recordActivity(batalAdmin, 'Membatalkan tagihan', 'Tagihan', payload.data &amp;&amp; payload.data.id || '', payload.data || {});
+      return makeOutput(batalResult);
+    }
+
+    if (payload.action === 'submit_bukti_pembayaran') {
+      var buktiSession = requireAuthSession(payload);
+      return makeOutput(submitBuktiPembayaran(buktiSession, payload.data || {}));
+    }
+
+    if (payload.action === 'review_bukti_pembayaran') {
+      var reviewAdmin = requireAdminSession(payload);
+      return makeOutput(reviewBuktiPembayaran(reviewAdmin, payload.data || {}));
+    }
+
+    if (payload.action === 'create_backup_snapshot') {
+      var backupAdmin = requireAdminSession(payload);
+      return makeOutput(createBackupSnapshot(backupAdmin));
+    }
+
+    if (payload.action === 'get_activity_log') {
+      var logSession = requireAuthSession(payload);
+      return makeOutput({ status: 'success', data: getActivityLogForSession(logSession) });
     }
 
     // --- GALERI GOOGLE DRIVE ---
@@ -3664,6 +3950,7 @@ function doPost(e) {
         if (!createData.pin_diubah) createData.pin_diubah = 'Belum';
         appendByHeaders(sheetPasis, createData);
         sortDataRowsByFirstColumn(sheetPasis);
+        recordActivity(getAuthSession(payload.token), 'Menambah data pasis', 'Data Pasis', createData.nohp || '', createData);
         return makeOutput({ status: 'success' });
       }
 
@@ -3676,6 +3963,7 @@ function doPost(e) {
         if (rowIndex === -1) throw new Error("Data tidak ditemukan.");
 
         writeByHeaders(sheetPasis, rowIndex, data);
+        recordActivity(getAuthSession(payload.token), 'Mengubah data pasis', 'Data Pasis', targetNohp, data);
         return makeOutput({ status: 'success' });
       }
     }
@@ -3687,14 +3975,22 @@ function doPost(e) {
       if (rowDelete === -1) throw new Error("Pasis tidak ditemukan.");
 
       sheetDeletePasis.deleteRow(rowDelete);
+      recordActivity(getAuthSession(payload.token), 'Menghapus data pasis', 'Data Pasis', payload.data &amp;&amp; payload.data.nohp || '', payload.data || {});
       return makeOutput({ status: 'success' });
     }
 
     // --- AKSI PENGELUARAN ---
     if (payload.action === 'create_pengeluaran') {
-      requireAdminSession(payload);
-      appendByHeaders(getPengeluaranSheet(), payload.data || {});
-      return makeOutput({ status: 'success' });
+      var pengeluaranAdmin = requireAdminSession(payload);
+      var pengeluaranData = sanitizePengeluaranData(payload.data || {});
+      appendByHeaders(getPengeluaranSheet(), pengeluaranData);
+      recordActivity(pengeluaranAdmin, 'Menambah pengeluaran ' + pengeluaranData.sumber_dana, 'Pengeluaran', pengeluaranData.id || '', pengeluaranData);
+      return makeOutput({
+        status: 'success',
+        data: pengeluaranData,
+        saldo_dana: getNexusDanaLedger(),
+        message: 'Pengeluaran dari ' + pengeluaranData.sumber_dana + ' berhasil dicatat.'
+      });
     }
 
     if (payload.action === 'delete_pengeluaran') {
@@ -3704,6 +4000,7 @@ function doPost(e) {
       if (rowPengeluaran === -1) throw new Error("Pengeluaran tidak ditemukan.");
 
       sheetPengeluaran.deleteRow(rowPengeluaran);
+      recordActivity(getAuthSession(payload.token), 'Menghapus pengeluaran', 'Pengeluaran', payload.data &amp;&amp; payload.data.id || '', payload.data || {});
       return makeOutput({ status: 'success' });
     }
 
@@ -3711,6 +4008,7 @@ function doPost(e) {
     if (payload.action === 'create_pindah_dana') {
       requireAdminSession(payload);
       appendByHeaders(getPindahDanaSheet(), payload.data || {});
+      recordActivity(getAuthSession(payload.token), 'Mencatat serah terima kas', 'Pindah Dana', payload.data &amp;&amp; payload.data.id || '', payload.data || {});
       return makeOutput({ status: 'success' });
     }
 
@@ -3721,6 +4019,7 @@ function doPost(e) {
       if (rowPindah === -1) throw new Error("Data serah terima kas tidak ditemukan.");
 
       sheetPindah.deleteRow(rowPindah);
+      recordActivity(getAuthSession(payload.token), 'Menghapus serah terima kas', 'Pindah Dana', payload.data &amp;&amp; payload.data.id || '', payload.data || {});
       return makeOutput({ status: 'success' });
     }
 
@@ -3743,6 +4042,7 @@ function doPost(e) {
         if (!found) sheetSetting.appendRow([k, keysToUpdate[k]]);
       }
 
+      recordActivity(getAuthSession(payload.token), 'Mengubah pengaturan sistem', 'Pengaturan', 'settings', keysToUpdate);
       return makeOutput({ status: 'success' });
     }
 
@@ -3998,6 +4298,7 @@ function doPost(e) {
                             <option value="Dana Absen">Dana Absen</option>
                             <option value="Dana Lainnya">Dana Lainnya</option>
                         </select>
+                        <div id="keluar-sumber-saldo-info" class="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">Saldo sumber dana akan tampil otomatis.</div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Rincian</label>
@@ -4857,6 +5158,8 @@ function doPost(e) {
                     if (newTagihanStr !== oldTagihanStr) {
                          window.tagihanTambahanDataGlobal = jsonRes.tagihan_tambahan || [];
                          renderTagihanTambahan();
+                         updatePengeluaranSourceSummary(window.pengeluaranDataGlobal || []);
+                         perbaruiDashboard(window.pasisDataGlobal, window.pengeluaranDataGlobal, window.pindahDanaDataGlobal);
                     }
                     
                     const syncStatus = document.getElementById('sync-status');
@@ -5201,26 +5504,27 @@ function doPost(e) {
                     scrollBox.style.scrollBehavior = 'auto';
                     scrollBox.scrollTop = 0;
                     scrollBox.scrollLeft = 0;
-                    try { scrollBox.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch (error) { scrollBox.scrollTo(0, 0); }
+                    try { scrollBox.scrollTo(0, 0); } catch (error) {}
                 }
                 const activeSection = targetSection || document.querySelector('.view-section:not(.hidden):not(.view-hidden)');
                 if (activeSection) {
                     activeSection.scrollTop = 0;
                     activeSection.scrollLeft = 0;
-                    try { activeSection.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' }); } catch (error) {}
                 }
-                document.querySelectorAll('.view-section').forEach(section => {
+                document.querySelectorAll('.view-section, .overflow-y-auto, .custom-scrollbar').forEach(section => {
+                    if (section.id && section.id.startsWith('modal-')) return;
                     section.scrollTop = 0;
                     section.scrollLeft = 0;
                 });
-                try { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch (error) { window.scrollTo(0, 0); }
+                try { window.scrollTo(0, 0); } catch (error) {}
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
             };
             apply();
             requestAnimationFrame(apply);
-            setTimeout(apply, 60);
-            setTimeout(apply, 220);
+            setTimeout(apply, 80);
+            setTimeout(apply, 250);
+            setTimeout(apply, 520);
         }
 
         function switchView(targetId, targetLink) {
@@ -5830,6 +6134,9 @@ function doPost(e) {
                 }
             });
 
+            document.getElementById('keluar-sumber-dana')?.addEventListener('change', updatePengeluaranDanaSafetyUI);
+            document.getElementById('keluar-nominal')?.addEventListener('input', updatePengeluaranDanaSafetyUI);
+
             // SUBMIT PENGELUARAN
             document.getElementById('submit-pengeluaran-btn')?.addEventListener('click', async function() {
                 const tgl = document.getElementById('keluar-tanggal').value;
@@ -5838,6 +6145,7 @@ function doPost(e) {
                 const nom = parseNominal(document.getElementById('keluar-nominal').value);
 
                 if(!tgl || !sumberDana || !ket || nom <= 0) { showToast('Lengkapi semua data dengan benar!'); return; }
+                if(!updatePengeluaranDanaSafetyUI()) { showToast(`Saldo ${sumberDana} tidak cukup. Pengeluaran tidak disimpan.`); return; }
                 if(!isNexusApiConfigured()) { showToast('Isi URL Database.'); return; }
 
                 const payload = { action: 'create_pengeluaran', data: { tanggal: tgl, sumber_dana: sumberDana, keterangan: ket, nominal: nom } };
@@ -5845,8 +6153,9 @@ function doPost(e) {
 
                 try {
                     const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(withAuth(payload)) }); const json = await res.json();
-                    if(json.status === 'success') { showToast('Pengeluaran ditambahkan!'); closeModalPengeluaran(); fetchDataDariGoogleSheets(); } else showToast('Gagal.');
-                } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; }
+                    if(json.status === 'success') { showToast(json.message || 'Pengeluaran ditambahkan!'); closeModalPengeluaran(); fetchDataDariGoogleSheets(); }
+                    else showToast(json.message || 'Gagal menyimpan pengeluaran.');
+                } catch(e) { showToast('Gagal memproses pengeluaran.'); } finally { this.innerHTML = oHtml; this.disabled = false; updatePengeluaranDanaSafetyUI(); }
             });
 
 
@@ -6067,9 +6376,11 @@ function doPost(e) {
                 if(!isCuti && targetEfektif > 0 && dibayar >= targetEfektif) totalLunas++;
             });
 
-            let totalPengeluaranManual = 0;
+            const danaLedger = getNexusDanaLedger(pasisArr, window.tagihanTambahanDataGlobal || [], dataPengeluaran || []);
             const keluarArr = dataPengeluaran || [];
-            keluarArr.forEach(p => { totalPengeluaranManual += parseNominal(p.nominal); });
+            // Dashboard saldo kas hanya mengurangi pengeluaran yang benar-benar bersumber dari Dana Kas/Khas.
+            // Pengeluaran dari Dana Wisuda atau Dana Absen tidak boleh mengurangi saldo kas utama.
+            let totalPengeluaranManual = danaLedger.keluar['Dana Kas'] || 0;
 
             let totalKeluar = totalPengeluaranManual + totalRefund;
 
@@ -6079,7 +6390,7 @@ function doPost(e) {
 
             // Serah terima kas TIDAK dihitung sebagai pengeluaran kelas.
             // Refund/pengembalian dana dihitung sebagai kas keluar agar saldo kas tetap akurat.
-            let saldoAktif = totalMasuk - totalKeluar;
+            let saldoAktif = danaLedger.saldo['Dana Kas'];
             let persenTarget = totalTarget > 0 ? Math.min(Math.round((totalMasuk / totalTarget) * 100), 100) : 0;
 
             const ds = document.getElementById('dash-saldo'); if(ds) ds.textContent = formatRp(saldoAktif);
@@ -6418,7 +6729,61 @@ function doPost(e) {
             if (key.includes('absen') || key.includes('absensi')) return 'Dana Absen';
             if (key.includes('lain')) return 'Dana Lainnya';
             if (key.includes('kas') || key.includes('khas')) return 'Dana Kas';
-            return raw;
+            return 'Dana Lainnya';
+        }
+
+        function getNexusDanaLedger(dataPasis = window.pasisDataGlobal, dataTagihan = window.tagihanTambahanDataGlobal, dataPengeluaran = window.pengeluaranDataGlobal) {
+            const masuk = { 'Dana Kas': 0, 'Dana Wisuda': 0, 'Dana Absen': 0, 'Dana Lainnya': 0 };
+            const keluar = { 'Dana Kas': 0, 'Dana Wisuda': 0, 'Dana Absen': 0, 'Dana Lainnya': 0 };
+
+            (dataPasis || []).forEach(row => {
+                masuk['Dana Kas'] += parseNominal(row?.dibayar);
+                keluar['Dana Kas'] += parseNominal(row?.refund);
+            });
+
+            (dataTagihan || []).forEach(row => {
+                const status = String(row?.status || '').toLowerCase();
+                if (status === 'dibatalkan') return;
+                const jenis = String(row?.jenis || '').toLowerCase();
+                if (jenis === 'wisuda') masuk['Dana Wisuda'] += parseNominal(row?.nominal_dibayar);
+                if (jenis === 'absensi' || jenis === 'absen') masuk['Dana Absen'] += parseNominal(row?.nominal_dibayar);
+            });
+
+            (dataPengeluaran || []).forEach(row => {
+                const sumber = normalizeSumberDanaPengeluaran(row?.sumber_dana || row?.sumberDana || row?.sumber || 'Dana Kas');
+                keluar[keluar[sumber] !== undefined ? sumber : 'Dana Lainnya'] += parseNominal(row?.nominal);
+            });
+
+            const saldo = {};
+            Object.keys(masuk).forEach(key => { saldo[key] = masuk[key] - keluar[key]; });
+            return { masuk, keluar, saldo };
+        }
+
+        function getSaldoSumberDanaPengeluaran(sumberDana) {
+            const sumber = normalizeSumberDanaPengeluaran(sumberDana);
+            const ledger = getNexusDanaLedger();
+            return Number(ledger.saldo[sumber] || 0);
+        }
+
+        function updatePengeluaranDanaSafetyUI() {
+            const sumberField = document.getElementById('keluar-sumber-dana');
+            const nominalField = document.getElementById('keluar-nominal');
+            const info = document.getElementById('keluar-sumber-saldo-info');
+            const submit = document.getElementById('submit-pengeluaran-btn');
+            if (!sumberField || !info) return true;
+            const sumber = normalizeSumberDanaPengeluaran(sumberField.value || 'Dana Kas');
+            const nominal = parseNominal(nominalField?.value || 0);
+            const saldo = getSaldoSumberDanaPengeluaran(sumber);
+            const unlimited = sumber === 'Dana Lainnya';
+            const kurang = !unlimited && nominal > 0 && nominal > saldo;
+            info.className = kurang
+                ? 'mt-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700'
+                : 'mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700';
+            info.innerHTML = unlimited
+                ? '<i class="ph ph-info"></i> Dana Lainnya tidak ikut mengurangi Dana Kas, Wisuda, atau Absen.'
+                : `<i class="ph ph-shield-check"></i> Saldo ${sumber}: ${formatRp(saldo)}${nominal > 0 ? ` • Setelah pengeluaran: ${formatRp(saldo - nominal)}` : ''}`;
+            if (submit) submit.disabled = kurang;
+            return !kurang;
         }
 
         function getSumberDanaPengeluaranBadge(value) {
@@ -6433,23 +6798,18 @@ function doPost(e) {
         }
 
         function updatePengeluaranSourceSummary(data) {
-            const rows = data || [];
-            const totals = { 'Dana Kas': 0, 'Dana Wisuda': 0, 'Dana Absen': 0, 'Dana Lainnya': 0 };
-            rows.forEach(row => {
-                const sumber = normalizeSumberDanaPengeluaran(row.sumber_dana || row.sumberDana || row.sumber || 'Dana Kas');
-                const key = totals[sumber] !== undefined ? sumber : 'Dana Lainnya';
-                totals[key] += parseNominal(row.nominal);
-            });
+            const ledger = getNexusDanaLedger(window.pasisDataGlobal, window.tagihanTambahanDataGlobal, data || []);
             const map = {
-                'pengeluaran-total-kas': totals['Dana Kas'],
-                'pengeluaran-total-wisuda': totals['Dana Wisuda'],
-                'pengeluaran-total-absen': totals['Dana Absen'],
-                'pengeluaran-total-lainnya': totals['Dana Lainnya']
+                'pengeluaran-total-kas': ledger.keluar['Dana Kas'],
+                'pengeluaran-total-wisuda': ledger.keluar['Dana Wisuda'],
+                'pengeluaran-total-absen': ledger.keluar['Dana Absen'],
+                'pengeluaran-total-lainnya': ledger.keluar['Dana Lainnya']
             };
             Object.entries(map).forEach(([id, value]) => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = formatRp(value);
             });
+            updatePengeluaranDanaSafetyUI();
         }
 
         // --- RENDER TABEL PENGELUARAN (PAGINATION) ---
@@ -8200,6 +8560,7 @@ Terima kasih,
             if(!validateAdminSession(true)) return;
             document.getElementById('keluar-keterangan').value = ''; document.getElementById('keluar-nominal').value = '';
             const sumberDanaField = document.getElementById('keluar-sumber-dana'); if (sumberDanaField) sumberDanaField.value = 'Dana Kas';
+            updatePengeluaranDanaSafetyUI();
             const offset = (new Date()).getTimezoneOffset() * 60000; document.getElementById('keluar-tanggal').value = (new Date(Date.now() - offset)).toISOString().split('T')[0];
             const m = document.getElementById('modal-pengeluaran'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); document.getElementById('modal-pengeluaran-content').classList.remove('scale-95', 'opacity-0');
             setTimeout(() => document.getElementById('keluar-keterangan').focus(), 300);
