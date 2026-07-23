@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Keuangan Pasis — V34 Uang Lainnya</title>
+  <title>Keuangan Pasis — V35 Kartu, Loading & Log</title>
   <meta name="description" content="Aplikasi manajemen keuangan kelas yang aman dan terintegrasi." />
-  <meta name="application-version" content="20-uang-lainnya" />
+  <meta name="application-version" content="21-kartu-loading-log" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1956,7 +1956,7 @@
       gap: 9px;
       margin-top: 16px;
     }
-    .member-card-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .member-card-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .member-card-contact > div,
     .member-card-summary > div {
       min-width: 0;
@@ -1976,7 +1976,7 @@
       white-space: nowrap;
     }
     .member-card-summary small { display: block; margin-top: 4px; color: var(--muted); font-size: 8px; }
-    .member-history-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
+    .member-history-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
     .member-history-groups section { padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8, 13, 24, .62); }
     .member-history-groups h3 { margin-bottom: 9px; font-size: 10px; }
     .compact-history { display: flex; max-height: 230px; flex-direction: column; gap: 7px; overflow-y: auto; }
@@ -3354,10 +3354,195 @@
       .online-user-meta { display: none; }
     }
 
+
+
+    /* =========================
+       GLOBAL PROCESS LOADING
+    ========================= */
+    body.global-process-loading { overflow: hidden; }
+    .global-loading-overlay {
+      position: fixed;
+      z-index: 6500;
+      inset: 0;
+      display: grid;
+      visibility: hidden;
+      place-items: center;
+      padding: 22px;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(37, 99, 235, .23), transparent 31%),
+        rgba(2, 6, 14, .86);
+      opacity: 0;
+      backdrop-filter: blur(16px);
+      pointer-events: none;
+      transition: opacity 180ms ease, visibility 180ms ease;
+    }
+    .global-loading-overlay.show {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .global-loading-card {
+      width: min(390px, 100%);
+      padding: 28px 25px 24px;
+      border: 1px solid rgba(96, 165, 250, .24);
+      border-radius: 24px;
+      background: linear-gradient(150deg, rgba(15, 23, 42, .97), rgba(6, 11, 22, .985));
+      box-shadow: 0 34px 100px rgba(0, 0, 0, .62), 0 0 70px rgba(37, 99, 235, .1);
+      text-align: center;
+    }
+    .global-loading-emblem {
+      position: relative;
+      display: grid;
+      width: 112px;
+      height: 112px;
+      margin: 0 auto 19px;
+      place-items: center;
+    }
+    .global-loading-ring {
+      position: absolute;
+      border-style: solid;
+      border-radius: 50%;
+      animation: globalLoadingSpin 1.45s linear infinite;
+    }
+    .global-loading-ring.outer {
+      inset: 0;
+      border-width: 3px;
+      border-color: rgba(96, 165, 250, .12) rgba(96, 165, 250, .9) rgba(96, 165, 250, .12) rgba(96, 165, 250, .46);
+      box-shadow: 0 0 24px rgba(59, 130, 246, .18);
+    }
+    .global-loading-ring.inner {
+      inset: 12px;
+      border-width: 2px;
+      border-color: rgba(167, 139, 250, .82) rgba(167, 139, 250, .1) rgba(167, 139, 250, .5) rgba(167, 139, 250, .1);
+      animation-direction: reverse;
+      animation-duration: 1.05s;
+    }
+    @keyframes globalLoadingSpin { to { transform: rotate(360deg); } }
+    .global-loading-logo.brand-logo {
+      width: 66px;
+      height: 66px;
+      flex: 0 0 66px;
+      border-radius: 19px;
+      box-shadow: 0 0 32px rgba(37, 99, 235, .24), inset 0 1px 0 rgba(255,255,255,.1);
+    }
+    .global-loading-logo.brand-logo img { padding: 6px; }
+    .global-loading-logo.brand-logo svg { width: 30px; height: 30px; }
+    .global-loading-card h2 {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 18px;
+      letter-spacing: -.035em;
+    }
+    .global-loading-card p {
+      min-height: 35px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+    .global-loading-progress {
+      height: 8px;
+      margin-top: 19px;
+      overflow: hidden;
+      border: 1px solid rgba(96, 165, 250, .11);
+      border-radius: 999px;
+      background: rgba(148, 163, 184, .09);
+    }
+    .global-loading-progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2563eb, #60a5fa, #a78bfa);
+      box-shadow: 0 0 16px rgba(96, 165, 250, .55);
+      transition: width 300ms cubic-bezier(.4,0,.2,1);
+    }
+    .global-loading-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 9px;
+      color: var(--subtle);
+      font-size: 8px;
+    }
+    .global-loading-meta strong { color: #bfdbfe; font-size: 10px; }
+
+    /* Rincian Uang Lainnya pada Kartu Pasis. */
+    .member-other-details {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(8, 13, 24, .58);
+    }
+    .member-other-details-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .member-other-details-head h3 { font-size: 10px; }
+    .member-other-details-head span { color: var(--subtle); font-size: 8px; }
+    .member-other-charge-list { display: grid; gap: 8px; }
+    .member-other-charge-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(90px, .6fr)) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 11px;
+      border: 1px solid rgba(148, 163, 184, .1);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, .48);
+    }
+    .member-other-charge-item > div { min-width: 0; }
+    .member-other-charge-item span { display: block; color: var(--subtle); font-size: 7px; text-transform: uppercase; }
+    .member-other-charge-item strong { display: block; margin-top: 3px; overflow: hidden; color: #dbeafe; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .member-other-charge-item small { display: block; margin-top: 3px; color: var(--subtle); font-size: 7px; }
+    .member-other-charge-empty { padding: 15px 8px; color: var(--subtle); font-size: 9px; text-align: center; }
+
+    /* Log aktivitas admin. */
+    .activity-log-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .activity-log-summary .mini-stat { min-width: 0; }
+    .activity-log-client { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 760px) {
+      .global-loading-card { padding: 25px 19px 22px; border-radius: 21px; }
+      .global-loading-emblem { width: 104px; height: 104px; }
+      .global-loading-logo.brand-logo { width: 60px; height: 60px; flex-basis: 60px; }
+      .member-other-charge-item { grid-template-columns: 1fr 1fr; }
+      .member-other-charge-item .other-charge-title { grid-column: 1 / -1; }
+      .member-other-charge-item .badge { justify-self: start; }
+      .activity-log-summary { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 
 <body class="auth-locked">
+
+
+  <section class="global-loading-overlay" id="globalLoadingOverlay" aria-hidden="true" aria-live="polite" aria-label="Proses aplikasi sedang berjalan" hidden>
+    <article class="global-loading-card" role="status">
+      <div class="global-loading-emblem" aria-hidden="true">
+        <span class="global-loading-ring outer"></span>
+        <span class="global-loading-ring inner"></span>
+        <span class="brand-logo global-loading-logo">
+          <img id="globalLoadingLogoImage" alt="Logo aplikasi" hidden />
+          <svg id="globalLoadingLogoFallback" viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5Z"></path><path d="M8 10h8"></path><path d="M8 14h5"></path></svg>
+        </span>
+      </div>
+      <h2 id="globalLoadingTitle">Menyiapkan data</h2>
+      <p id="globalLoadingMessage">Mohon tunggu, aplikasi sedang menyelesaikan proses.</p>
+      <div class="global-loading-progress" aria-hidden="true"><span id="globalLoadingBar"></span></div>
+      <div class="global-loading-meta"><span id="globalLoadingStage">Memulai proses</span><strong id="globalLoadingPercent">0%</strong></div>
+    </article>
+  </section>
 
   <section class="login-screen" id="loginScreen" aria-label="Login Keuangan Pasis">
     <div class="login-shell">
@@ -3559,6 +3744,10 @@
         <button class="nav-btn" data-page="pengaturan" type="button">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg></span>
           <span class="nav-text">Pengaturan</span>
+        </button>
+        <button class="nav-btn" data-page="log" data-admin-log-nav type="button" hidden>
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"></path><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path><path d="m15 16 1.5 1.5L20 14"></path></svg></span>
+          <span class="nav-text">Log Aktivitas</span>
         </button>
         </nav>
       </section>
@@ -3776,6 +3965,7 @@
             <div><span>Uang Kas</span><strong id="selfCardCash">Rp0</strong><small id="selfCardCashStatus">Belum Bayar</small></div>
             <div><span>Uang Absensi</span><strong id="selfCardAttendance">Rp0</strong><small id="selfCardAttendanceStatus">Belum Bayar</small></div>
             <div><span>Uang Wisuda</span><strong id="selfCardGraduation">Rp0</strong><small id="selfCardGraduationStatus">Belum Bayar</small></div>
+            <div><span>Uang Lainnya</span><strong id="selfCardOther">Rp0</strong><small id="selfCardOtherStatus">Belum ada tagihan</small></div>
           </div>
         </article>
 
@@ -4305,6 +4495,31 @@
         </article>
       </section>
 
+
+
+      <!-- LOG AKTIVITAS ADMIN -->
+      <section class="page" id="page-log">
+        <div class="page-toolbar">
+          <div><h2>Log Aktivitas</h2><p>Audit akses dan perubahan data dari seluruh perangkat pengguna.</p></div>
+          <div class="toolbar-actions"><button class="btn btn-primary" id="refreshActivityLogsBtn" type="button">Muat Ulang Log</button></div>
+        </div>
+        <div class="activity-log-summary">
+          <div class="mini-stat"><span>Total log ditampilkan</span><strong id="activityLogCount">0</strong></div>
+          <div class="mini-stat"><span>Aktivitas berhasil</span><strong id="activityLogSuccess">0</strong></div>
+          <div class="mini-stat"><span>Aktivitas gagal</span><strong id="activityLogFailed">0</strong></div>
+        </div>
+        <article class="panel table-panel">
+          <div class="panel-head"><div><p class="panel-kicker">AUDIT MULTI-PENGGUNA</p><h3>Riwayat Akses dan Perubahan</h3><p>Log terbaru berasal dari tab SyncLogs di Google Sheets.</p></div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Status</th><th>Pesan</th><th>Revisi</th><th>Perangkat/Halaman</th></tr></thead>
+              <tbody id="activityLogTable"></tbody>
+            </table>
+            <div class="empty" id="activityLogEmpty"><strong>Belum ada log aktivitas</strong><span>Aktivitas penting akan tercatat otomatis saat aplikasi digunakan.</span></div>
+          </div>
+        </article>
+      </section>
+
       <!-- PENGATURAN -->
       <section class="page" id="page-pengaturan">
         <div class="page-toolbar">
@@ -4789,11 +5004,17 @@
           <div><span>Uang Kas</span><strong id="memberCardCashPaid">Rp0</strong><small id="memberCardCashStatus">Belum Bayar</small></div>
           <div><span>Uang Absensi</span><strong id="memberCardAttendancePaid">Rp0</strong><small id="memberCardAttendanceStatus">Belum Bayar</small></div>
           <div><span>Uang Wisuda</span><strong id="memberCardGraduationPaid">Rp0</strong><small id="memberCardGraduationStatus">Belum Bayar</small></div>
+          <div><span>Uang Lainnya</span><strong id="memberCardOtherPaid">Rp0</strong><small id="memberCardOtherStatus">Belum ada tagihan</small></div>
         </div>
+        <section class="member-other-details" id="memberCardOtherDetails">
+          <div class="member-other-details-head"><div><h3>Rincian Tagihan Uang Lainnya</h3><span>Target, pembayaran, dan sisa setiap tagihan.</span></div></div>
+          <div class="member-other-charge-list" id="memberCardOtherChargeList"></div>
+        </section>
         <div class="member-history-groups">
           <section><h3>Riwayat Uang Kas</h3><div id="memberCardCashHistory" class="compact-history"></div></section>
           <section><h3>Riwayat Uang Absensi</h3><div id="memberCardAttendanceHistory" class="compact-history"></div></section>
           <section><h3>Riwayat Uang Wisuda</h3><div id="memberCardGraduationHistory" class="compact-history"></div></section>
+          <section><h3>Riwayat Uang Lainnya</h3><div id="memberCardOtherHistory" class="compact-history"></div></section>
         </div>
         <div class="modal-actions" id="memberCardAdminActions">
           <button class="btn btn-secondary" type="button" data-close-modal="memberCardModal">Tutup</button>
@@ -4956,6 +5177,7 @@
     const APPLICATION_LOGO_FILE_NAME_KEY = "bendaharaPasisApplicationLogoFileNameV1";
     const APPLICATION_LOGO_UPDATED_KEY = "bendaharaPasisApplicationLogoUpdatedV1";
     const APPLICATION_LOGO_INLINE_KEY = "bendaharaPasisApplicationLogoInlineV1";
+    const CLIENT_INSTANCE_KEY = "bendaharaPasisClientInstanceV1";
     const AUTO_REFRESH_MS = 2000;
     const REVISION_REQUEST_TIMEOUT_MS = 6000;
     const REMOTE_SAVE_DEBOUNCE_MS = 25;
@@ -5006,6 +5228,101 @@
       const members = Array.isArray(state?.members) ? state.members : [];
       return members.find(member => Number(member?.id) === Number(memberId)) || null;
     }
+
+
+    const globalLoadingState = {
+      token: 0,
+      progress: 0,
+      timer: null,
+      visible: false
+    };
+
+    function clientInstanceId() {
+      try {
+        let value = String(localStorage.getItem(CLIENT_INSTANCE_KEY) || "").trim();
+        if (!value) {
+          value = "client-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+          localStorage.setItem(CLIENT_INSTANCE_KEY, value);
+        }
+        return value;
+      } catch {
+        return "client-session-" + Math.random().toString(36).slice(2, 10);
+      }
+    }
+
+    function setGlobalLoadingProgress(token, progress, message = "", stage = "") {
+      if (token !== globalLoadingState.token) return;
+      const normalized = Math.max(0, Math.min(100, Math.round(Number(progress) || 0)));
+      globalLoadingState.progress = normalized;
+      if ($("#globalLoadingBar")) $("#globalLoadingBar").style.width = normalized + "%";
+      if ($("#globalLoadingPercent")) $("#globalLoadingPercent").textContent = normalized + "%";
+      if (message && $("#globalLoadingMessage")) $("#globalLoadingMessage").textContent = message;
+      if (stage && $("#globalLoadingStage")) $("#globalLoadingStage").textContent = stage;
+    }
+
+    function startGlobalLoading(title = "Menyiapkan data", message = "Mohon tunggu...", initialProgress = 6) {
+      globalLoadingState.token += 1;
+      const token = globalLoadingState.token;
+      globalLoadingState.visible = true;
+      clearInterval(globalLoadingState.timer);
+      document.body.classList.add("global-process-loading");
+      const overlay = $("#globalLoadingOverlay");
+      if (overlay) {
+        overlay.hidden = false;
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+      if ($("#globalLoadingTitle")) $("#globalLoadingTitle").textContent = title;
+      setGlobalLoadingProgress(token, initialProgress, message, "Memulai proses");
+      globalLoadingState.timer = setInterval(() => {
+        if (token !== globalLoadingState.token || globalLoadingState.progress >= 88) return;
+        setGlobalLoadingProgress(token, globalLoadingState.progress + (globalLoadingState.progress < 55 ? 2 : 1));
+      }, 520);
+      appLog("Loading layar penuh dimulai", { title, token });
+      return token;
+    }
+
+    function updateGlobalLoading(token, progress, message = "", stage = "") {
+      setGlobalLoadingProgress(token, progress, message, stage);
+    }
+
+    async function finishGlobalLoading(token, message = "Proses selesai", delayMs = 260) {
+      if (token !== globalLoadingState.token) return;
+      clearInterval(globalLoadingState.timer);
+      setGlobalLoadingProgress(token, 100, message, "Selesai");
+      await new Promise(resolve => setTimeout(resolve, Math.max(0, Number(delayMs) || 0)));
+      if (token !== globalLoadingState.token) return;
+      const overlay = $("#globalLoadingOverlay");
+      if (overlay) {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+      document.body.classList.remove("global-process-loading");
+      globalLoadingState.visible = false;
+      setTimeout(() => {
+        if (overlay && !overlay.classList.contains("show")) overlay.hidden = true;
+      }, 190);
+      appLog("Loading layar penuh selesai", { token });
+    }
+
+    async function abortGlobalLoading(token, message = "Proses belum berhasil") {
+      if (token !== globalLoadingState.token) return;
+      clearInterval(globalLoadingState.timer);
+      setGlobalLoadingProgress(token, Math.max(globalLoadingState.progress, 15), message, "Terhenti");
+      await new Promise(resolve => setTimeout(resolve, 420));
+      if (token !== globalLoadingState.token) return;
+      const overlay = $("#globalLoadingOverlay");
+      if (overlay) {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+      document.body.classList.remove("global-process-loading");
+      globalLoadingState.visible = false;
+      setTimeout(() => {
+        if (overlay && !overlay.classList.contains("show")) overlay.hidden = true;
+      }, 190);
+    }
+
 
     function runAsyncInBackground(label, task, options = {}) {
       appLog(label + " dimulai");
@@ -6004,7 +6321,7 @@
 
       if ($("#brandName")) $("#brandName").textContent = organizationName;
       if ($("#loginOrganizationName")) $("#loginOrganizationName").textContent = organizationName;
-      [["loginLogoImage", "loginLogoFallback"], ["sidebarLogoImage", "sidebarLogoFallback"]].forEach(([imageId, fallbackId]) => {
+      [["loginLogoImage", "loginLogoFallback"], ["sidebarLogoImage", "sidebarLogoFallback"], ["globalLoadingLogoImage", "globalLoadingLogoFallback"]].forEach(([imageId, fallbackId]) => {
         loadLogoIntoImage($("#" + imageId), $("#" + fallbackId), logoConfig);
       });
       if ($("#loginScreen")) $("#loginScreen").setAttribute("aria-label", "Login " + organizationName);
@@ -6446,6 +6763,8 @@
       document.body.classList.toggle("maintenance-manager", isMaintenanceManager(user));
       const onlineUsersPanel = $("#onlineUsersPanel");
       if (onlineUsersPanel) onlineUsersPanel.hidden = !canViewOnlineUsers(user);
+      const activityLogNav = document.querySelector("[data-admin-log-nav]");
+      if (activityLogNav) activityLogNav.hidden = !canViewActivityLogs(user);
 
       const digitalCardMemberControl = $("#digitalCardMemberControl");
       if (digitalCardMemberControl) digitalCardMemberControl.hidden = isPasis;
@@ -6626,12 +6945,19 @@
       }
 
       setLoginStartupCheck(true, "Memeriksa keamanan sesi perangkat...");
+      const sessionLoadingToken = startGlobalLoading(
+        "Memulihkan sesi",
+        "Memverifikasi akun dan mengambil data terbaru dari Google Sheets...",
+        8
+      );
       try {
+        updateGlobalLoading(sessionLoadingToken, 22, "Sesi perangkat sedang diverifikasi...", "Verifikasi keamanan");
         // Saat online, sesi selalu diverifikasi dahulu sebelum dashboard dibuka.
         const result = await requestDatabase(
-          { action: "getSession", includeState: false },
-          { timeoutMs: STARTUP_SESSION_TIMEOUT_MS, suppressAuthHandling: true }
+          { action: "getSession", includeState: true },
+          { timeoutMs: Math.max(STARTUP_SESSION_TIMEOUT_MS, 30000), suppressAuthHandling: true }
         );
+        updateGlobalLoading(sessionLoadingToken, 72, "Data akun berhasil diterima. Menyiapkan tampilan aplikasi...", "Memuat database");
         currentAuthUser = result.user;
         markStoredAuthenticationVerified(result.user);
         await enterAuthenticatedApplication(
@@ -6640,6 +6966,7 @@
           result,
           { allowCachedInteraction: true }
         );
+        await finishGlobalLoading(sessionLoadingToken, "Data terbaru siap digunakan");
       } catch (error) {
         if (isConnectivityFailure(error) && cachedAccessAllowed) {
           // Server lambat tidak boleh mengunci pengguna yang perangkatnya masih tepercaya.
@@ -6649,6 +6976,7 @@
             null,
             { allowCachedInteraction: true, cachedSession: true }
           );
+          await finishGlobalLoading(sessionLoadingToken, "Data cache siap digunakan");
           showToast("Mode koneksi lambat", "Sesi perangkat digunakan sementara. Verifikasi server dilanjutkan otomatis.");
           return;
         }
@@ -6665,6 +6993,9 @@
           showLoginScreen(error.message || "Sesi perangkat tidak berlaku. Silakan login kembali.");
         }
       } finally {
+        if (globalLoadingState.visible && sessionLoadingToken === globalLoadingState.token) {
+          await abortGlobalLoading(sessionLoadingToken, "Sesi belum dapat dipulihkan");
+        }
         setLoginStartupCheck(false);
       }
     }
@@ -6687,11 +7018,18 @@
 
       setLoginBusy(true);
       setLoginMessage("Memverifikasi akun...", true);
+      const loginLoadingToken = startGlobalLoading(
+        "Masuk ke aplikasi",
+        "Memverifikasi username dan kata sandi...",
+        7
+      );
       try {
+        updateGlobalLoading(loginLoadingToken, 18, "Menghubungkan aplikasi ke Google Sheets...", "Menghubungi server");
         const result = await requestDatabase(
-          { action: "login", username, password, remember, includeState: false },
+          { action: "login", username, password, remember, includeState: true },
           { timeoutMs: LOGIN_REQUEST_TIMEOUT_MS }
         );
+        updateGlobalLoading(loginLoadingToken, 72, "Data pembayaran dan pengaturan sudah diterima...", "Menyiapkan data akun");
         authSessionToken = result.sessionToken;
         currentAuthUser = result.user;
         persistAuthentication(result, remember);
@@ -6702,8 +7040,11 @@
           result,
           { allowCachedInteraction: true }
         );
+        updateGlobalLoading(loginLoadingToken, 96, "Tampilan aplikasi selesai disiapkan...", "Menyelesaikan login");
+        await finishGlobalLoading(loginLoadingToken, "Semua data siap digunakan");
         if (!shouldBlockForMaintenance(result.user, result.maintenance)) showToast("Login berhasil", "Selamat datang, " + (result.user.name || result.user.username) + ".");
       } catch (error) {
+        await abortGlobalLoading(loginLoadingToken, error?.message || "Login belum berhasil");
         authSessionToken = "";
         currentAuthUser = null;
         const code = String(error?.code || "");
@@ -6995,6 +7336,12 @@
           },
           body: JSON.stringify({
             ...outgoingPayload,
+            clientMeta: {
+              clientId: clientInstanceId(),
+              page: String(currentPage || "login").slice(0, 60),
+              clientTime: new Date().toISOString(),
+              platform: String(navigator.platform || "").slice(0, 100)
+            },
             apiKey,
             ...((Object.prototype.hasOwnProperty.call(options, "sessionTokenOverride")
               ? options.sessionTokenOverride
@@ -7770,6 +8117,78 @@
         .join("");
     }
 
+
+    let activityLogs = [];
+    let activityLogsLoading = false;
+
+    function canViewActivityLogs(user = currentAuthUser) {
+      return ["admin", "it"].includes(String(user?.role || "").toLowerCase());
+    }
+
+    function activityActionLabel(action) {
+      const labels = {
+        login: "Login",
+        logout: "Logout",
+        syncDelta: "Sinkronisasi perubahan",
+        saveState: "Simpan seluruh data",
+        upsertMemberWithAccount: "Simpan anggota dan akun",
+        upsertMemberAccount: "Perbarui akun anggota",
+        prepareMemberLoginShare: "Bagikan akun WhatsApp",
+        deactivateMemberAccount: "Nonaktifkan akun",
+        changePassword: "Ganti kata sandi",
+        updateOwnBankAccount: "Ubah rekening sendiri",
+        setMaintenanceMode: "Atur maintenance",
+        uploadApplicationLogo: "Unggah logo",
+        requestPasswordReset: "Permintaan reset password",
+        reviewPasswordResetRequest: "Tinjau reset password",
+        repairSchema: "Perbaiki database"
+      };
+      return labels[String(action || "")] || String(action || "-");
+    }
+
+    function renderActivityLogs() {
+      const table = $("#activityLogTable");
+      const empty = $("#activityLogEmpty");
+      if (!table) return;
+      const rows = Array.isArray(activityLogs) ? activityLogs : [];
+      table.innerHTML = rows.map(row => {
+        const success = String(row.status || "").toUpperCase() === "SUCCESS";
+        const clientParts = [row.clientId, row.clientPage].filter(Boolean);
+        return `<tr data-search="${escapeHtml([row.timestamp, row.username, row.role, row.action, row.status, row.code, row.message, row.clientId, row.clientPage].join(" ").toLowerCase())}">
+          <td><div class="primary-cell"><strong>${escapeHtml(formatDateTimeSafe(row.timestamp, row.timestamp || "-"))}</strong><span>${Number(row.durationMs || 0) ? Number(row.durationMs) + " ms" : "-"}</span></div></td>
+          <td><div class="primary-cell"><strong>${escapeHtml(row.username || "Publik")}</strong><span>${escapeHtml(roleLabel(row.role || ""))}</span></div></td>
+          <td><strong>${escapeHtml(activityActionLabel(row.action))}</strong></td>
+          <td><span class="badge ${success ? "green" : "red"}">${success ? "Berhasil" : "Gagal"}</span><div class="primary-cell"><span>${escapeHtml(row.code || "-")}</span></div></td>
+          <td><div class="primary-cell"><strong>${escapeHtml(row.message || "-")}</strong><span>Request ${escapeHtml(String(row.requestId || "-").slice(0, 18))}</span></div></td>
+          <td>${escapeHtml(String(row.revision ?? "-"))}</td>
+          <td><div class="primary-cell activity-log-client"><strong>${escapeHtml(clientParts.join(" · ") || "-")}</strong><span>${escapeHtml(row.clientTime || "-")}</span></div></td>
+        </tr>`;
+      }).join("");
+      if (empty) empty.classList.toggle("show", rows.length === 0);
+      if ($("#activityLogCount")) $("#activityLogCount").textContent = rows.length;
+      if ($("#activityLogSuccess")) $("#activityLogSuccess").textContent = rows.filter(row => String(row.status || "").toUpperCase() === "SUCCESS").length;
+      if ($("#activityLogFailed")) $("#activityLogFailed").textContent = rows.filter(row => String(row.status || "").toUpperCase() !== "SUCCESS").length;
+    }
+
+    async function loadActivityLogs(showLoader = true) {
+      if (!canViewActivityLogs() || activityLogsLoading) return;
+      activityLogsLoading = true;
+      const token = showLoader ? startGlobalLoading("Memuat log aktivitas", "Mengambil audit akses terbaru dari Google Sheets...", 12) : 0;
+      try {
+        if (token) updateGlobalLoading(token, 34, "Membaca tab SyncLogs...", "Mengambil audit");
+        const result = await requestDatabase({ action: "getActivityLogs", limit: 250 }, { timeoutMs: DEFAULT_REQUEST_TIMEOUT_MS });
+        activityLogs = Array.isArray(result.logs) ? result.logs : [];
+        renderActivityLogs();
+        if (token) await finishGlobalLoading(token, "Log aktivitas berhasil dimuat");
+      } catch (error) {
+        appError("Memuat log aktivitas gagal", error);
+        if (token) await abortGlobalLoading(token, error?.message || "Log belum dapat dimuat");
+        showToast("Log belum dapat dimuat", error.message || "Periksa koneksi dan deployment Apps Script.");
+      } finally {
+        activityLogsLoading = false;
+      }
+    }
+
     function applySettingsToUI() {
       applyApplicationBranding(state.settings.organizationName);
       $(".profile-copy strong").textContent = authenticatedDisplayName();
@@ -7817,6 +8236,7 @@
         history: ["Riwayat <span>Pembayaran</span>", "Lihat rekam pembayaran kas, absensi, dan wisuda per Pasis."],
         laporan: ["Laporan <span>Keuangan</span>", "Susun rekap transaksi untuk periode tertentu."],
         anggota: ["Data <span>Anggota</span>", "Kelola anggota dan status pembayaran iuran."],
+        log: ["Log <span>Aktivitas</span>", "Pantau akses dan perubahan data dari seluruh perangkat."],
         pengaturan: ["Pengaturan <span>Aplikasi</span>", "Sesuaikan identitas dan preferensi sistem."]
       };
       return titles[page] || titles.overview;
@@ -7829,6 +8249,7 @@
     }
 
     function switchPage(page) {
+      if (page === "log" && !canViewActivityLogs()) page = "overview";
       if (currentAuthUser?.role === "pasis" && !["overview", "kartu", "pengeluaran", "kas", "absensi", "wisuda", "lainnya", "pengurus", "pembayaran", "history"].includes(page)) page = "overview";
       currentPage = page;
       $$(".nav-btn").forEach(button => button.classList.toggle("active", button.dataset.page === page));
@@ -7839,6 +8260,7 @@
       document.body.classList.remove("sidebar-open");
 
       if (page === "laporan") renderReport();
+      if (page === "log" && canViewActivityLogs()) void loadActivityLogs(false);
       if (page === "pengaturan" && ["admin", "it"].includes(String(currentAuthUser?.role || ""))) loadPasswordResetRequests();
       if (page === "overview") {
         setTimeout(drawChart, 60);
@@ -8476,6 +8898,8 @@
     $("#sidebarOverlay").addEventListener("click", () => document.body.classList.remove("sidebar-open"));
 
     // LOGIN
+    $("#refreshActivityLogsBtn")?.addEventListener("click", () => loadActivityLogs(true));
+
     $("#loginForm").addEventListener("submit", event => event.preventDefault());
     [$("#loginUsername"), $("#loginPassword")].forEach(input => {
       input.addEventListener("input", updateLoginSubmitState);
@@ -8775,15 +9199,23 @@
 
       if (!enabled || !member) return false;
 
+      const whatsappLoadingToken = startGlobalLoading(
+        "Menyiapkan WhatsApp",
+        "Memastikan pembayaran sudah tersimpan di Google Sheets...",
+        10
+      );
       try {
+        updateGlobalLoading(whatsappLoadingToken, 24, "Menunggu sinkronisasi data pembayaran...", "Verifikasi database");
         clearTimeout(syncTimer);
         for (let attempt = 0; attempt < 2 && isSyncPending(); attempt += 1) {
           appLog("Menunggu verifikasi Google Sheets sebelum WhatsApp", { attempt: attempt + 1, kind });
+          updateGlobalLoading(whatsappLoadingToken, 35 + attempt * 18, "Menyimpan dan memverifikasi pembayaran...", "Sinkronisasi percobaan " + (attempt + 1));
           await waitForSyncIdle(10000);
           if (isSyncPending()) await performRemoteSave(true);
         }
         await waitForSyncIdle(10000);
         if (isSyncPending()) {
+          await abortGlobalLoading(whatsappLoadingToken, "Sinkronisasi Google Sheets masih tertunda");
           await informationPopup(
             "WhatsApp belum dibuka",
             "Pembayaran sudah tersimpan di perangkat, tetapi belum berhasil diverifikasi di Google Sheets. Pesan WhatsApp tidak disiapkan agar anggota tidak menerima konfirmasi sebelum database benar-benar tersimpan."
@@ -8791,15 +9223,19 @@
           return false;
         }
 
+        updateGlobalLoading(whatsappLoadingToken, 88, "Pembayaran sudah terverifikasi. Menyiapkan pesan WhatsApp...", "Membuat pesan");
+        const preparedMessage = buildPaymentWhatsAppMessage(kind, member, payment, summary);
+        await finishGlobalLoading(whatsappLoadingToken, "Pesan WhatsApp siap", 180);
         const opened = await openPreparedWhatsAppShare({
           phone: member.phone,
           recipientName: member.name,
-          message: buildPaymentWhatsAppMessage(kind, member, payment, summary),
+          message: preparedMessage,
           title: "Kirim Pemberitahuan " + paymentNotificationName(kind)
         });
         appLog("Proses pemberitahuan WhatsApp selesai", { kind, opened: Boolean(opened) });
         return opened;
       } catch (error) {
+        await abortGlobalLoading(whatsappLoadingToken, "WhatsApp belum dapat disiapkan");
         appError("Pemberitahuan WhatsApp pembayaran gagal", error, { kind, memberId: member?.id || "" });
         showToast(
           "WhatsApp belum dapat disiapkan",
@@ -8828,13 +9264,15 @@
       if (!agreed) return;
 
       const shareButton = document.querySelector('[data-share-member-login="' + CSS.escape(String(member.id)) + '"]') || $("#shareMemberLoginBtn");
-      const originalText = shareButton?.textContent || "WhatsApp";
-      if (shareButton) {
-        shareButton.disabled = true;
-        shareButton.textContent = "Memproses...";
-      }
+      if (shareButton) shareButton.disabled = true;
+      const shareLoadingToken = startGlobalLoading(
+        "Menyiapkan akun Pasis",
+        "Membuat kata sandi sementara dan mencabut sesi lama...",
+        9
+      );
 
       try {
+        updateGlobalLoading(shareLoadingToken, 24, "Memproses keamanan akun " + member.name + "...", "Memperbarui akun");
         const result = await requestDatabase({ action: "prepareMemberLoginShare", memberId: member.id });
         const username = String(result.username || member.loginUsername || "");
         const temporaryPassword = String(result.temporaryPassword || "");
@@ -8853,11 +9291,14 @@
           "Jangan bagikan akun ini kepada orang lain."
         ].join("\n");
 
+        updateGlobalLoading(shareLoadingToken, 72, "Akun sementara berhasil dibuat. Menyiapkan pesan...", "Membuat pesan WhatsApp");
         member.loginUsername = username;
         member.loginEnabled = true;
         cacheState();
         renderAll();
 
+        updateGlobalLoading(shareLoadingToken, 90, "Akun dan pesan sudah siap dibagikan...", "Menyelesaikan proses");
+        await finishGlobalLoading(shareLoadingToken, "Akun dan pesan WhatsApp siap", 180);
         await openPreparedWhatsAppShare({
           phone: targetPhone,
           recipientName: targetName,
@@ -8866,12 +9307,10 @@
         });
         showToast("Akun berhasil diproses", "Kata sandi sementara baru sudah dibuat untuk " + targetName + ".");
       } catch (error) {
+        await abortGlobalLoading(shareLoadingToken, error?.message || "Akun belum dapat dibagikan");
         showToast("Akun belum dapat dibagikan", error.message);
       } finally {
-        if (shareButton) {
-          shareButton.disabled = false;
-          shareButton.textContent = originalText;
-        }
+        if (shareButton) shareButton.disabled = false;
       }
     }
 
@@ -11445,6 +11884,78 @@ document.body.classList.remove("sidebar-mini");
         };
       }
 
+
+      function memberOtherChargeSummaries(memberId) {
+        const charges = Array.isArray(state?.settings?.otherCharges) ? state.settings.otherCharges : [];
+        return charges.map(charge => {
+          const assignment = (Array.isArray(charge?.assignments) ? charge.assignments : []).find(item => Number(item.memberId) === Number(memberId));
+          if (!assignment) return null;
+          const target = Number(assignment.amount || 0);
+          const payments = (state.transactions || []).filter(row =>
+            Number(row.memberId) === Number(memberId) &&
+            String(row.type || "").toLowerCase() === "pemasukan" &&
+            normalizedFund(row) === "other" &&
+            String(row.category || "").trim().toLowerCase() === "uang lainnya" &&
+            String(row.period || "") === String(charge.id) &&
+            String(row.status || "").toLowerCase() === "sukses"
+          );
+          const grossPaid = sum(payments.map(row => Number(row.amount || 0)));
+          const refunded = memberRefundedAmount(memberId, "other", charge.id);
+          const paid = Math.max(0, grossPaid - refunded);
+          const remaining = Math.max(0, target - paid);
+          const status = target > 0 && remaining === 0 ? "Lunas" : paid > 0 ? "Cicil" : "Belum Bayar";
+          return { charge, target, grossPaid, refunded, paid, remaining, status, payments };
+        }).filter(Boolean).sort((a, b) => String(b.charge?.date || "").localeCompare(String(a.charge?.date || "")));
+      }
+
+      function memberOtherPaymentSummary(memberId) {
+        const charges = memberOtherChargeSummaries(memberId);
+        const target = sum(charges.map(item => item.target));
+        const paid = sum(charges.map(item => item.paid));
+        const remaining = sum(charges.map(item => item.remaining));
+        const completed = charges.filter(item => item.status === "Lunas").length;
+        const status = !charges.length ? "Tidak Ditagih" : remaining <= 0 ? "Lunas" : paid > 0 ? "Cicil" : "Belum Bayar";
+        return { charges, target, paid, remaining, completed, count: charges.length, status };
+      }
+
+      function memberOtherHistoryEntries(memberId) {
+        const entries = [];
+        memberOtherChargeSummaries(memberId).forEach(item => {
+          item.payments.forEach(payment => entries.push({
+            ...payment,
+            period: item.charge?.title || payment.period,
+            isRefund: false
+          }));
+          memberRefundTransactions(memberId, "other", item.charge?.id).forEach(refund => entries.push({
+            id: refund.id,
+            memberId: refund.memberId,
+            period: item.charge?.title || refund.period,
+            date: refund.date,
+            amount: refund.amount,
+            note: refund.note || "Refund Uang Lainnya",
+            isRefund: true
+          }));
+        });
+        return entries.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || Number(b.id || 0) - Number(a.id || 0));
+      }
+
+      function renderMemberOtherChargeDetails(memberId) {
+        const list = $("#memberCardOtherChargeList");
+        const details = $("#memberCardOtherDetails");
+        if (!list || !details) return;
+        const summaries = memberOtherChargeSummaries(memberId);
+        details.hidden = summaries.length === 0;
+        list.innerHTML = summaries.length ? summaries.map(item => `
+          <div class="member-other-charge-item">
+            <div class="other-charge-title"><span>Tagihan</span><strong>${escapeHtml(item.charge?.title || "Uang Lainnya")}</strong><small>${item.charge?.dueDate ? "Batas " + formatDate(item.charge.dueDate) : "Tanpa batas tanggal"}</small></div>
+            <div><span>Target</span><strong>${formatMoney(item.target)}</strong></div>
+            <div><span>Dibayar</span><strong class="money in">${formatMoney(item.paid)}</strong></div>
+            <div><span>Sisa</span><strong>${formatMoney(item.remaining)}</strong></div>
+            <span class="badge ${item.status === "Lunas" ? "green" : item.status === "Cicil" ? "amber" : "red"}">${item.status}</span>
+          </div>
+        `).join("") : '<div class="member-other-charge-empty">Pasis ini belum memiliki tagihan Uang Lainnya.</div>';
+      }
+
       function formatHistoryRows(rows, fund = "") {
         if (!rows.length) return '<div class="compact-history-empty">Belum ada pembayaran atau refund.</div>';
         return rows.map(entry => `
@@ -11537,6 +12048,13 @@ document.body.classList.remove("sidebar-mini");
           $("#" + paidId).textContent = formatMoney(summary.paid);
           $("#" + statusId).textContent = fund === "attendance" ? summary.status : summary.status + " · sisa " + formatMoney(summary.remaining);
         });
+        const otherSummary = memberOtherPaymentSummary(member.id);
+        if ($("#selfCardOther")) $("#selfCardOther").textContent = formatMoney(otherSummary.paid);
+        if ($("#selfCardOtherStatus")) {
+          $("#selfCardOtherStatus").textContent = otherSummary.count
+            ? otherSummary.status + " · " + otherSummary.count + " tagihan · sisa " + formatMoney(otherSummary.remaining)
+            : "Belum ada tagihan";
+        }
         $("#openSelfCardBtn").dataset.viewMemberCard = member.id;
       }
 
@@ -11549,6 +12067,7 @@ document.body.classList.remove("sidebar-mini");
         const cash = memberPaymentSummary(member.id, "cash");
         const attendance = memberPaymentSummary(member.id, "attendance");
         const graduation = memberPaymentSummary(member.id, "graduation");
+        const other = memberOtherPaymentSummary(member.id);
 
         $("#memberCardAvatar").textContent = userInitials(member.name);
         $("#memberCardName").textContent = member.name;
@@ -11575,6 +12094,13 @@ document.body.classList.remove("sidebar-mini");
         $("#memberCardAttendanceStatus").textContent = attendance.status;
         $("#memberCardGraduationPaid").textContent = formatMoney(graduation.paid);
         $("#memberCardGraduationStatus").textContent = graduation.status + " · sisa " + formatMoney(graduation.remaining);
+        if ($("#memberCardOtherPaid")) $("#memberCardOtherPaid").textContent = formatMoney(other.paid);
+        if ($("#memberCardOtherStatus")) {
+          $("#memberCardOtherStatus").textContent = other.count
+            ? other.status + " · " + other.count + " tagihan · sisa " + formatMoney(other.remaining)
+            : "Belum ada tagihan";
+        }
+        renderMemberOtherChargeDetails(member.id);
 
         $("#memberCardCashHistory").innerHTML = formatHistoryRows(
           memberFundHistoryEntries(member.id, "cash"),
@@ -11586,6 +12112,12 @@ document.body.classList.remove("sidebar-mini");
         $("#memberCardGraduationHistory").innerHTML = formatHistoryRows(
           memberFundHistoryEntries(member.id, "graduation")
         );
+        if ($("#memberCardOtherHistory")) {
+          $("#memberCardOtherHistory").innerHTML = formatHistoryRows(
+            memberOtherHistoryEntries(member.id),
+            "other"
+          );
+        }
 
         openModal("memberCardModal");
       }
