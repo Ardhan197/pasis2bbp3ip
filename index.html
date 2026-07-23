@@ -6785,6 +6785,12 @@
     }
 
     async function enterAuthenticatedApplication(user, maintenance = null, bootstrapResult = null, options = {}) {
+      if (options.requireRemoteState && (!bootstrapResult?.state || typeof bootstrapResult.state !== "object")) {
+        const error = new Error("Data aplikasi belum lengkap. Dashboard tidak dibuka agar tidak tampil kosong.");
+        error.code = "DATA_BOOTSTRAP_MISSING";
+        throw error;
+      }
+
       authGeneration += 1;
       const generation = authGeneration;
       clearInterval(autoRefreshTimer);
@@ -6803,7 +6809,9 @@
       const cachedPayloadVersion = Number(localStorage.getItem(scopedStorageKey(PAYLOAD_VERSION_KEY)) || 0);
       const cachedSnapshotAvailable = cachedPayloadVersion === STATE_PAYLOAD_VERSION &&
         Boolean(localStorage.getItem(scopedStorageKey(STORAGE_KEY)));
-      state = loadState();
+      // Jika server sudah mengirim state lengkap, jangan membaca cache lama terlebih dahulu.
+      // Ini mempercepat first paint dan mencegah dashboard sempat memakai data kosong/stale.
+      state = bootstrapResult?.state ? cloneDefault() : loadState();
 
       remoteRevision = cachedPayloadVersion === STATE_PAYLOAD_VERSION
         ? Number(localStorage.getItem(scopedStorageKey(REVISION_KEY))) || 0
@@ -6829,6 +6837,9 @@
 
       hideMaintenanceScreen();
       switchPage("overview");
+      // Beri browser kesempatan menyelesaikan layout dengan data yang sudah dirender
+      // sebelum layar login/loading ditutup.
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       document.body.classList.remove("auth-locked");
       $("#loginScreen")?.classList.add("hidden");
       setLoginMessage("");
@@ -6953,18 +6964,20 @@
       try {
         updateGlobalLoading(sessionLoadingToken, 22, "Sesi perangkat sedang diverifikasi...", "Verifikasi keamanan");
         // Saat online, sesi selalu diverifikasi dahulu sebelum dashboard dibuka.
-        const result = await requestDatabase(
+        let result = await requestBootstrapWithRetry(
           { action: "getSession", includeState: true },
-          { timeoutMs: Math.max(STARTUP_SESSION_TIMEOUT_MS, 30000), suppressAuthHandling: true }
+          { timeoutMs: Math.max(STARTUP_SESSION_TIMEOUT_MS, 30000), suppressAuthHandling: true },
+          sessionLoadingToken
         );
-        updateGlobalLoading(sessionLoadingToken, 72, "Data akun berhasil diterima. Menyiapkan tampilan aplikasi...", "Memuat database");
+        result = await ensureBootstrapState(result, sessionLoadingToken, authSessionToken);
+        updateGlobalLoading(sessionLoadingToken, 78, "Data akun berhasil diterima. Menyiapkan tampilan aplikasi...", "Memuat database");
         currentAuthUser = result.user;
         markStoredAuthenticationVerified(result.user);
         await enterAuthenticatedApplication(
           result.user,
           result.maintenance,
           result,
-          { allowCachedInteraction: true }
+          { allowCachedInteraction: true, requireRemoteState: true }
         );
         await finishGlobalLoading(sessionLoadingToken, "Data terbaru siap digunakan");
       } catch (error) {
@@ -7025,11 +7038,13 @@
       );
       try {
         updateGlobalLoading(loginLoadingToken, 18, "Menghubungkan aplikasi ke Google Sheets...", "Menghubungi server");
-        const result = await requestDatabase(
+        let result = await requestBootstrapWithRetry(
           { action: "login", username, password, remember, includeState: true },
-          { timeoutMs: LOGIN_REQUEST_TIMEOUT_MS }
+          { timeoutMs: LOGIN_REQUEST_TIMEOUT_MS },
+          loginLoadingToken
         );
-        updateGlobalLoading(loginLoadingToken, 72, "Data pembayaran dan pengaturan sudah diterima...", "Menyiapkan data akun");
+        result = await ensureBootstrapState(result, loginLoadingToken, result.sessionToken);
+        updateGlobalLoading(loginLoadingToken, 78, "Data pembayaran dan pengaturan sudah diterima...", "Menyiapkan data akun");
         authSessionToken = result.sessionToken;
         currentAuthUser = result.user;
         persistAuthentication(result, remember);
@@ -7038,7 +7053,7 @@
           result.user,
           result.maintenance,
           result,
-          { allowCachedInteraction: true }
+          { allowCachedInteraction: true, requireRemoteState: true }
         );
         updateGlobalLoading(loginLoadingToken, 96, "Tampilan aplikasi selesai disiapkan...", "Menyelesaikan login");
         await finishGlobalLoading(loginLoadingToken, "Semua data siap digunakan");
@@ -7055,7 +7070,9 @@
           ACCOUNT_PASSWORD_NOT_SET: "Kata sandi akun belum tersimpan dengan benar. Admin perlu membuat ulang kata sandi.",
           DUPLICATE_USERNAME_RECORD: "Username tercatat lebih dari satu kali di database. Admin perlu memperbaiki data akun.",
           ACCOUNT_NOT_LINKED: error.message || "Akun Pasis belum terhubung dengan data anggota.",
-          LOGIN_BUSY: error.message || "Server sedang sibuk. Coba kembali beberapa saat lagi."
+          LOGIN_BUSY: error.message || "Server sedang sibuk. Aplikasi sudah mencoba ulang secara otomatis.",
+          LOGIN_RETRYABLE: error.message || "Antrian login masih padat. Silakan tekan Masuk sekali lagi.",
+          DATA_BOOTSTRAP_MISSING: error.message || "Data aplikasi belum lengkap sehingga dashboard tidak dibuka."
         };
         setLoginMessage(safeMessages[code] || error.message || "Login gagal.");
         if (code === "INVALID_CREDENTIALS") {
@@ -7208,6 +7225,96 @@
 
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function isBootstrapRetryableError(error) {
+      const code = String(error?.code || "");
+      return ["LOGIN_BUSY", "LOGIN_RETRYABLE", "LOCK_TIMEOUT", "REQUEST_IN_PROGRESS"].includes(code);
+    }
+
+    async function requestBootstrapWithRetry(payload, options = {}, loadingToken = 0) {
+      const delays = [0, 260, 650, 1250];
+      let lastError = null;
+
+      for (let attempt = 0; attempt < delays.length; attempt += 1) {
+        if (delays[attempt] > 0) {
+          const jitter = Math.floor(Math.random() * 140);
+          await sleep(delays[attempt] + jitter);
+        }
+
+        try {
+          if (loadingToken && attempt > 0) {
+            updateGlobalLoading(
+              loadingToken,
+              Math.min(56, 20 + attempt * 9),
+              "Server sedang menyelesaikan antrean singkat. Mencoba kembali otomatis...",
+              "Percobaan " + (attempt + 1)
+            );
+          }
+          return await requestDatabase(payload, options);
+        } catch (error) {
+          lastError = error;
+          if (!isBootstrapRetryableError(error) || attempt === delays.length - 1) throw error;
+          appLog("Request bootstrap akan dicoba ulang", {
+            action: String(payload?.action || "unknown"),
+            attempt: attempt + 1,
+            code: String(error?.code || "")
+          });
+        }
+      }
+
+      throw lastError || new Error("Data awal aplikasi belum dapat dimuat.");
+    }
+
+    async function ensureBootstrapState(result, loadingToken = 0, sessionTokenOverride = "") {
+      if (result?.state && typeof result.state === "object") return result;
+
+      const token = String(sessionTokenOverride || result?.sessionToken || authSessionToken || "");
+      if (!token) {
+        const error = new Error("Server belum mengirim data aplikasi dan token sesi tidak tersedia.");
+        error.code = "DATA_BOOTSTRAP_MISSING";
+        throw error;
+      }
+
+      if (loadingToken) {
+        updateGlobalLoading(
+          loadingToken,
+          58,
+          "Sesi berhasil. Mengambil seluruh transaksi, anggota, dan pengaturan...",
+          "Memuat database"
+        );
+      }
+
+      const stateResult = await requestBootstrapWithRetry(
+        {
+          action: "getState",
+          knownRevision: -1,
+          knownScope: "",
+          knownPayloadVersion: 0,
+          forceRefresh: true
+        },
+        {
+          timeoutMs: Math.max(LOGIN_REQUEST_TIMEOUT_MS, 30000),
+          suppressAuthHandling: true,
+          sessionTokenOverride: token
+        },
+        loadingToken
+      );
+
+      if (!stateResult?.state || typeof stateResult.state !== "object") {
+        const error = new Error("Google Sheets belum mengirim payload data yang lengkap. Dashboard tidak dibuka agar tidak tampil kosong.");
+        error.code = "DATA_BOOTSTRAP_MISSING";
+        throw error;
+      }
+
+      return {
+        ...result,
+        ...stateResult,
+        sessionToken: result?.sessionToken || token,
+        expiresAt: result?.expiresAt || "",
+        maintenance: stateResult?.maintenance || result?.maintenance || null,
+        user: stateResult?.user || result?.user || null
+      };
     }
 
     function buildDatabaseErrorFromResult(result, fallbackMessage = "Database Google Sheets tidak dapat diakses.") {
@@ -7953,7 +8060,11 @@
 
     async function initializeDatabaseSync(generation = authGeneration) {
       if (!authSessionToken || generation !== authGeneration) return;
-      await loadRemoteState(false, true);
+      // Login/getSession sudah membawa state lengkap. Hindari request getState kedua
+      // yang sebelumnya langsung membebani server saat banyak pengguna masuk bersamaan.
+      if (!remoteLoaded || isSyncPending()) {
+        await loadRemoteState(false, true);
+      }
       if (generation !== authGeneration) return;
 
       if (currentAuthUser?.role !== "pasis" && remoteLoaded && navigator.onLine) {
