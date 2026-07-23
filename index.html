@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Keuangan Pasis</title>
+  <title>Keuangan Pasis — V37 Mobile Saldo Notch</title>
   <meta name="description" content="Aplikasi manajemen keuangan kelas yang aman dan terintegrasi." />
-  <meta name="application-version" content="21-kartu-loading-log" />
+  <meta name="application-version" content="23-mobile-saldo-notch" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -2850,7 +2850,9 @@
        Hanya aktif pada tablet kecil dan smartphone.
        ========================================================= */
     .mobile-quick-actions,
-    .mobile-app-dock { display: none; }
+    .mobile-app-dock,
+    .mobile-balance-date,
+    .mobile-balance-funds { display: none; }
 
     @media (max-width: 768px) {
       :root {
@@ -3005,6 +3007,137 @@
         border: 1px solid rgba(255, 255, 255, .12);
         background: rgba(255, 255, 255, .11);
         color: #eff6ff;
+      }
+
+      /* Rincian seluruh buku dana disatukan ke kartu Total Saldo pada mobile. */
+      #page-overview > .fund-overview-grid {
+        display: none;
+      }
+
+      #page-overview .stats .stat:first-child {
+        min-height: 310px;
+      }
+
+      /* Lekukan khas pada sisi kanan atas seperti kartu referensi.
+         Area gelap ini bukan kotak tambahan, tetapi potongan visual dari kartu. */
+      #page-overview .stats .stat:first-child::before {
+        position: absolute;
+        z-index: 1;
+        top: -1px;
+        right: -1px;
+        width: 64%;
+        height: 44px;
+        border-bottom-left-radius: 46px;
+        background:
+          linear-gradient(180deg, rgba(7, 17, 32, .995), rgba(7, 16, 30, .985));
+        box-shadow:
+          -10px 12px 24px rgba(1, 8, 22, .12),
+          inset 0 -1px 0 rgba(96, 165, 250, .05);
+        content: "";
+        pointer-events: none;
+      }
+
+      #page-overview .stats .stat:first-child .stat-top {
+        position: relative;
+        z-index: 3;
+        min-height: 31px;
+        align-items: flex-start;
+      }
+
+      .mobile-balance-head {
+        display: flex;
+        width: 58%;
+        min-width: 0;
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 2px;
+        padding: 1px 2px 0 12px;
+      }
+
+      .mobile-balance-date {
+        display: block;
+        color: rgba(239, 246, 255, .72);
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .02em;
+      }
+
+      #page-overview .stats .stat:first-child .mobile-balance-head .stat-period {
+        color: rgba(239, 246, 255, .9);
+      }
+
+      .mobile-balance-funds {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 17px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, .14);
+      }
+
+      .mobile-balance-fund {
+        display: flex;
+        min-width: 0;
+        min-height: 49px;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 10px;
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 13px;
+        background: rgba(5, 18, 45, .20);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
+        backdrop-filter: blur(8px);
+      }
+
+      .mobile-balance-fund:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .mobile-balance-fund i {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 8px;
+        border-radius: 50%;
+        background: #dbeafe;
+        box-shadow: 0 0 12px rgba(219, 234, 254, .55);
+      }
+
+      .mobile-balance-fund i.general { background: #86efac; box-shadow: 0 0 12px rgba(134, 239, 172, .55); }
+      .mobile-balance-fund i.cash { background: #bfdbfe; box-shadow: 0 0 12px rgba(191, 219, 254, .6); }
+      .mobile-balance-fund i.attendance { background: #d8b4fe; box-shadow: 0 0 12px rgba(216, 180, 254, .55); }
+      .mobile-balance-fund i.graduation { background: #fde68a; box-shadow: 0 0 12px rgba(253, 230, 138, .55); }
+      .mobile-balance-fund i.other { background: #fda4af; box-shadow: 0 0 12px rgba(253, 164, 175, .55); }
+
+      .mobile-balance-fund div {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+      }
+
+      .mobile-balance-fund span {
+        overflow: hidden;
+        color: rgba(239, 246, 255, .66);
+        font-size: 7px;
+        font-weight: 700;
+        letter-spacing: .03em;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .mobile-balance-fund strong {
+        display: block;
+        margin-top: 2px;
+        overflow: hidden;
+        color: #fff;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: clamp(11px, 3.4vw, 14px);
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       #page-overview .stats .stat:not(:first-child) {
@@ -3833,10 +3966,36 @@
           <article class="stat featured">
             <div class="stat-top">
               <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"></rect><path d="M16 11h5v4h-5a2 2 0 1 1 0-4Z"></path></svg></div>
-              <span class="stat-period">Saldo berjalan</span>
+              <div class="mobile-balance-head">
+                <span class="stat-period">Saldo berjalan</span>
+                <span class="mobile-balance-date" id="mobileBalanceDate">-</span>
+              </div>
             </div>
             <div class="stat-body"><p>Total Saldo Tersedia Semua Dana</p><h3 id="overviewBalance">Rp0</h3></div>
             <div class="stat-foot"><span class="trend up">Terpisah</span><span>rincian saldo tersedia per buku dana</span></div>
+
+            <div class="mobile-balance-funds" aria-label="Rincian saldo seluruh dana">
+              <div class="mobile-balance-fund">
+                <i class="general"></i>
+                <div><span>Dana Umum</span><strong id="overviewMobileGeneralFundBalance">Rp0</strong></div>
+              </div>
+              <div class="mobile-balance-fund">
+                <i class="cash"></i>
+                <div><span>Dana Kas</span><strong id="overviewMobileCashFundBalance">Rp0</strong></div>
+              </div>
+              <div class="mobile-balance-fund">
+                <i class="attendance"></i>
+                <div><span>Dana Absensi</span><strong id="overviewMobileAttendanceFundBalance">Rp0</strong></div>
+              </div>
+              <div class="mobile-balance-fund">
+                <i class="graduation"></i>
+                <div><span>Dana Wisuda</span><strong id="overviewMobileGraduationFundBalance">Rp0</strong></div>
+              </div>
+              <div class="mobile-balance-fund">
+                <i class="other"></i>
+                <div><span>Dana Lainnya</span><strong id="overviewMobileOtherFundBalance">Rp0</strong></div>
+              </div>
+            </div>
           </article>
 
           <article class="stat">
@@ -12079,6 +12238,7 @@ document.body.classList.remove("sidebar-mini");
 
       function renderFundLedgers() {
         [
+          ["general", "general"],
           ["cash", "cash"],
           ["attendance", "attendance"],
           ["graduation", "graduation"],
@@ -12098,6 +12258,8 @@ document.body.classList.remove("sidebar-mini");
           if (overviewIncome) overviewIncome.textContent = formatMoney(stats.income);
           if (overviewExpense) overviewExpense.textContent = formatMoney(stats.expense);
           if (overviewBalance) overviewBalance.textContent = formatMoney(stats.balance);
+          const mobileOverviewBalance = $("#overviewMobile" + overviewPrefix + "FundBalance");
+          if (mobileOverviewBalance) mobileOverviewBalance.textContent = formatMoney(stats.balance);
           const alert = $("#overview" + overviewPrefix + "FundAlert");
           if (alert) {
             alert.textContent = stats.pendingExpense > 0
@@ -12112,6 +12274,9 @@ document.body.classList.remove("sidebar-mini");
             card.classList.toggle("negative", stats.balance < 0);
           }
         });
+
+        const mobileBalanceDate = $("#mobileBalanceDate");
+        if (mobileBalanceDate) mobileBalanceDate.textContent = formatDate(toISODate(new Date()));
       }
 
       function renderPasisSelfCard() {
